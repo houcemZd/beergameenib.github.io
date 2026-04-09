@@ -636,6 +636,30 @@ class GameConsumer(AsyncWebsocketConsumer):
     # ── DB helpers ────────────────────────────────────────────────────────────
 
     @database_sync_to_async
+    def _get_factory_distributor_order(self):
+        """
+        Return the sum of distributor PipelineOrders arriving at the factory
+        this week (current_week + 1) that have not yet been fulfilled.
+        Used during PHASE_RECEIVE reconnect for the factory role so the
+        phase_receive panel shows the correct incoming demand (not the
+        factory's own production-request quantity).
+        """
+        from .models import PipelineOrder, GameSession as GS
+        session = GS.objects.get(id=self.session_id)
+        week    = session.current_week + 1
+        factory_player = session.players.filter(role='factory').first()
+        if not factory_player:
+            return 0
+        distributor = factory_player.get_downstream()   # distributor
+        if not distributor:
+            return 0
+        return sum(
+            o.quantity for o in PipelineOrder.objects.filter(
+                sender=distributor, arrives_on_week=week, fulfilled=False
+            )
+        )
+
+    @database_sync_to_async
     def _get_player_session(self):
         try:
             return PlayerSession.objects.select_related('game_session').get(
