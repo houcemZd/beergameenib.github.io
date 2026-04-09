@@ -799,6 +799,7 @@ const SESSION_ID = {{ session.id }};
 const ROLES  = ['customer','retailer','wholesaler','distributor','factory'];
 const COLORS = {retailer:'#f5c842',wholesaler:'#3b82f6',distributor:'#a855f7',factory:'#22c55e'};
 const EMOJIS = {customer:'👤',retailer:'🛒',wholesaler:'🏪',distributor:'🚚',factory:'🏭'};
+const EMPTY_SLOT = '·';   // sentinel displayed in empty board slots
 
 let ws, chart;
 let gameStarted = false;
@@ -1303,7 +1304,8 @@ function animateNum(el, newVal, prefix='', duration=380) {
   if (!el) return;
   const to = parseFloat(newVal);
   if (isNaN(to)) { el.textContent = prefix + (newVal ?? '—'); return; }
-  const from = parseFloat(el.dataset.numVal ?? el.textContent.replace(/[^0-9.\-]/g, '')) || 0;
+  // Use stored value as starting point; fall back to 0 (avoids parsing formatted text).
+  const from = el.dataset.numVal !== undefined ? parseFloat(el.dataset.numVal) : 0;
   el.dataset.numVal = to;
   if (from === to) { el.textContent = prefix + to; return; }
   const startTime = performance.now();
@@ -1325,7 +1327,9 @@ function sweepBoard() {
         const el = document.getElementById(id);
         if (!el) return;
         el.classList.remove('sweeping');
-        void el.offsetWidth;          // force reflow so animation restarts
+        // Reading offsetWidth forces a style recalculation so the CSS animation
+        // restarts cleanly even if the class was just removed above.
+        void el.offsetWidth;
         el.classList.add('sweeping');
         el.addEventListener('animationend', () => el.classList.remove('sweeping'), {once: true});
       }, i * 60);
@@ -1370,7 +1374,7 @@ function setBoxVal(id, v) {
   const box = document.getElementById(id);
   if (!box) return;
   const val = box.querySelector('.bgb-v');
-  if (val) val.textContent = (v == null) ? '·' : v;
+  if (val) val.textContent = (v == null) ? EMPTY_SLOT : v;
 }
 
 function setInv(prefix, inv, blg) {
@@ -1392,14 +1396,14 @@ function setSlot(id, item, cls) {
   const box = document.getElementById(id);
   if (!box) return;
   const v = box.querySelector('.bgb-v');
-  const oldVal = v ? v.textContent : '·';
+  const oldVal = v ? v.textContent : EMPTY_SLOT;
   box.className     = 'bgb-slot ' + (cls || '');
   box.style.opacity = '';
   box.style.filter  = '';
   if (item) {
     const newVal = String(item.quantity);
     if (v) {
-      if (oldVal !== newVal && oldVal !== '·' && newVal !== '·') {
+      if (oldVal !== newVal && oldVal !== EMPTY_SLOT && newVal !== EMPTY_SLOT) {
         // Value changed this week — pop it to draw attention
         v.textContent = newVal;
         v.classList.remove('anim-val-pop');
@@ -1412,7 +1416,7 @@ function setSlot(id, item, cls) {
     }
     if (item.weeks_away === 0) box.classList.add('arriving');
   } else {
-    if (v) v.textContent = '·';
+    if (v) v.textContent = EMPTY_SLOT;
   }
 }
 
@@ -1429,7 +1433,7 @@ function blankSlot(id) {
   box.className     = 'bgb-slot';
   box.style.opacity = '0.18';
   box.style.filter  = '';
-  if (v) v.textContent = '·';
+  if (v) v.textContent = EMPTY_SLOT;
 }
 
 function blankInv(prefix) {

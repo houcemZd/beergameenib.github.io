@@ -507,7 +507,9 @@ def results(request, session_id):
     total_cost = sum(p.total_cost for p in players)
     demand_history = list(CustomerDemand.objects.filter(session=session).order_by('week'))
     winner_role = min(players, key=lambda p: p.total_cost).role if players else None
-    bullwhip_max = max(max(bullwhip.values(), default=1), 1) if bullwhip else 1
+    # Use max(actual max ratio, 5) so the bar scale is consistent across sessions
+    # and the ratio=1 baseline marker always appears at ≤20% of the track width.
+    bullwhip_max = max(max(bullwhip.values(), default=1), 5) if bullwhip else 5
     return render(request, 'game/results.html', {
         'session': session, 'players': players,
         'chart_data': chart_data, 'bullwhip': bullwhip,
