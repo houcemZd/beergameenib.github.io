@@ -125,14 +125,26 @@ def open_week(session):
         if role == 'retailer':
             order_qty = customer_qty
         elif role == 'factory':
-            # Factory's "incoming order" = the production request it placed last week
-            # stored as a self-directed PipelineOrder with arrives_on_week == week
+            # Production request arriving this week (factory's own 1-week self-directed order).
+            # Stored so apply_receive can convert it into actual production.
             pending_requests = PipelineOrder.objects.filter(
                 sender=player,
                 arrives_on_week=week,
                 fulfilled=False,
             )
             order_qty = sum(o.quantity for o in pending_requests)
+            staging[role]['production_request'] = order_qty
+
+            # Distributor's real order arriving at the factory this week (2-week order delay).
+            # This is what the factory will actually ship in Phase 2.
+            downstream = player.get_downstream()  # distributor
+            if downstream:
+                dist_arriving = PipelineOrder.objects.filter(
+                    sender=downstream, arrives_on_week=week, fulfilled=False
+                )
+                staging[role]['distributor_order'] = sum(o.quantity for o in dist_arriving)
+            else:
+                staging[role]['distributor_order'] = 0
         else:
             downstream = player.get_downstream()
             if downstream:
@@ -157,6 +169,9 @@ def open_week(session):
             s = staging.get(ps.role, {})
             ps.turn_phase           = PlayerSession.PHASE_RECEIVE
             ps.pending_received_qty = s.get('received', 0)
+            # For factory: store the production_request in pending_order_qty so
+            # apply_receive can find and convert it; apply_receive will overwrite
+            # it with the distributor's real order (for Phase 2 display + reconnect).
             ps.pending_order_qty    = s.get('order_qty', 0)
             ps.pending_ship_qty     = None
             ps.pending_order        = None
@@ -208,6 +223,7 @@ def apply_receive(ps):
     player.save(update_fields=['inventory'])
 
     production_started = 0
+    distributor_order  = 0
     if ps.role == 'factory':
         # ── B: Convert last week's production request into actual production ──
         pending_requests = PipelineOrder.objects.filter(
@@ -225,13 +241,26 @@ def apply_receive(ps):
             )
         pending_requests.update(fulfilled=True)
 
-        # Stage the production_started qty so the consumer can display it
-        ps.pending_received_qty = production_started  # what started production (was requested)
-        # pending_received_qty now means "production started this week"
-        # The actual units received (from 2 weeks ago) are in `received`
+        # Peek at the distributor's order arriving this week so the Phase 2
+        # ship panel shows the correct demand (not the production request).
+        # apply_ship will re-read and mark these fulfilled later.
+        downstream = player.get_downstream()  # distributor
+        if downstream:
+            dist_orders = PipelineOrder.objects.filter(
+                sender=downstream, arrives_on_week=week, fulfilled=False
+            )
+            distributor_order = sum(o.quantity for o in dist_orders)
+
+        # Overwrite pending_order_qty with the distributor's real order so:
+        # a) phase_ship panel (sent below) shows correct demand, and
+        # b) reconnect in PHASE_SHIP also sees the correct demand.
+        ps.pending_order_qty = distributor_order
 
     ps.turn_phase = PlayerSession.PHASE_SHIP
-    ps.save(update_fields=['turn_phase', 'pending_received_qty'])
+    save_fields = ['turn_phase', 'pending_received_qty']
+    if ps.role == 'factory':
+        save_fields.append('pending_order_qty')
+    ps.save(update_fields=save_fields)
 
     # Refresh retailer's demand if customer already submitted
     if ps.role == 'retailer' and session.pending_customer_demand is not None:
@@ -240,7 +269,8 @@ def apply_receive(ps):
 
     return {
         'received':           received,            # units entering inventory now
-        'production_started': production_started,  # units entering production delay now
+        'production_started': production_started,  # units entering production delay now (factory)
+        'distributor_order':  distributor_order,   # distributor's demand arriving this week (factory)
         'new_inventory':      player.inventory,
         'backlog':            player.backlog,
     }

@@ -150,13 +150,23 @@ class GameConsumer(AsyncWebsocketConsumer):
             pass
 
         elif phase == PlayerSession.PHASE_RECEIVE:
-            # Restore Phase 1 panel
+            # Restore Phase 1 panel.
+            # For factory: demand_incoming must be the distributor's arriving order
+            # (not the production request in pending_order_qty which apply_receive hasn't run yet).
+            if ps.role == 'factory':
+                dist_order = await self._get_factory_distributor_order()
+                demand_incoming    = dist_order
+                production_request = ps.pending_order_qty   # factory's own request arriving
+            else:
+                demand_incoming    = ps.pending_order_qty
+                production_request = None
+
             await self.send(text_data=json.dumps({
-                'type':             'phase_receive',
+                'type':               'phase_receive',
                 **state,
-                'pending_received': ps.pending_received_qty,
-                'demand_incoming':  ps.pending_order_qty,
-                'production_request': ps.pending_order_qty if ps.role == 'factory' else None,
+                'pending_received':   ps.pending_received_qty,
+                'demand_incoming':    demand_incoming,
+                'production_request': production_request,
             }))
 
         elif phase == PlayerSession.PHASE_SHIP:
@@ -285,7 +295,10 @@ class GameConsumer(AsyncWebsocketConsumer):
             'production_started': result.get('production_started', 0),  # factory only
             'new_inventory':      result.get('new_inventory', 0),
             'backlog':            result.get('backlog', 0),
-            'demand_incoming':    ps.pending_order_qty,   # incoming order / production request
+            # For factory: ps.pending_order_qty was updated by apply_receive to the
+            # distributor's real order arriving this week (not the production request).
+            # For other roles: pending_order_qty = incoming order from downstream.
+            'demand_incoming':    ps.pending_order_qty,
             'role':               ps.role,
         }))
 
@@ -436,14 +449,17 @@ class GameConsumer(AsyncWebsocketConsumer):
                 'payload': {
                     'type':               'phase_receive',
                     **state,
-                    # For all roles: units arriving from upstream shipments
+                    # For all roles: units arriving from upstream shipments this week
                     'pending_received':   s.get('received', 0),
-                    # For non-factory: incoming order from downstream partner
-                    # For factory: production request that arrived (last week's self-order)
-                    'demand_incoming':    s.get('order_qty', 0),
-                    # Factory-specific: production completing = pending_received (same field)
-                    # production request arriving = order_qty
-                    'production_request': s.get('order_qty', 0) if role == 'factory' else None,
+                    # For non-factory: incoming order qty from downstream partner
+                    # For factory: distributor's real order arriving this week
+                    'demand_incoming':    (
+                        s.get('distributor_order', 0)
+                        if role == 'factory'
+                        else s.get('order_qty', 0)
+                    ),
+                    # Factory-specific: how many units the production request converts (starts production)
+                    'production_request': s.get('production_request', 0) if role == 'factory' else None,
                 },
             })
 
@@ -890,7 +906,15 @@ class GameConsumer(AsyncWebsocketConsumer):
         if role == 'factory':
             factory_pending_requests = _two_items(outgoing_orders_qs)
             factory_production_delay = _two_items(incoming_ships_qs)
-            incoming_orders_to_me    = factory_pending_requests
+            # The factory's "incoming orders" are the distributor's PipelineOrders
+            # travelling upstream to the factory (2-week order delay).
+            distributor_player = players.get('distributor')
+            if distributor_player:
+                incoming_orders_to_me = _two_items(list(PipelineOrder.objects.filter(
+                    sender=distributor_player, fulfilled=False
+                ).order_by('arrives_on_week')))
+            else:
+                incoming_orders_to_me = []
 
         elif role in ('wholesaler', 'distributor'):
             if downstream_player:
