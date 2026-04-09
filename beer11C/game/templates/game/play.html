@@ -235,6 +235,28 @@
 #conn-dot { display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--muted); margin-right:.3rem; transition:background .3s; }
 #conn-dot.online  { background:var(--success); box-shadow:0 0 5px var(--success); }
 #conn-dot.offline { background:var(--danger); }
+
+/* ── Reactivity: smooth color transitions ─────────────────────────────────── */
+.bgb-v        { transition: color .3s; }
+.bgb-inv-val  { transition: color .35s; }
+.bgb-inv-box  { transition: border-color .35s; }
+.hud-value    { transition: color .3s; }
+
+/* ── Reactivity: slot value-change pop animation ──────────────────────────── */
+@keyframes val-pop {
+  0%   { transform: scale(1.55); color: var(--accent); opacity: .9; }
+  55%  { transform: scale(0.92); }
+  100% { transform: scale(1);    color: inherit; opacity: 1; }
+}
+.anim-val-pop { animation: val-pop .38s cubic-bezier(.22,1,.36,1) forwards; }
+
+/* ── Reactivity: board column sweep on new week ───────────────────────────── */
+@keyframes col-sweep {
+  0%   { background: transparent; }
+  30%  { background: rgba(245,200,66,.05); box-shadow: inset 0 0 0 1px rgba(245,200,66,.12); }
+  100% { background: transparent; box-shadow: none; }
+}
+.bgb-actor.sweeping { animation: col-sweep .55s ease forwards; border-radius: 8px; }
 </style>
 {% endblock %}
 
@@ -871,6 +893,7 @@ function handle(msg) {
       updatePipeline(msg.pipeline || [], msg.outgoing_orders || []);
       updateChart(msg.history || []);
       updateReadyPills(msg);
+      sweepBoard();
       if (msg.is_finished) { showGameOver(msg); }
       if (MY_ROLE === 'customer') resetCustomerPanel();
       // Reset week-ready button for next week
@@ -1270,6 +1293,44 @@ function updateReadyPills(msg) {
 }
 
 // ── HUD & board ────────────────────────────────────────────────────────────
+
+/**
+ * Smoothly count an element's displayed integer from its current value to newVal.
+ * prefix: string prepended to every frame (e.g. '$').
+ * duration: ms.
+ */
+function animateNum(el, newVal, prefix='', duration=380) {
+  if (!el) return;
+  const to = parseFloat(newVal);
+  if (isNaN(to)) { el.textContent = prefix + (newVal ?? '—'); return; }
+  const from = parseFloat(el.dataset.numVal ?? el.textContent.replace(/[^0-9.\-]/g, '')) || 0;
+  el.dataset.numVal = to;
+  if (from === to) { el.textContent = prefix + to; return; }
+  const startTime = performance.now();
+  (function step(now) {
+    const t    = Math.min((now - startTime) / duration, 1);
+    const ease = 1 - Math.pow(1 - t, 3);          // cubic ease-out
+    el.textContent = prefix + Math.round(from + (to - from) * ease);
+    if (t < 1) requestAnimationFrame(step);
+  })(startTime);
+}
+
+/**
+ * Sweep board columns left→right with a brief amber glow (called on new week).
+ */
+function sweepBoard() {
+  ['col-customer','col-retailer','col-wholesaler','col-distributor','col-factory']
+    .forEach((id, i) => {
+      setTimeout(() => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.classList.remove('sweeping');
+        void el.offsetWidth;          // force reflow so animation restarts
+        el.classList.add('sweeping');
+        el.addEventListener('animationend', () => el.classList.remove('sweeping'), {once: true});
+      }, i * 60);
+    });
+}
 function updateHUD(msg) {
   const w = msg.week || 0;
   document.getElementById('current-week').textContent = w;
@@ -1281,14 +1342,15 @@ function updateHUD(msg) {
   const cost = msg.own?.total_cost ?? 0;
 
   const hInv = document.getElementById('hud-inv');
-  hInv.textContent = inv;
+  animateNum(hInv, inv);
   hInv.style.color = inv > 8 ? 'var(--success)' : inv > 0 ? 'var(--accent)' : 'var(--danger)';
 
   const hBlg = document.getElementById('hud-blg');
-  hBlg.textContent = blg;
+  animateNum(hBlg, blg);
   hBlg.style.color = blg === 0 ? 'var(--success)' : blg < 5 ? 'var(--accent)' : 'var(--danger)';
 
-  document.getElementById('hud-cost').textContent = '$' + Number(cost).toFixed(1);
+  const hCost = document.getElementById('hud-cost');
+  animateNum(hCost, cost, '$', 500);
 
   const dem = document.getElementById('hud-demand');
   if (dem) dem.textContent = msg.map?.demand_customer_to_retailer?.this_week ?? '—';
@@ -1296,10 +1358,10 @@ function updateHUD(msg) {
 
 function updateMiniHUD(inv, blg) {
   const hInv = document.getElementById('hud-inv');
-  hInv.textContent = inv ?? '—';
+  animateNum(hInv, inv ?? 0);
   hInv.style.color = inv > 8 ? 'var(--success)' : inv > 0 ? 'var(--accent)' : 'var(--danger)';
   const hBlg = document.getElementById('hud-blg');
-  hBlg.textContent = blg ?? '—';
+  animateNum(hBlg, blg ?? 0);
   hBlg.style.color = blg === 0 ? 'var(--success)' : blg < 5 ? 'var(--accent)' : 'var(--danger)';
 }
 
@@ -1317,7 +1379,7 @@ function setInv(prefix, inv, blg) {
   const xEl = document.getElementById(prefix + '-inv-box');
   if (!vEl) return;
   if (xEl) { xEl.style.opacity = ''; xEl.style.filter = ''; }
-  vEl.textContent = inv ?? '—';
+  animateNum(vEl, inv ?? 0);
   vEl.className   = 'bgb-inv-val ' + (inv > 8 ? 'good' : inv > 0 ? 'warn' : 'bad');
   if (xEl) xEl.style.borderColor = inv > 8 ? 'rgba(34,197,94,.4)' : inv > 0 ? 'rgba(245,200,66,.4)' : 'rgba(239,68,68,.4)';
   if (bEl) {
@@ -1330,11 +1392,24 @@ function setSlot(id, item, cls) {
   const box = document.getElementById(id);
   if (!box) return;
   const v = box.querySelector('.bgb-v');
+  const oldVal = v ? v.textContent : '·';
   box.className     = 'bgb-slot ' + (cls || '');
   box.style.opacity = '';
   box.style.filter  = '';
   if (item) {
-    if (v) v.textContent = item.quantity;
+    const newVal = String(item.quantity);
+    if (v) {
+      if (oldVal !== newVal && oldVal !== '·' && newVal !== '·') {
+        // Value changed this week — pop it to draw attention
+        v.textContent = newVal;
+        v.classList.remove('anim-val-pop');
+        void v.offsetWidth;
+        v.classList.add('anim-val-pop');
+        v.addEventListener('animationend', () => v.classList.remove('anim-val-pop'), {once: true});
+      } else {
+        v.textContent = newVal;
+      }
+    }
     if (item.weeks_away === 0) box.classList.add('arriving');
   } else {
     if (v) v.textContent = '·';
@@ -1571,7 +1646,7 @@ function animateBoardReceive(role, receivedQty, newInv, newBlg) {
       invBox.addEventListener('animationend', () => invBox.classList.remove('anim-inv-rcv'), {once:true});
     }
     if (invVal) {
-      invVal.textContent = newInv ?? '—';
+      animateNum(invVal, newInv ?? 0);
       invVal.className   = 'bgb-inv-val ' + (newInv > 8 ? 'good' : newInv > 0 ? 'warn' : 'bad');
     }
     const blgEl = document.getElementById(pre + '-blg');
@@ -1600,7 +1675,7 @@ function animateBoardShip(role, shippedQty, newInv, newBlg) {
   }
   if (invVal) {
     setTimeout(() => {
-      invVal.textContent = newInv ?? '—';
+      animateNum(invVal, newInv ?? 0);
       invVal.className   = 'bgb-inv-val ' + (newInv > 8 ? 'good' : newInv > 0 ? 'warn' : 'bad');
     }, 200);
   }
