@@ -6,7 +6,6 @@ from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.auth.decorators import login_required
 from .models import (
     GameSession, Player, CustomerDemand,
     PlayerSession, PipelineShipment, PipelineOrder,
@@ -267,8 +266,8 @@ def lobby_status(request, session_id):
 @login_required
 def join_game(request, token):
     """
-    No @login_required — players on other devices need to reach this.
-    If user is authenticated, we link the PlayerSession to their account.
+    Players join via a role-specific token link (shared by the session creator).
+    If the user is authenticated, we link the PlayerSession to their account.
     """
     ps      = get_object_or_404(PlayerSession, token=token)
     session = ps.game_session

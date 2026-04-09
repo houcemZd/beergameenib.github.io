@@ -755,12 +755,12 @@
       <div style="font-size:.76rem; color:var(--muted); margin-bottom:.65rem;">
         En attente des autres acteurs · confirmez quand vous êtes prêt
       </div>
-      <button id="btn-week-ready" onclick="doWeekReady()"
+      <button id="cust-btn-week-ready" onclick="doWeekReady()"
         style="width:100%; justify-content:center; font-size:.95rem; padding:.7rem;"
         class="btn btn-primary">
         ✓ Prêt pour la semaine suivante
       </button>
-      <div style="color:var(--muted); font-size:.76rem; margin-top:.6rem;" id="waiting-count-label">
+      <div style="color:var(--muted); font-size:.76rem; margin-top:.6rem;" id="cust-waiting-count-label">
         En attente des autres joueurs…
       </div>
     </div>
@@ -912,7 +912,7 @@ function handle(msg) {
       if (MY_ROLE === 'customer') resetCustomerPanel();
       // Reset week-ready button for next week
       {
-        const btn = document.getElementById('btn-week-ready');
+        const btn = getWeekReadyEl();
         if (btn) {
           btn.disabled = false;
           btn.textContent = '✓ Prêt pour la semaine suivante';
@@ -935,12 +935,12 @@ function handle(msg) {
       updateLobbyRows(msg);
       // If game has started, hide lobby overlay
       if (msg.status === 'playing') hideLobby(msg.status);
-      // Update waiting count if order panel is shown
-      if (document.getElementById('waiting-count-label')) {
+      // Update waiting count while in order/submitted phase
+      {
         const done = (msg.submitted || []).length;
         const total = msg.total || 5;
         const rem = total - done;
-        const wl = document.getElementById('waiting-count-label');
+        const wl = getWaitingLabelEl();
         if (wl && rem > 0) wl.textContent = `En attente de ${rem} joueur(s)…`;
       }
       break;
@@ -949,7 +949,7 @@ function handle(msg) {
       {
         const readyCount = (msg.ready_for_next || []).length;
         const total      = msg.total || 5;
-        const wl = document.getElementById('waiting-count-label');
+        const wl = getWaitingLabelEl();
         if (wl) wl.textContent = readyCount >= total
           ? '⏳ Semaine suivante en cours…'
           : `${readyCount} / ${total} prêts pour la semaine suivante`;
@@ -969,7 +969,7 @@ function handle(msg) {
     case 'all_phases_done':
       // All players finished their 3 phases — show week-ready button if not yet clicked
       {
-        const btn = document.getElementById('btn-week-ready');
+        const btn = getWeekReadyEl();
         if (btn && !btn.disabled) {
           btn.style.boxShadow = '0 0 16px rgba(245,200,66,.5)';
           btn.style.animation = 'none';
@@ -1145,7 +1145,7 @@ function resetCustomerPanel() {
   const qEl = document.getElementById('cust-qty');
   if (qEl) { qEl.disabled = false; qEl.value = 4; }
   // Reset week-ready button
-  const btn = document.getElementById('btn-week-ready');
+  const btn = document.getElementById('cust-btn-week-ready');
   if (btn) { btn.disabled = false; btn.textContent = '✓ Prêt pour la semaine suivante'; btn.style.boxShadow = ''; }
   // Update week number display
   const wn = document.getElementById('cust-week-num');
@@ -1774,8 +1774,21 @@ function getDownstreamShipSlot(role) {
   return map[role] || null;
 }
 
+// Return the currently relevant week-ready button and waiting label.
+// Supply chain roles use '#btn-week-ready'; customer uses '#cust-btn-week-ready'.
+function getWeekReadyEl() {
+  return MY_ROLE === 'customer'
+    ? document.getElementById('cust-btn-week-ready')
+    : document.getElementById('btn-week-ready');
+}
+function getWaitingLabelEl() {
+  return MY_ROLE === 'customer'
+    ? document.getElementById('cust-waiting-count-label')
+    : document.getElementById('waiting-count-label');
+}
+
 function doWeekReady() {
-  const btn = document.getElementById('btn-week-ready');
+  const btn = getWeekReadyEl();
   if (btn) { btn.disabled = true; btn.textContent = '⏳ En attente des autres…'; }
   send({type: 'week_ready'});
   log('sys', '✓ Prêt pour la semaine suivante');

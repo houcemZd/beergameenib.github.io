@@ -423,8 +423,13 @@ def close_week(session):
     summary = {}
     players = {p.role: p for p in session.players.all()}
 
+    # Fetch all PlayerSessions in a single query to avoid N+1
+    player_sessions = {
+        ps.role: ps for ps in session.player_sessions.all()
+    }
+
     for role, player in players.items():
-        ps = session.player_sessions.filter(role=role).first()
+        ps = player_sessions.get(role)
         if not ps:
             continue
 

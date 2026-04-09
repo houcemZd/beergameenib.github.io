@@ -19,11 +19,12 @@ Customer actor:
 
 import json
 import asyncio
+import traceback
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
+from django.utils import timezone
 from .models import GameSession, PlayerSession
 from .services import open_week, apply_receive, apply_ship, apply_order, close_week
-import traceback
 
 ALL_ROLES          = ['customer', 'retailer', 'wholesaler', 'distributor', 'factory']
 NON_CUSTOMER_ROLES = ['retailer', 'wholesaler', 'distributor', 'factory']
@@ -527,6 +528,7 @@ class GameConsumer(AsyncWebsocketConsumer):
             }))
 
     # ── Helpers ───────────────────────────────────────────────────────────────
+    @database_sync_to_async
     def _save_disconnect_time(self):
         PlayerSession.objects.filter(token=self.token).update(
             disconnected_at=timezone.now()
