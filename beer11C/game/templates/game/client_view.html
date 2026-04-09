@@ -23,6 +23,53 @@
   .chart-wrap { position:relative; height:200px; }
   .info-rule { border:none; border-top:1px solid var(--border); margin:1.25rem 0; }
 </style>
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  const H = {{ history|safe }};
+  const color = {
+    retailer:'#f5c842', wholesaler:'#3b82f6', distributor:'#a855f7', factory:'#22c55e'
+  }['{{ role }}'] || '#f5c842';
+
+  // Chart
+  const ctx = document.getElementById('myChart');
+  if(ctx && H.length){
+    new Chart(ctx, {
+      type:'line',
+      data:{
+        labels: H.map(h=>'W'+h.week),
+        datasets:[
+          {label:'Inventory', data:H.map(h=>h.inventory), borderColor:color, backgroundColor:color+'22', fill:true, tension:0.3, pointRadius:3},
+          {label:'Backlog',   data:H.map(h=>h.backlog),   borderColor:'#ef4444', backgroundColor:'transparent', tension:0.3, pointRadius:3},
+          {label:'{% if role == "factory" %}Produced{% else %}Ordered{% endif %}', data:H.map(h=>h.order_placed), borderColor:color+'88', backgroundColor:'transparent', tension:0.2, pointRadius:2, borderDash:[4,4]},
+        ]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        plugins:{legend:{labels:{color:'#9ca3af', font:{size:11}}}},
+        scales:{
+          x:{ticks:{color:'#6b7280',font:{size:10}}, grid:{color:'#2a2f3d'}},
+          y:{ticks:{color:'#6b7280',font:{size:10}}, grid:{color:'#2a2f3d'}},
+        }
+      }
+    });
+  }
+
+  // History table
+  const tbody = document.getElementById('history-tbody');
+  H.forEach(h=>{
+    const inv_cls = h.inventory>0 ? 'color:var(--success)' : 'color:var(--muted)';
+    const blg_cls = h.backlog>0   ? 'color:var(--danger)'  : 'color:var(--success)';
+    tbody.innerHTML += `<tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+      <td style="padding:.3rem .5rem; color:var(--muted)">${h.week}</td>
+      <td style="padding:.3rem .5rem; text-align:right; ${inv_cls}">${h.inventory}</td>
+      <td style="padding:.3rem .5rem; text-align:right; ${blg_cls}">${h.backlog}</td>
+      <td style="padding:.3rem .5rem; text-align:right">${h.order_placed}</td>
+      <td style="padding:.3rem .5rem; text-align:right">${h.shipment_received}</td>
+      <td style="padding:.3rem .5rem; text-align:right; color:var(--accent)">$${h.cost_this_week.toFixed(1)}</td>
+    </tr>`;
+  });
+});
+</script>
 {% endblock %}
 
 {% block content %}
@@ -45,7 +92,6 @@
     <a href="{% url 'client_view' session.id r %}"
        class="btn btn-ghost btn-sm {% if r == role %}btn-primary{% endif %}"
        style="font-size:0.72rem; padding:0.25rem 0.65rem;">
-      {{ role_emojis|default_if_none:'' }}
       {% if r == 'retailer' %}🛒{% elif r == 'wholesaler' %}🏪{% elif r == 'distributor' %}🚚{% else %}🏭{% endif %}
       {{ r|slice:":4"|upper }}
     </a>
@@ -146,7 +192,9 @@
     {% endif %}
   </div>
   {% else %}
-  <div style="color:var(--muted); font-size:0.82rem;">Factory has no upstream supplier. Production enters pipeline directly.</div>
+  <div style="color:var(--factory-color); font-size:0.82rem; background:rgba(34,197,94,0.07); border:1px solid rgba(34,197,94,0.2); border-radius:8px; padding:0.75rem 1rem;">
+    🏭 <strong>Factory</strong> — no upstream supplier. Units produced enter the shipment pipeline directly (2-week delay).
+  </div>
   {% endif %}
 </div>
 
@@ -174,55 +222,4 @@
   </table>
 </div>
 
-{% endblock %}
-
-{% block extra_head %}
-{{ block.super }}
-<script>
-document.addEventListener('DOMContentLoaded', function(){
-  const H = {{ history|safe }};
-  const color = {
-    retailer:'#f5c842', wholesaler:'#3b82f6', distributor:'#a855f7', factory:'#22c55e'
-  }['{{ role }}'] || '#f5c842';
-
-  // Chart
-  const ctx = document.getElementById('myChart');
-  if(ctx && H.length){
-    new Chart(ctx, {
-      type:'line',
-      data:{
-        labels: H.map(h=>'W'+h.week),
-        datasets:[
-          {label:'Inventory', data:H.map(h=>h.inventory), borderColor:color, backgroundColor:color+'22', fill:true, tension:0.3, pointRadius:3},
-          {label:'Backlog',   data:H.map(h=>h.backlog),   borderColor:'#ef4444', backgroundColor:'transparent', tension:0.3, pointRadius:3},
-          {label:'Ordered',   data:H.map(h=>h.order_placed), borderColor:color+'88', backgroundColor:'transparent', tension:0.2, pointRadius:2, borderDash:[4,4]},
-        ]
-      },
-      options:{
-        responsive:true, maintainAspectRatio:false,
-        plugins:{legend:{labels:{color:'#9ca3af', font:{size:11}}}},
-        scales:{
-          x:{ticks:{color:'#6b7280',font:{size:10}}, grid:{color:'#2a2f3d'}},
-          y:{ticks:{color:'#6b7280',font:{size:10}}, grid:{color:'#2a2f3d'}},
-        }
-      }
-    });
-  }
-
-  // History table
-  const tbody = document.getElementById('history-tbody');
-  H.forEach(h=>{
-    const inv_cls = h.inventory>0 ? 'color:var(--success)' : 'color:var(--muted)';
-    const blg_cls = h.backlog>0   ? 'color:var(--danger)'  : 'color:var(--success)';
-    tbody.innerHTML += `<tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
-      <td style="padding:.3rem .5rem; color:var(--muted)">${h.week}</td>
-      <td style="padding:.3rem .5rem; text-align:right; ${inv_cls}">${h.inventory}</td>
-      <td style="padding:.3rem .5rem; text-align:right; ${blg_cls}">${h.backlog}</td>
-      <td style="padding:.3rem .5rem; text-align:right">${h.order_placed}</td>
-      <td style="padding:.3rem .5rem; text-align:right">${h.shipment_received}</td>
-      <td style="padding:.3rem .5rem; text-align:right; color:var(--accent)">$${h.cost_this_week.toFixed(1)}</td>
-    </tr>`;
-  });
-});
-</script>
 {% endblock %}
