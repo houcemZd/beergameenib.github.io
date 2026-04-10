@@ -1,4 +1,5 @@
 {% extends "game/base.html" %}
+{% load game_extras %}
 {% block title %}{{ session.name }} — Week {{ session.current_week }}{% endblock %}
 
 {% block extra_head %}
@@ -30,9 +31,6 @@
     <h2 style="font-family:var(--font-mono); font-size:1.3rem;">{{ session.name }}</h2>
     <div style="display:flex; align-items:center; gap:1rem; margin-top:.4rem; flex-wrap:wrap;">
       <span class="week-badge">Week <strong>{{ session.current_week }}</strong> / {{ session.max_weeks }}</span>
-      {% if upcoming_demand %}
-      <span class="week-badge">Next customer demand: <strong>{{ upcoming_demand.quantity }}</strong> units</span>
-      {% endif %}
       {% if session.is_finished %}
       <span style="color:var(--accent); font-size:.8rem; font-family:var(--font-mono);">● GAME OVER</span>
       {% endif %}
@@ -85,7 +83,7 @@
     <div style="display:flex; align-items:center; gap:.75rem;">
       {% if last_demand %}<span style="font-size:.75rem; color:var(--muted);">Last week: <strong style="color:var(--text)">{{ last_demand.quantity }}</strong> units</span>{% endif %}
       <input type="number" name="customer_demand" min="0" required
-             placeholder="units demanded" value="4"
+             placeholder="units demanded" value="{{ last_demand.quantity|default:4 }}"
              style="width:120px; font-family:var(--font-mono); font-size:1.1rem; text-align:center;" />
     </div>
   </div>
@@ -133,10 +131,10 @@
         <input type="number" name="order_{{ player.id }}" min="0"
                {% if player.role != 'factory' %}max="999"{% endif %}
                placeholder="{% if player.role == 'factory' %}Produce qty (∞){% else %}Order qty{% endif %}"
-               value="4" />
+               value="{{ ai_orders|get_item:player.id|default:4 }}" />
       </div>
       <div style="font-size:.7rem; color:var(--muted); margin-top:.3rem;">
-        {% if player.role == 'factory' %}Production — no limit{% else %}Order upstream (blank = AI){% endif %}
+        {% if player.role == 'factory' %}Production — no limit{% else %}Order upstream (AI suggests: {{ ai_orders|get_item:player.id|default:4 }}){% endif %}
       </div>
       {% endif %}
     </div>

@@ -28,6 +28,7 @@ Key rules:
 """
 
 import statistics as _stats
+from django.db import transaction
 from .models import (
     GameSession, Player, PlayerSession, WeeklyState,
     PipelineOrder, PipelineShipment, CustomerDemand,
@@ -498,8 +499,32 @@ def process_week(session, player_orders: dict):
     """
     Original single-pass week processing for single-player mode (HTTP form submit).
     player_orders = {player_id: order_qty}
+
+    The entire function runs inside a DB transaction so any failure leaves the
+    game state fully consistent (no half-processed weeks).
+
+    Double-submit protection: the function records `session.current_week` before
+    acquiring the row lock.  After locking it re-reads the DB value; if the week
+    has already advanced (another request won the race), it returns silently.
     """
-    week    = session.current_week + 1
+    # Remember the week the view saw before we enter the transaction.
+    expected_current = session.current_week
+
+    with transaction.atomic():
+        # Lock the session row so concurrent submissions queue up.
+        session_locked = (
+            GameSession.objects.select_for_update()
+            .get(pk=session.pk)
+        )
+        # If current_week already advanced, this submit is a duplicate — bail.
+        if session_locked.current_week != expected_current:
+            return {}
+        week = session_locked.current_week + 1
+        return _process_week_inner(session_locked, player_orders, week)
+
+
+def _process_week_inner(session, player_orders: dict, week: int):
+    """Inner (already-locked, already-validated) implementation of process_week."""
     summary = {}
     players = {p.role: p for p in session.players.all()}
 
@@ -631,10 +656,11 @@ def process_week(session, player_orders: dict):
 
     CustomerDemand.objects.create(session=session, week=week, quantity=customer_qty)
     session.current_week = week
+    session.pending_customer_demand = None   # consumed; reset so stale value can't leak
     if session.current_week >= session.max_weeks:
         session.is_active = False
         session.status = GameSession.STATUS_FINISHED
-    session.save()
+    session.save(update_fields=['current_week', 'is_active', 'status', 'pending_customer_demand'])
     return summary
 
 

@@ -10,7 +10,7 @@ from .models import (
     GameSession, Player, CustomerDemand,
     PlayerSession, PipelineShipment, PipelineOrder,
 )
-from .services import initialise_session, process_week, get_chart_data, get_bullwhip_data
+from .services import initialise_session, process_week, get_chart_data, get_bullwhip_data, _ai_order
 
 CHAIN_ORDER  = {'retailer': 1, 'wholesaler': 2, 'distributor': 3, 'factory': 4}
 ROLE_EMOJIS  = {
@@ -374,10 +374,13 @@ def dashboard(request, session_id):
                     last_week_states[player.role] = state
                     break
 
-    # Last customer demand (for display)
+    # Last customer demand (for display + pre-filling next turn form)
     last_demand = CustomerDemand.objects.filter(
         session=session, week=session.current_week
     ).first()
+
+    # AI-suggested orders for each player (shown as form defaults when no manual value)
+    ai_orders = {player.id: _ai_order(player) for player in players} if not session.is_finished else {}
 
     return render(request, 'game/dashboard.html', {
         'session':          session,
@@ -388,6 +391,7 @@ def dashboard(request, session_id):
         'weeks_range':      range(1, session.current_week + 1),
         'roles':            SUPPLY_ROLES,
         'last_demand':      last_demand,
+        'ai_orders':        ai_orders,
     })
 
 
@@ -405,10 +409,12 @@ def next_turn(request, session_id):
     except (ValueError, TypeError):
         customer_qty = 4
 
+    # Store pending demand on the session so process_week can read it inside
+    # the atomic transaction (select_for_update re-fetches, so we pre-save here).
     session.pending_customer_demand = customer_qty
     session.save(update_fields=['pending_customer_demand'])
 
-    # Supply chain orders
+    # Supply chain orders (only roles the user explicitly supplied)
     player_orders = {}
     for player in session.players.all():
         key = f'order_{player.id}'
