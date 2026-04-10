@@ -257,11 +257,94 @@
   100% { background: transparent; box-shadow: none; }
 }
 .bgb-actor.sweeping { animation: col-sweep .55s ease forwards; border-radius: 8px; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   🎮  GAME-MODE VISUAL UPGRADES
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ── Role-coloured neon headers ─────────────────────────────────────── */
+#col-customer   .bgb-actor-hdr { background:rgba(107,114,128,.12); border-bottom:2px solid rgba(107,114,128,.3); }
+#col-retailer   .bgb-actor-hdr { background:rgba(245,200,66,.1);   border-bottom:2px solid rgba(245,200,66,.6);  color:#ffd36a; text-shadow:0 0 10px rgba(245,200,66,.8); }
+#col-wholesaler .bgb-actor-hdr { background:rgba(59,130,246,.1);   border-bottom:2px solid rgba(59,130,246,.6);  color:#8ecbff; text-shadow:0 0 10px rgba(59,130,246,.8); }
+#col-distributor .bgb-actor-hdr{ background:rgba(168,85,247,.1);   border-bottom:2px solid rgba(168,85,247,.6);  color:#d8a4ff; text-shadow:0 0 10px rgba(168,85,247,.8); }
+#col-factory    .bgb-actor-hdr { background:rgba(34,197,94,.1);    border-bottom:2px solid rgba(34,197,94,.6);   color:#4ade80; text-shadow:0 0 10px rgba(34,197,94,.8); }
+.bgb-actor-hdr { border-radius:6px 6px 0 0; font-size:.65rem; padding:.45rem .2rem .35rem; }
+
+/* ── Board card neon border + scanline ──────────────────────────────── */
+#bgb-board-card {
+  position:relative;
+  border-color:rgba(245,200,66,.22) !important;
+  box-shadow:0 0 0 1px rgba(245,200,66,.08), 0 0 40px rgba(245,200,66,.07) !important;
+}
+#bgb-board-card::after {
+  content:''; position:absolute; inset:0; pointer-events:none; border-radius:var(--radius);
+  background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.045) 3px,rgba(0,0,0,.045) 4px);
+}
+
+/* ── Enhanced "you" column glow ─────────────────────────────────────── */
+.bgb-actor.you {
+  box-shadow:0 0 0 2px rgba(255,255,255,.22), 0 0 24px rgba(255,255,255,.06) !important;
+}
+
+/* ── Pulsing flow arrows ─────────────────────────────────────────────── */
+@keyframes arr-pulse-amber { 0%,100%{color:rgba(245,200,66,.45);text-shadow:none} 50%{color:#ffd36a;text-shadow:0 0 8px rgba(245,200,66,.9)} }
+@keyframes arr-pulse-blue  { 0%,100%{color:rgba(59,130,246,.45);text-shadow:none} 50%{color:#8ecbff;text-shadow:0 0 8px rgba(59,130,246,.9)} }
+.amber-arr { animation:arr-pulse-amber 2s ease infinite; }
+.blue-arr  { animation:arr-pulse-blue  2s ease infinite 1s; }
+
+/* ── WEEK N flash banner ─────────────────────────────────────────────── */
+#week-flash {
+  position:fixed; inset:0; z-index:9990; pointer-events:none;
+  display:flex; align-items:center; justify-content:center;
+}
+#week-flash-inner {
+  font-family:var(--font-mono); font-size:4rem; font-weight:700;
+  color:#fff; opacity:0; letter-spacing:.15em; text-transform:uppercase;
+  text-shadow:0 0 40px var(--accent), 0 0 80px rgba(245,200,66,.5);
+  transform:scale(.65);
+}
+#week-flash-inner.active { animation:wkflash 1.1s cubic-bezier(.22,1,.36,1) forwards; }
+@keyframes wkflash {
+  0%   { opacity:0; transform:scale(.65); }
+  14%  { opacity:1; transform:scale(1.08); }
+  42%  { opacity:1; transform:scale(1); }
+  80%  { opacity:.85; }
+  100% { opacity:0; transform:scale(1.25); }
+}
+
+/* ── Critical backlog body vignette ─────────────────────────────────── */
+@keyframes crit-flash { 0%,100%{box-shadow:inset 0 0 0 rgba(239,68,68,0)} 50%{box-shadow:inset 0 0 90px rgba(239,68,68,.18)} }
+body.crit-alert { animation:crit-flash 1.4s ease infinite; }
+
+/* ── Inventory health bar ───────────────────────────────────────────── */
+.bgb-inv-box { position:relative; overflow:hidden; }
+.bgb-inv-healthbar {
+  position:absolute; bottom:0; left:0; height:3px;
+  border-radius:0 0 5px 5px;
+  transition:width .65s cubic-bezier(.22,1,.36,1), background .4s;
+}
+
+/* ── HUD card state glow ────────────────────────────────────────────── */
+.hud-card { transition:box-shadow .45s, border-color .45s; }
+.hud-card.hud-good { box-shadow:0 0 18px rgba(34,197,94,.22);  border-color:rgba(34,197,94,.4); }
+.hud-card.hud-warn { box-shadow:0 0 18px rgba(245,200,66,.22); border-color:rgba(245,200,66,.4); }
+.hud-card.hud-bad  { box-shadow:0 0 24px rgba(239,68,68,.35);  border-color:rgba(239,68,68,.45); animation:hud-bad-pulse 1.1s ease infinite; }
+@keyframes hud-bad-pulse { 0%,100%{box-shadow:0 0 20px rgba(239,68,68,.3)} 50%{box-shadow:0 0 34px rgba(239,68,68,.55)} }
+
+/* ── Phase-panel slide-in ───────────────────────────────────────────── */
+@keyframes panel-in { from{opacity:0;transform:translateY(10px) scale(.985)} to{opacity:1;transform:none} }
+.phase-panel.active { animation:panel-in .32s cubic-bezier(.22,1,.36,1); }
+
+/* ── Sound toggle ───────────────────────────────────────────────────── */
+#snd-btn { cursor:pointer; font-size:.65rem; padding:.2rem .5rem; border-radius:6px; background:var(--surface2); border:1px solid var(--border); color:var(--muted); font-family:var(--font-mono); transition:all .2s; user-select:none; }
+#snd-btn:hover { color:var(--text); border-color:var(--text); }
+#snd-btn.on { border-color:var(--accent); color:var(--accent); }
 </style>
 {% endblock %}
 
 {% block content %}
 <div id="toast-container"></div>
+<div id="week-flash"><div id="week-flash-inner"></div></div>
 
 <!-- ═══════════════ LOBBY OVERLAY ════════════════════════════════════════ -->
 <div id="lobby-overlay">
@@ -307,6 +390,7 @@
   </div>
   <div style="display:flex; align-items:center; gap:1rem;">
     <div style="font-size:.78rem; color:var(--muted);"><span id="conn-dot"></span><span id="conn-label">Connecting…</span></div>
+    <button id="snd-btn" onclick="toggleSound()" title="Toggle sound effects">🔇 SFX</button>
     <div class="week-badge">Week <strong id="current-week">{{ session.current_week }}</strong> / {{ session.max_weeks }}</div>
   </div>
 </div>
@@ -316,7 +400,7 @@
 </div>
 
 <!-- ═══════ BEER GAME BOARD ════════════════════════════════════════════ -->
-<div class="card" style="margin-bottom:1.5rem; padding:.85rem 1rem 1.1rem;">
+<div class="card" id="bgb-board-card" style="margin-bottom:1.5rem; padding:.85rem 1rem 1.1rem;">
   <div style="display:flex; align-items:baseline; gap:1rem; flex-wrap:wrap; margin-bottom:.6rem;">
     <div class="card-title" style="margin-bottom:0; font-size:.75rem; letter-spacing:.12em;">BEER GAME BOARD</div>
     <span style="font-size:.62rem; color:var(--muted);">
@@ -367,6 +451,7 @@
           <div class="bgb-inv-box" id="rt-inv-box">
             <div class="bgb-inv-val warn" id="rt-inv">—</div>
             <div class="bgb-backlog zero" id="rt-blg">blg:0</div>
+            <div class="bgb-inv-healthbar" id="rt-health"></div>
           </div>
         </div>
         <!-- Shipping delay ← from wholesaler -->
@@ -402,6 +487,7 @@
           <div class="bgb-inv-box" id="wh-inv-box">
             <div class="bgb-inv-val warn" id="wh-inv">—</div>
             <div class="bgb-backlog zero" id="wh-blg">blg:0</div>
+            <div class="bgb-inv-healthbar" id="wh-health"></div>
           </div>
         </div>
         <div class="bgb-slot-col blue-col">
@@ -436,6 +522,7 @@
           <div class="bgb-inv-box" id="di-inv-box">
             <div class="bgb-inv-val warn" id="di-inv">—</div>
             <div class="bgb-backlog zero" id="di-blg">blg:0</div>
+            <div class="bgb-inv-healthbar" id="di-health"></div>
           </div>
         </div>
         <div class="bgb-slot-col blue-col">
@@ -474,6 +561,7 @@
           <div class="bgb-inv-box" id="fa-inv-box">
             <div class="bgb-inv-val warn" id="fa-inv">—</div>
             <div class="bgb-backlog zero" id="fa-blg">blg:0</div>
+            <div class="bgb-inv-healthbar" id="fa-health"></div>
           </div>
         </div>
         <!-- Production delay (units in production, 2w) -->
@@ -490,8 +578,8 @@
 
 <!-- HUD -->
 <div class="hud">
-  <div class="hud-card"><div class="hud-label">Inventory</div><div class="hud-value" id="hud-inv" style="color:var(--success)">—</div><div style="font-size:.68rem;color:var(--muted);">on hand</div></div>
-  <div class="hud-card"><div class="hud-label">Backlog</div><div class="hud-value" id="hud-blg" style="color:var(--danger)">—</div><div style="font-size:.68rem;color:var(--muted);">unfilled</div></div>
+  <div class="hud-card" id="hud-card-inv"><div class="hud-label">Inventory</div><div class="hud-value" id="hud-inv" style="color:var(--success)">—</div><div style="font-size:.68rem;color:var(--muted);">on hand</div></div>
+  <div class="hud-card" id="hud-card-blg"><div class="hud-label">Backlog</div><div class="hud-value" id="hud-blg" style="color:var(--danger)">—</div><div style="font-size:.68rem;color:var(--muted);">unfilled</div></div>
   <div class="hud-card"><div class="hud-label">Total Cost</div><div class="hud-value" id="hud-cost" style="color:var(--accent);font-size:1.4rem;">$—</div><div style="font-size:.68rem;color:var(--muted);">accumulated</div></div>
   {% if role == 'retailer' %}<div class="hud-card"><div class="hud-label">Customer Demand</div><div class="hud-value" id="hud-demand" style="color:var(--wholesaler-color)">—</div><div style="font-size:.68rem;color:var(--muted);">this week</div></div>{% endif %}
 </div>
@@ -899,6 +987,28 @@ function handle(msg) {
 
     // Week complete + state update from server
     case 'week_complete':
+      hideLobby(msg.status);
+      updateHUD(msg);
+      renderBoard(msg);
+      updatePipeline(msg.pipeline || [], msg.outgoing_orders || []);
+      updateChart(msg.history || []);
+      updateReadyPills(msg);
+      sweepBoard();
+      if (msg.week) flashWeek(msg.week);   // 🎮 dramatic week banner
+      if (msg.is_finished) { showGameOver(msg); }
+      if (MY_ROLE === 'customer') resetCustomerPanel();
+      // Reset week-ready button for next week
+      {
+        const btn = getWeekReadyEl();
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = '✓ Prêt pour la semaine suivante';
+          btn.style.boxShadow = '';
+          btn.style.animation = '';
+        }
+      }
+      break;
+
     case 'state_update':
     case 'game_started':
       hideLobby(msg.status);
@@ -1175,6 +1285,7 @@ function setPhaseIndicator(activeStep, done3) {
 function doConfirmReceive() {
   const btn = document.getElementById('btn-receive');
   if (btn) { btn.disabled = true; btn.textContent = '⏳ Confirming…'; }
+  sndReceive();  // 🎮
   send({type: 'confirm_receive'});
   log('sys', '📦 Confirmed receipt of goods');
 }
@@ -1182,6 +1293,7 @@ function doConfirmReceive() {
 function doConfirmShip() {
   const btn = document.getElementById('btn-ship');
   if (btn) { btn.disabled = true; btn.textContent = '⏳ Sending shipment…'; }
+  sndShip();  // 🎮
   send({type: 'confirm_ship'});
   log('sys', '🚚 Confirmed shipment to downstream');
 }
@@ -1190,6 +1302,7 @@ function doSubmitOrder() {
   const raw = (document.getElementById('order-qty')?.value || '').trim();
   const qty = parseInt(raw, 10);
   if (raw === '' || isNaN(qty) || qty < 0) { toast('Enter a valid non-negative number', 'error'); return; }
+  sndOrder();  // 🎮
   send({type: 'submit_order', quantity: qty});
 }
 
@@ -1197,6 +1310,7 @@ function doCustomerSubmit() {
   const raw = (document.getElementById('cust-qty')?.value || '').trim();
   const qty = parseInt(raw, 10);
   if (raw === '' || isNaN(qty) || qty < 0) { toast('Entrez une quantité valide', 'error'); return; }
+  sndOrder();  // 🎮
   send({type: 'submit_order', quantity: qty});
   document.getElementById('cust-submit-section').style.display  = 'none';
   document.getElementById('cust-submitted-section').style.display = 'block';
@@ -1315,6 +1429,84 @@ function updateReadyPills(msg) {
 
 // ── HUD & board ────────────────────────────────────────────────────────────
 
+// ── 🎮 Sound Engine (Web Audio API) ──────────────────────────────────────
+let soundEnabled = false;
+let _audioCtx = null;
+function _getAudioCtx() {
+  if (!_audioCtx) {
+    try { _audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+  }
+  return _audioCtx;
+}
+function _beep(freq, dur, type='sine', vol=0.10) {
+  if (!soundEnabled) return;
+  const ctx = _getAudioCtx(); if (!ctx) return;
+  try {
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.type = type; o.frequency.setValueAtTime(freq, ctx.currentTime);
+    g.gain.setValueAtTime(vol, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + dur);
+    o.start(); o.stop(ctx.currentTime + dur);
+  } catch(e) {}
+}
+function sndReceive() { _beep(523,.1); setTimeout(()=>_beep(659,.1),110); }
+function sndShip()    { _beep(392,.07,'square',.06); setTimeout(()=>_beep(330,.07,'square',.04),90); }
+function sndOrder()   { _beep(880,.06); setTimeout(()=>_beep(1046,.09),75); }
+function sndWeek()    { _beep(523,.1); setTimeout(()=>_beep(659,.1),100); setTimeout(()=>_beep(784,.18),200); setTimeout(()=>_beep(1046,.22),340); }
+function sndCritical(){ _beep(220,.3,'sawtooth',.07); }
+function toggleSound() {
+  // Resume AudioContext on first click (browser autoplay policy)
+  const ctx = _getAudioCtx(); if (ctx && ctx.state === 'suspended') ctx.resume();
+  soundEnabled = !soundEnabled;
+  const btn = document.getElementById('snd-btn');
+  if (btn) { btn.textContent = soundEnabled ? '🔊 SFX' : '🔇 SFX'; btn.classList.toggle('on', soundEnabled); }
+}
+
+// ── 🎮 Week flash banner ───────────────────────────────────────────────────
+function flashWeek(w) {
+  const inner = document.getElementById('week-flash-inner');
+  if (!inner) return;
+  inner.textContent = `WEEK  ${w}`;
+  inner.classList.remove('active');
+  void inner.offsetWidth;  // force reflow so animation restarts
+  inner.classList.add('active');
+  inner.addEventListener('animationend', () => inner.classList.remove('active'), {once:true});
+  sndWeek();
+}
+
+// ── 🎮 Critical backlog vignette ──────────────────────────────────────────
+let _critActive = false;
+function checkCritical(blg) {
+  if (blg >= 10 && !_critActive) {
+    _critActive = true;
+    document.body.classList.add('crit-alert');
+    sndCritical();
+    toast('⚠️ CRITICAL BACKLOG — ' + blg + ' units unfilled!', 'error');
+  } else if (blg < 10 && _critActive) {
+    _critActive = false;
+    document.body.classList.remove('crit-alert');
+  }
+}
+
+// ── 🎮 Inventory health bar ────────────────────────────────────────────────
+const HEALTH_MAX = 40;   // units considered "full" (beer game typical max)
+function setHealthBar(prefix, inv) {
+  const bar = document.getElementById(prefix + '-health');
+  if (!bar) return;
+  const pct = Math.max(0, Math.min(100, (Math.max(0, inv) / HEALTH_MAX) * 100));
+  bar.style.width = pct + '%';
+  bar.style.background = pct > 40 ? '#22c55e' : pct > 15 ? '#f5c842' : '#ef4444';
+}
+
+// ── 🎮 HUD card glow ──────────────────────────────────────────────────────
+function updateHUDCards(inv, blg) {
+  const ci = document.getElementById('hud-card-inv');
+  const cb = document.getElementById('hud-card-blg');
+  if (ci) ci.className = 'hud-card ' + (inv > 8 ? 'hud-good' : inv > 0 ? 'hud-warn' : 'hud-bad');
+  if (cb) cb.className = 'hud-card ' + (blg === 0 ? 'hud-good' : blg < 5 ? 'hud-warn' : 'hud-bad');
+}
+
 /**
  * Smoothly count an element's displayed integer from its current value to newVal.
  * prefix: string prepended to every frame (e.g. '$').
@@ -1378,6 +1570,10 @@ function updateHUD(msg) {
 
   const dem = document.getElementById('hud-demand');
   if (dem) dem.textContent = msg.map?.demand_customer_to_retailer?.this_week ?? '—';
+
+  // 🎮 Game-mode: HUD glow + critical alert
+  updateHUDCards(inv, blg);
+  checkCritical(blg);
 }
 
 function updateMiniHUD(inv, blg) {
@@ -1410,6 +1606,7 @@ function setInv(prefix, inv, blg) {
     if (blg > 0) { bEl.className = 'bgb-backlog nonzero'; bEl.textContent = `blg:${blg}`; }
     else         { bEl.className = 'bgb-backlog zero';    bEl.textContent = 'blg:0'; }
   }
+  setHealthBar(prefix, inv ?? 0);  // 🎮 update health bar
 }
 
 function setSlot(id, item, cls) {
