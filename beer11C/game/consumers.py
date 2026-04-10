@@ -173,14 +173,16 @@ class GameConsumer(AsyncWebsocketConsumer):
         elif phase == PlayerSession.PHASE_SHIP:
             # Restore Phase 2 panel (they already confirmed receive)
             # Reconstruct the ship panel data from staged fields
+            # Note: production_started is not persisted, so it's omitted from the
+            # reconnect message; it was only needed for the log in the initial message.
             await self.send(text_data=json.dumps({
-                'type':             'phase_ship',
-                'received':         ps.pending_received_qty,
-                'production_started': ps.pending_received_qty if ps.role == 'factory' else 0,
-                'new_inventory':    state.get('own', {}).get('inventory', 0),
-                'backlog':          state.get('own', {}).get('backlog', 0),
-                'demand_incoming':  ps.pending_order_qty,
-                'role':             ps.role,
+                'type':               'phase_ship',
+                'received':           ps.pending_received_qty,
+                'production_started': 0,
+                'new_inventory':      state.get('own', {}).get('inventory', 0),
+                'backlog':            state.get('own', {}).get('backlog', 0),
+                'demand_incoming':    ps.pending_order_qty,
+                'role':               ps.role,
             }))
 
         elif phase == PlayerSession.PHASE_ORDER:
