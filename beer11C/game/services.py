@@ -512,10 +512,7 @@ def process_week(session, player_orders: dict):
 
     with transaction.atomic():
         # Lock the session row so concurrent submissions queue up.
-        session_locked = (
-            GameSession.objects.select_for_update()
-            .get(pk=session.pk)
-        )
+        session_locked = GameSession.objects.select_for_update().get(pk=session.pk)
         # If current_week already advanced, this submit is a duplicate — bail.
         if session_locked.current_week != expected_current:
             return {}
@@ -657,10 +654,12 @@ def _process_week_inner(session, player_orders: dict, week: int):
     CustomerDemand.objects.create(session=session, week=week, quantity=customer_qty)
     session.current_week = week
     session.pending_customer_demand = None   # consumed; reset so stale value can't leak
+    save_fields = ['current_week', 'pending_customer_demand']
     if session.current_week >= session.max_weeks:
         session.is_active = False
         session.status = GameSession.STATUS_FINISHED
-    session.save(update_fields=['current_week', 'is_active', 'status', 'pending_customer_demand'])
+        save_fields += ['is_active', 'status']
+    session.save(update_fields=save_fields)
     return summary
 
 
