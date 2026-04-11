@@ -162,17 +162,29 @@
 
 /* ── Factory internal pipeline slots ────────────────────────────────────── */
 .factory-pipeline {
-  display:flex; gap:3px; width:100%; margin-top:2px;
+  display:flex; flex-direction:column; gap:4px; width:100%; margin-top:3px;
+}
+.fac-pipeline-header {
+  font-size:.42rem; text-transform:uppercase; letter-spacing:.07em;
+  color:var(--muted); text-align:center; padding:.1rem 0 .05rem;
+  border-top:1px solid rgba(255,255,255,.06);
+}
+.fac-pipe-row {
+  display:flex; gap:3px; align-items:center;
 }
 .fac-pipe-col {
   flex:1; display:flex; flex-direction:column; gap:3px; align-items:center;
 }
 .fac-pipe-lbl {
-  font-size:.4rem; text-transform:uppercase; letter-spacing:.04em;
+  font-size:.48rem; text-transform:uppercase; letter-spacing:.04em;
   text-align:center; line-height:1.2; font-weight:700;
 }
-.fac-pipe-lbl.amber { color:rgba(245,200,66,.7); }
-.fac-pipe-lbl.blue  { color:rgba(59,130,246,.7); }
+.fac-pipe-lbl.amber { color:rgba(245,200,66,.85); }
+.fac-pipe-lbl.blue  { color:rgba(59,130,246,.85); }
+.fac-pipe-arrow {
+  font-size:.55rem; color:var(--muted); flex-shrink:0; padding:0 1px;
+  margin-top:10px; /* align with slot center */
+}
 
 /* Factory pipeline slot (compact, column layout) */
 .fac-slot {
@@ -989,12 +1001,12 @@
       <!-- ── ROAD R↔W ───────────────────────────────────────────────────── -->
       <div class="road-seg">
         <div class="road-orders-row">
-          <div class="bgb-slot" id="rt-ord-1" data-tip="Order to wholesaler — arrives in 1 wk"><span class="bgb-v">·</span></div>
-          <div class="bgb-slot" id="rt-ord-2" data-tip="Order to wholesaler — arrives in 2 wks"><span class="bgb-v">·</span></div>
+          <div class="bgb-slot" id="rt-ord-1" data-tip="Order to Wholesaler — arriving in 1 wk (placed last week)"><span class="bgb-v">·</span></div>
+          <div class="bgb-slot" id="rt-ord-2" data-tip="Order to Wholesaler — arriving in 2 wks (placed this week)"><span class="bgb-v">·</span></div>
         </div>
         <div class="road-surface">
-          <div class="bgb-slot" id="rt-ship-1" data-tip="Shipment from wholesaler — 1 wk away"><span class="bgb-v">·</span></div>
-          <div class="bgb-slot" id="rt-ship-2" data-tip="Shipment from wholesaler — 2 wks away"><span class="bgb-v">·</span></div>
+          <div class="bgb-slot" id="rt-ship-1" data-tip="Shipment from Wholesaler — arriving NEXT week (1 wk away)"><span class="bgb-v">·</span></div>
+          <div class="bgb-slot" id="rt-ship-2" data-tip="Shipment from Wholesaler — arriving in 2 wks (just shipped this week)"><span class="bgb-v">·</span></div>
           <div class="road-flow-dir">
             <span class="rfd amber">→</span>
             <span class="rfd blue">←</span>
@@ -1021,12 +1033,12 @@
       <!-- ── ROAD W↔D ───────────────────────────────────────────────────── -->
       <div class="road-seg">
         <div class="road-orders-row">
-          <div class="bgb-slot" id="wh-ord-1" data-tip="Order to distributor — 1 wk"><span class="bgb-v">·</span></div>
-          <div class="bgb-slot" id="wh-ord-2" data-tip="Order to distributor — 2 wks"><span class="bgb-v">·</span></div>
+          <div class="bgb-slot" id="wh-ord-1" data-tip="Order to Distributor — arriving in 1 wk (placed last week)"><span class="bgb-v">·</span></div>
+          <div class="bgb-slot" id="wh-ord-2" data-tip="Order to Distributor — arriving in 2 wks (placed this week)"><span class="bgb-v">·</span></div>
         </div>
         <div class="road-surface">
-          <div class="bgb-slot" id="wh-ship-1" data-tip="Shipment from distributor — 1 wk"><span class="bgb-v">·</span></div>
-          <div class="bgb-slot" id="wh-ship-2" data-tip="Shipment from distributor — 2 wks"><span class="bgb-v">·</span></div>
+          <div class="bgb-slot" id="wh-ship-1" data-tip="Shipment from Distributor — arriving NEXT week (1 wk away)"><span class="bgb-v">·</span></div>
+          <div class="bgb-slot" id="wh-ship-2" data-tip="Shipment from Distributor — arriving in 2 wks (just shipped this week)"><span class="bgb-v">·</span></div>
           <div class="road-flow-dir">
             <span class="rfd amber">→</span>
             <span class="rfd blue">←</span>
@@ -1053,12 +1065,12 @@
       <!-- ── ROAD D↔F ───────────────────────────────────────────────────── -->
       <div class="road-seg">
         <div class="road-orders-row">
-          <div class="bgb-slot" id="di-ord-1" data-tip="Order to factory — 1 wk"><span class="bgb-v">·</span></div>
-          <div class="bgb-slot" id="di-ord-2" data-tip="Order to factory — 2 wks"><span class="bgb-v">·</span></div>
+          <div class="bgb-slot" id="di-ord-1" data-tip="Order to Factory — arriving in 1 wk (placed last week)"><span class="bgb-v">·</span></div>
+          <div class="bgb-slot" id="di-ord-2" data-tip="Order to Factory — arriving in 2 wks (placed this week)"><span class="bgb-v">·</span></div>
         </div>
         <div class="road-surface">
-          <div class="bgb-slot" id="di-ship-1" data-tip="Shipment from factory — 1 wk"><span class="bgb-v">·</span></div>
-          <div class="bgb-slot" id="di-ship-2" data-tip="Shipment from factory — 2 wks"><span class="bgb-v">·</span></div>
+          <div class="bgb-slot" id="di-ship-1" data-tip="Shipment from Factory — arriving NEXT week (1 wk away)"><span class="bgb-v">·</span></div>
+          <div class="bgb-slot" id="di-ship-2" data-tip="Shipment from Factory — arriving in 2 wks (just shipped this week)"><span class="bgb-v">·</span></div>
           <div class="road-flow-dir">
             <span class="rfd amber">→</span>
             <span class="rfd blue">←</span>
@@ -1081,15 +1093,18 @@
           </div>
           <!-- Internal production pipeline -->
           <div class="factory-pipeline">
-            <div class="fac-pipe-col">
-              <div class="fac-pipe-lbl amber">req</div>
-              <div class="bgb-slot" id="fa-req-1" data-tip="Production request — 1 wk delay"><span class="bgb-v">·</span></div>
-              <div class="bgb-slot" id="fa-req-2" data-tip="Production request — slot 2"><span class="bgb-v">·</span></div>
-            </div>
-            <div class="fac-pipe-col">
-              <div class="fac-pipe-lbl blue">prod</div>
-              <div class="bgb-slot" id="fa-prod-1" data-tip="In production — 2 wk delay"><span class="bgb-v">·</span></div>
-              <div class="bgb-slot" id="fa-prod-2" data-tip="In production — slot 2"><span class="bgb-v">·</span></div>
+            <div class="fac-pipeline-header">⚙️ Production Pipeline</div>
+            <div class="fac-pipe-row">
+              <div class="fac-pipe-col">
+                <div class="fac-pipe-lbl amber">📋 Req (1w)</div>
+                <div class="bgb-slot" id="fa-req-1" data-tip="Production request: entered 1-week delay → converts to production next week"><span class="bgb-v">·</span></div>
+              </div>
+              <div class="fac-pipe-arrow">→</div>
+              <div class="fac-pipe-col">
+                <div class="fac-pipe-lbl blue">⚙️ Prod (2w)</div>
+                <div class="bgb-slot" id="fa-prod-1" data-tip="In production (2-week delay) — completing next week"><span class="bgb-v">·</span></div>
+                <div class="bgb-slot" id="fa-prod-2" data-tip="In production (2-week delay) — completing in 2 weeks"><span class="bgb-v">·</span></div>
+              </div>
             </div>
           </div>
         </div>
@@ -2094,7 +2109,7 @@ function renderBoard(msg) {
   ['rt-ord-1','rt-ord-2','rt-ship-1','rt-ship-2',
    'wh-ord-1','wh-ord-2','wh-ship-1','wh-ship-2',
    'di-ord-1','di-ord-2','di-ship-1','di-ship-2',
-   'fa-req-1','fa-req-2','fa-prod-1','fa-prod-2',
+   'fa-req-1','fa-prod-1','fa-prod-2',
   ].forEach(blankSlot);
   ['rt','wh','di','fa'].forEach(blankInv);
 
@@ -2111,18 +2126,23 @@ function renderBoard(msg) {
    * MIT Beer Game privacy rules — each role sees only:
    * Their own slots + the pipeline slots directly connected to them
    *
-   * Retailer:    rt-ord(own) rt-inv rt-ship | wh-ship(=rt-ship)
-   * Wholesaler:  wh-ord(own) wh-inv wh-ship | rt-ord(retailer orders arriving) rt-ship(what I sent) di-ship(=wh-ship)
-   * Distributor: di-ord(own) di-inv di-ship | wh-ord(wh orders arriving) wh-ship(what I sent) fa-prod(=di-ship)
-   * Factory:     fa-req(own) fa-inv fa-prod  | di-ord(di orders arriving) di-ship(what I sent)
+   * Retailer:    rt-ord(own) rt-inv rt-ship
+   *              [WH column: wh-inv hidden, wh-ship blank; same data visible via R↔W road slots]
+   * Wholesaler:  wh-ord(own) wh-inv wh-ship | rt-ord(retailer orders arriving) rt-ship(what I sent)
+   *              [D↔F road: blank — distributor orders placed hidden from wholesaler]
+   * Distributor: di-ord(own) di-inv di-ship | wh-ord(wh orders arriving) wh-ship(what I sent)
+   *              fa-prod(=di-ship, factory production delay visible)
+   *              [fa-req: blank — factory production requests hidden from distributor]
+   * Factory:     fa-req(own,1-wk) fa-inv fa-prod(own,2-wk) | di-ord(di orders arriving) di-ship(what I sent)
+   *              [wh-*, rt-*: blank]
    */
 
   if (role === 'retailer') {
     setSlots('rt-ord-1','rt-ord-2',   m.outgoing_orders_from_me,    'amber');
     setInv('rt', own.inventory, own.backlog);
     setSlots('rt-ship-1','rt-ship-2', m.incoming_shipments_to_me,   'blue');
-    // Wholesaler slots visible to retailer:
-    setSlots('wh-ship-1','wh-ship-2', m.incoming_shipments_to_me,   'blue');  // goods wh sent to me
+    // Wholesaler column: show retailer's orders arriving at WH and WH's shipments toward retailer
+    // (same data — already shown on R↔W road; WH inventory stays blank per board rules)
   }
 
   else if (role === 'wholesaler') {
@@ -2132,9 +2152,9 @@ function renderBoard(msg) {
     // Retailer slots visible to wholesaler:
     setSlots('rt-ord-1','rt-ord-2',   m.incoming_orders_to_me,      'amber'); // retailer orders arriving at me
     setSlots('rt-ship-1','rt-ship-2', m.outgoing_shipments_from_me, 'blue');  // what I shipped to retailer
-    // Distributor slots visible to wholesaler (only the pipeline TO me):
-    setSlots('di-ship-1','di-ship-2', m.incoming_shipments_to_me,   'blue');  // goods di sent to me = wh-ship
-    // di-ord, di-inv, factory → stay blanked
+    // Distributor's incoming orders (= wholesaler's own outgoing orders already on wh-ord ✓)
+    // Distributor's shipping delay (= wh-ship already shown ✓)
+    // D↔F road stays blank per board rules (distributor's orders placed hidden from wholesaler)
   }
 
   else if (role === 'distributor') {
@@ -2144,19 +2164,19 @@ function renderBoard(msg) {
     // Wholesaler slots visible to distributor:
     setSlots('wh-ord-1','wh-ord-2',   m.incoming_orders_to_me,      'amber'); // wh orders arriving at me
     setSlots('wh-ship-1','wh-ship-2', m.outgoing_shipments_from_me, 'blue');  // what I shipped to wh
-    // Factory slots visible to distributor (only the pipeline TO me):
+    // Factory's production delay (same data as distributor's incoming shipments):
     setSlots('fa-prod-1','fa-prod-2', m.incoming_shipments_to_me,   'blue');  // factory shipped to me
-    // fa-req, fa-inv, wh-inv, rt-* → stay blanked
+    // fa-req stays blank (factory production requests hidden from distributor per board rules)
   }
 
   else if (role === 'factory') {
-    setSlots('fa-req-1','fa-req-2',   m.factory_pending_requests,   'amber'); // own prod requests
+    setSlot('fa-req-1', (m.factory_pending_requests||[])[0], 'amber'); // own prod request (1-wk delay)
     setInv('fa', own.inventory, own.backlog);
     setSlots('fa-prod-1','fa-prod-2', m.factory_production_delay,   'blue');
     // Distributor slots visible to factory:
     setSlots('di-ord-1','di-ord-2',   m.incoming_orders_to_me,      'amber'); // di orders arriving at factory
     setSlots('di-ship-1','di-ship-2', m.outgoing_shipments_from_me, 'blue');  // what I shipped to di
-    // wh-*, rt-* → stay blanked
+    // wh-*, rt-* → stay blanked per board rules
   }
 }
 
@@ -2330,12 +2350,14 @@ function animateBoardShip(role, shippedQty, newInv, newBlg) {
 
 /**
  * animateBoardOrder — called after order/production request submitted
- * Factory: fa-req-1 pulses amber (production request → 1-week delay)
- * Others:  pre-ord-1 pulses amber (order placed → 2-week delay upstream)
+ * Factory: fa-req-1 pulses amber (production request → 1-week delay, only 1 slot)
+ * Others:  pre-ord-2 pulses amber (order placed → 2-week delay upstream, slot 2 = newly placed)
  */
 function animateBoardOrder(role, orderQty) {
   const pre    = role === 'factory' ? 'fa' : role.slice(0,2);
-  const slotId = role === 'factory' ? 'fa-req-1' : pre + '-ord-1';
+  // Factory: production request has 1-week delay → slot 1 (only one req slot)
+  // Non-factory: newly placed order takes 2 weeks → slot 2 (slot 1 holds the existing 1-wk-away order)
+  const slotId = role === 'factory' ? 'fa-req-1' : pre + '-ord-2';
   const label  = role === 'factory' ? '1w' : '2w';
   setTimeout(() => {
     const box = document.getElementById(slotId);
@@ -2361,11 +2383,12 @@ function flashDepart(slotId) {
 }
 
 function getDownstreamShipSlot(role) {
-  // Returns the slot id where the shipment FROM this role TO downstream appears
+  // Returns the slot id where the shipment FROM this role TO downstream appears.
+  // A newly sent shipment takes 2 weeks → goes to slot 2 (slot 1 holds the existing 1-week-away ship).
   const map = {
-    wholesaler:  'rt-ship-1',  // wholesaler ships to retailer
-    distributor: 'wh-ship-1',  // distributor ships to wholesaler
-    factory:     'di-ship-1',  // factory ships to distributor
+    wholesaler:  'rt-ship-2',  // wholesaler ships to retailer — new ship = 2 wks away
+    distributor: 'wh-ship-2',  // distributor ships to wholesaler — new ship = 2 wks away
+    factory:     'di-ship-2',  // factory ships to distributor — new ship = 2 wks away
     retailer:    null,         // retailer ships to customer (no board slot)
   };
   return map[role] || null;
