@@ -1146,6 +1146,20 @@ const EMPTY_SLOT = '·';   // sentinel displayed in empty board slots
 let ws, chart;
 let gameStarted = false;
 
+// ── Optimistic receive state ───────────────────────────────────────────────
+// Stored when phase_receive arrives; used to instantly update UI on button click
+let _pendingRcvQty = 0;   // units about to be received
+let _pendingRcvInv = 0;   // inventory snapshot before receipt
+let _pendingRcvBlg = 0;   // backlog snapshot before receipt
+let _receiveOptimisticDone = false; // guard against double-animation
+
+// ── Optimistic ship state ─────────────────────────────────────────────────
+// Stored when phase_ship panel shows; used to instantly animate on button click
+let _pendingShipQty = 0;  // units about to be shipped
+let _pendingShipInv = 0;  // post-ship inventory (optimistic)
+let _pendingShipBlg = 0;  // post-ship backlog (optimistic)
+let _shipOptimisticDone = false; // guard against double-animation
+
 // ── WebSocket ──────────────────────────────────────────────────────────────
 function connect() {
   ws = new WebSocket(WS_URL);
@@ -1168,6 +1182,8 @@ function handle(msg) {
       renderBoard(msg);
       updatePipeline(msg.pipeline || [], msg.outgoing_orders || []);
       updateChart(msg.history || []);
+      _receiveOptimisticDone = false;   // reset guard for new week
+      _shipOptimisticDone    = false;   // reset guard for new week
       // pending_received  = production/shipment completing (entering inventory)
       // demand_incoming   = distributor's order arriving (factory) / downstream order (others)
       // production_request = factory's own self-order converting to production (factory only)
@@ -1185,8 +1201,13 @@ function handle(msg) {
       showShipPanel(msg.demand_incoming, msg.received, msg.new_inventory, msg.backlog);
       setPhaseIndicator(2);
       updateMiniHUD(msg.new_inventory, msg.backlog);
-      // Animate: incoming ship slots depart → inventory box pulses green
-      animateBoardReceive(MY_ROLE, msg.received, msg.new_inventory, msg.backlog);
+      // Animate board only if we didn't already do it optimistically on button click
+      if (!_receiveOptimisticDone) {
+        animateBoardReceive(MY_ROLE, msg.received, msg.new_inventory, msg.backlog);
+      } else {
+        // Server values may differ — quietly settle them without re-animating
+        setInv(MY_ROLE === 'factory' ? 'fa' : MY_ROLE.slice(0,2), msg.new_inventory, msg.backlog);
+      }
       if (MY_ROLE === 'factory') {
         log('sys', `📦 Production completing: +${msg.received} → inventory. Production starting: ${msg.production_started}. Distributor order: ${msg.demand_incoming}. Now fill the order.`);
       } else {
@@ -1199,8 +1220,14 @@ function handle(msg) {
       showOrderPanel(msg.shipped, msg.new_inventory, msg.new_backlog, msg.suggested_order);
       setPhaseIndicator(3);
       updateMiniHUD(msg.new_inventory, msg.new_backlog);
-      // Animate: inventory shrinks → downstream ship slot appears
-      animateBoardShip(MY_ROLE, msg.shipped, msg.new_inventory, msg.new_backlog);
+      // Animate board only if we didn't already do it optimistically on button click
+      if (!_shipOptimisticDone) {
+        animateBoardShip(MY_ROLE, msg.shipped, msg.new_inventory, msg.new_backlog);
+      } else {
+        // Quietly settle server-authoritative values
+        const pre = MY_ROLE === 'factory' ? 'fa' : MY_ROLE.slice(0,2);
+        setInv(pre, msg.new_inventory, msg.new_backlog);
+      }
       if (MY_ROLE === 'factory') {
         log('sys', `🚚 Shipped ${msg.shipped} to Distributor. Stock: ${msg.new_inventory}. Now decide your production run.`);
       } else {
@@ -1362,6 +1389,18 @@ function showReceivePanel(receivedQty, demandIncoming, productionRequest) {
   if (!panel) return;
   panel.classList.add('active');
 
+  // ── Snapshot current board state for optimistic UI update on click ─────────
+  _pendingRcvQty = receivedQty;
+  const pre = MY_ROLE === 'factory' ? 'fa' : MY_ROLE === 'customer' ? null : MY_ROLE.slice(0, 2);
+  if (pre) {
+    const invEl = document.getElementById(pre + '-inv');
+    const blgEl = document.getElementById(pre + '-blg');
+    _pendingRcvInv = invEl ? (parseFloat(invEl.dataset.numVal) || 0) : 0;
+    // Parse "blg:5" or "backlog: 5" format
+    _pendingRcvBlg = blgEl ? (parseInt((blgEl.textContent || '').replace(/\D/g, ''), 10) || 0) : 0;
+  }
+  // ────────────────────────────────────────────────────────────────────────────
+
   if (MY_ROLE === 'factory') {
     // Factory phase 1 has three rows:
     //   recv-prod-qty       = production completing this week (from 2-week production pipeline, blue)
@@ -1417,11 +1456,18 @@ function showShipPanel(demandQty, justReceived, currentInv, currentBlg) {
   if (!panel) return;
   panel.classList.add('active');
 
-  const totalDemand = demandQty || 0;
-  const totalBacklog = currentBlg || 0;
-  const available   = currentInv || 0;
-  const willShip    = Math.min(available, totalDemand + totalBacklog);
-  const shortage    = totalDemand + totalBacklog - willShip;
+  const totalDemand  = demandQty   || 0;
+  const totalBacklog = currentBlg  || 0;
+  const available    = currentInv  || 0;
+  const willShip     = Math.min(available, totalDemand + totalBacklog);
+  const shortage     = totalDemand + totalBacklog - willShip;
+
+  // ── Snapshot for optimistic ship animation ───────────────────────────────
+  _shipOptimisticDone = false;
+  _pendingShipQty = willShip;
+  _pendingShipInv = available - willShip;
+  _pendingShipBlg = Math.max(0, totalDemand + totalBacklog - available);
+  // ─────────────────────────────────────────────────────────────────────────
 
   document.getElementById('ship-demand-qty').textContent = totalDemand;
   document.getElementById('ship-demand-sub').textContent =
@@ -1536,6 +1582,40 @@ function doConfirmReceive() {
   const btn = document.getElementById('btn-receive');
   if (btn) { btn.disabled = true; btn.textContent = '⏳ Confirming…'; }
   sndReceive();  // 🎮
+
+  // ── Optimistic reactive update: don't wait for the server response ─────
+  if (!_receiveOptimisticDone && _pendingRcvQty > 0) {
+    _receiveOptimisticDone = true;
+    const optimisticInv = _pendingRcvInv + _pendingRcvQty;
+
+    // Animate board immediately (truck slots depart → inv box pulses green)
+    animateBoardReceive(MY_ROLE, _pendingRcvQty, optimisticInv, _pendingRcvBlg);
+
+    // Update HUD inventory counter right away
+    updateMiniHUD(optimisticInv, _pendingRcvBlg);
+
+    // Show a floating gain number anchored to the inventory box on the board
+    const pre = MY_ROLE === 'factory' ? 'fa' : MY_ROLE.slice(0, 2);
+    const invBox = document.getElementById(pre + '-inv-box');
+    if (invBox) {
+      const rect = invBox.getBoundingClientRect();
+      spawnFloatNum(_pendingRcvQty, rect.left + rect.width / 2, rect.top + window.scrollY, 'var(--success)');
+    }
+
+    // Toast confirmation
+    toast(`📦 +${_pendingRcvQty} units added to inventory!`, 'success');
+
+    // Animate the receive panel qty badge: briefly scale it up then fade
+    const qEl = document.getElementById(MY_ROLE === 'factory' ? 'recv-prod-qty' : 'recv-qty');
+    if (qEl) {
+      qEl.style.transition = 'transform .25s, opacity .4s';
+      qEl.style.transform  = 'scale(1.4)';
+      qEl.style.color      = 'var(--success)';
+      setTimeout(() => { qEl.style.transform = 'scale(1)'; qEl.style.opacity = '0.4'; }, 260);
+    }
+  }
+  // ─────────────────────────────────────────────────────────────────────────
+
   send({type: 'confirm_receive'});
   log('sys', '📦 Confirmed receipt of goods');
 }
@@ -1544,6 +1624,39 @@ function doConfirmShip() {
   const btn = document.getElementById('btn-ship');
   if (btn) { btn.disabled = true; btn.textContent = '⏳ Sending shipment…'; }
   sndShip();  // 🎮
+
+  // ── Optimistic reactive update: don't wait for the server response ─────
+  if (!_shipOptimisticDone && _pendingShipQty > 0) {
+    _shipOptimisticDone = true;
+
+    // Animate board immediately (inv box shrinks, downstream slot appears)
+    animateBoardShip(MY_ROLE, _pendingShipQty, _pendingShipInv, _pendingShipBlg);
+
+    // Update HUD immediately
+    updateMiniHUD(_pendingShipInv, _pendingShipBlg);
+
+    // Show floating -N number near inventory box
+    const pre = MY_ROLE === 'factory' ? 'fa' : MY_ROLE.slice(0, 2);
+    const invBox = document.getElementById(pre + '-inv-box');
+    if (invBox) {
+      const rect = invBox.getBoundingClientRect();
+      spawnFloatNum(-_pendingShipQty, rect.left + rect.width / 2, rect.top + window.scrollY, 'var(--wholesaler-color)');
+    }
+
+    // Toast
+    toast(`🚛 ${_pendingShipQty} units shipped downstream!`, 'success');
+
+    // Animate ship qty badge on the panel
+    const qEl = document.getElementById('ship-qty');
+    if (qEl) {
+      qEl.style.transition = 'transform .25s, opacity .4s';
+      qEl.style.transform  = 'scale(1.35)';
+      qEl.style.color      = 'var(--success)';
+      setTimeout(() => { qEl.style.transform = 'scale(1)'; qEl.style.opacity = '0.4'; }, 260);
+    }
+  }
+  // ─────────────────────────────────────────────────────────────────────────
+
   send({type: 'confirm_ship'});
   log('sys', '🚚 Confirmed shipment to downstream');
 }
