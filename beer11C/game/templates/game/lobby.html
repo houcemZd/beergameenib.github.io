@@ -31,7 +31,6 @@
 .rc-dot.off { background:var(--accent);  animation:blink 1.6s infinite; }
 @keyframes blink { 0%,100%{opacity:1}50%{opacity:.35} }
 
-/* Name tag that slides in when player joins */
 .rc-name-tag {
   display:inline-flex; align-items:center; gap:.3rem;
   padding:.18rem .55rem; border-radius:999px; font-size:.7rem; font-weight:700;
@@ -42,7 +41,6 @@
 }
 .rc-name-tag.show { opacity:1; transform:none; }
 
-/* Link row */
 .link-row { display:flex; align-items:center; gap:.45rem; flex-wrap:nowrap; }
 .link-pill {
   flex:1; min-width:0; font-family:var(--font-mono); font-size:.65rem;
@@ -69,25 +67,6 @@
 }
 .orb.joined { border-color:var(--success); color:var(--success); background:rgba(34,197,94,.08); }
 
-/* ── Board preview ───────────────────────────────────────────────────────── */
-.lbp { display:flex; align-items:flex-end; gap:.3rem; overflow-x:auto; padding:.4rem 0 .6rem; }
-.lbp-col { display:flex; flex-direction:column; align-items:center; gap:2px; flex:1; min-width:60px; }
-.lbp-name { font-size:.55rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); white-space:nowrap; margin-bottom:2px; }
-.lbp-slot {
-  width:100%; border:1px solid var(--border); border-radius:4px;
-  background:var(--surface); text-align:center; padding:2px 3px;
-  font-family:var(--font-mono); font-size:.8rem; font-weight:800; color:var(--muted);
-  min-height:26px; display:flex; align-items:center; justify-content:center;
-}
-.lbp-slot.a { border-color:rgba(245,200,66,.4); background:rgba(245,200,66,.08); color:#ffd36a; }
-.lbp-slot.b { border-color:rgba(59,130,246,.4);  background:rgba(59,130,246,.08); color:#8ecbff; }
-.lbp-slot.inv {
-  border-width:2px; border-color:rgba(34,197,94,.45); background:rgba(34,197,94,.07);
-  color:var(--success); font-size:.9rem; min-height:32px;
-}
-.lbp-lbl { font-size:.48rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; text-align:center; line-height:1.2; }
-.lbp-arr { color:var(--muted); font-size:.65rem; padding-bottom:30px; flex-shrink:0; }
-
 /* ── QR overlay ──────────────────────────────────────────────────────────── */
 .qr-ov { display:none; position:fixed; inset:0; z-index:500; background:rgba(13,15,20,.8); backdrop-filter:blur(3px); align-items:center; justify-content:center; }
 .qr-ov.open { display:flex; }
@@ -102,6 +81,34 @@
 .t.ok { border-color:var(--success); }
 @keyframes sin  { from{transform:translateX(110%);opacity:0} to{transform:none;opacity:1} }
 @keyframes sout { to{opacity:0} }
+
+/* ── Spectator board ─────────────────────────────────────────────────────── */
+.spec-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:1rem; }
+.spec-card {
+  background:var(--surface2); border:2px solid var(--border); border-radius:14px;
+  padding:1.1rem 1.2rem; transition:border-color .3s;
+}
+.spec-card.inv-good { border-color:rgba(34,197,94,.45); }
+.spec-card.inv-warn { border-color:rgba(245,200,66,.45); }
+.spec-card.inv-bad  { border-color:rgba(239,68,68,.45);  }
+
+.spec-role { font-family:var(--font-mono); font-size:.68rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-bottom:.35rem; display:flex; align-items:center; gap:.4rem; }
+.spec-name { font-size:.82rem; font-weight:600; color:var(--text); margin-bottom:.75rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.spec-stat { display:flex; justify-content:space-between; align-items:center; font-size:.78rem; padding:.18rem 0; border-bottom:1px solid rgba(255,255,255,.05); }
+.spec-stat:last-child { border-bottom:none; }
+.spec-stat-lbl { color:var(--muted); font-size:.72rem; }
+.spec-stat-val { font-family:var(--font-mono); font-weight:700; }
+.spec-stat-val.good { color:var(--success); }
+.spec-stat-val.warn { color:var(--accent); }
+.spec-stat-val.bad  { color:var(--danger); }
+
+/* live pulse dot */
+.live-dot { width:8px; height:8px; border-radius:50%; background:var(--danger); display:inline-block; animation:live-pulse 1.2s infinite; }
+@keyframes live-pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.75)} }
+
+/* section toggle */
+#section-pregame  { }
+#section-spectate { display:none; }
 </style>
 {% endblock %}
 
@@ -117,13 +124,13 @@
   </div>
 </div>
 
-<!-- ── Header ─────────────────────────────────────────────────────────────── -->
+<!-- ── Header (always visible) ────────────────────────────────────────────── -->
 <div style="text-align:center; padding:1.75rem 0 1.5rem;">
-  <div style="font-family:var(--font-mono); font-size:.7rem; color:var(--muted); letter-spacing:.18em; text-transform:uppercase; margin-bottom:.4rem;">Multiplayer Lobby</div>
+  <div style="font-family:var(--font-mono); font-size:.7rem; color:var(--muted); letter-spacing:.18em; text-transform:uppercase; margin-bottom:.4rem;" id="hdr-label">Multiplayer Lobby</div>
   <h2 style="font-family:var(--font-mono); font-size:1.9rem; margin-bottom:.5rem;">{{ session.name }}</h2>
   <div style="display:flex; align-items:center; justify-content:center; gap:.75rem; flex-wrap:wrap;">
-    <div class="week-badge"><strong>{{ session.max_weeks }}</strong> weeks · Week 0 / {{ session.max_weeks }}</div>
-    <div style="font-size:.75rem; color:var(--muted);">Send each link to a different player</div>
+    <div class="week-badge" id="week-badge"><strong>{{ session.max_weeks }}</strong> weeks · Week 0 / {{ session.max_weeks }}</div>
+    <div style="font-size:.75rem; color:var(--muted);" id="hdr-sub">Send each link to a different player</div>
   </div>
 </div>
 
@@ -141,16 +148,18 @@
   </div>
 </div>
 
+<!-- ══════════════════════════════════════════════════════════════════════════
+     PRE-GAME SECTION — visible while status is 'lobby'
+════════════════════════════════════════════════════════════════════════════ -->
+<div id="section-pregame">
 <div class="lobby-grid">
 
 <!-- ══ LEFT: Role invite cards ══════════════════════════════════════════════ -->
 <div style="display:flex; flex-direction:column; gap:.85rem;">
-
   <div style="font-size:.68rem; color:var(--muted); text-transform:uppercase; letter-spacing:.1em;">Player Invite Links</div>
 
-  {% for link in role_links %}
+{% for link in role_links %}
   <div class="role-card" id="card-{{ link.role }}">
-
     <div class="rc-top">
       <span class="rc-emoji">{{ link.emoji }}</span>
       <div class="rc-info">
@@ -159,22 +168,20 @@
           <span class="role-badge role-{{ link.role }}">{{ link.role }}</span>
         </div>
         <div class="rc-desc">
-          {% if link.role == 'customer' %}S'authentifie et passe commande sur la plateforme chaque semaine
-          {% elif link.role == 'retailer' %}Reçoit marchandises · livre client · passe commandes au Grossiste
-          {% elif link.role == 'wholesaler' %}Reçoit marchandises · livre Détaillant · passe commandes au Distributeur
-          {% elif link.role == 'distributor' %}Reçoit marchandises · livre Grossiste · passe commandes à l'Usine
-          {% elif link.role == 'factory' %}Reçoit demandes · livre Distributeur · lance production{% endif %}
+          {% if link.role == 'customer' %}Authenticates and places orders on the platform each week
+          {% elif link.role == 'retailer' %}Receives goods · delivers to customer · orders from Wholesaler
+          {% elif link.role == 'wholesaler' %}Receives goods · delivers to Retailer · orders from Distributor
+          {% elif link.role == 'distributor' %}Receives goods · delivers to Wholesaler · orders from Factory
+          {% elif link.role == 'factory' %}Receives demands · delivers to Distributor · launches production{% endif %}
         </div>
       </div>
       <div class="rc-dot off" id="dot-{{ link.role }}"></div>
     </div>
 
-    <!-- Player name (appears on join) -->
     <div class="rc-name-tag" id="ntag-{{ link.role }}">
       ✓ <span id="ntext-{{ link.role }}">Joined</span>
     </div>
 
-    <!-- Link row — token stored as data attribute, no template interpolation in onclick -->
     <div class="link-row">
       <span class="link-pill" id="pill-{{ link.role }}">{{ link.url }}</span>
       <button class="btn-lnk" id="bcopy-{{ link.role }}"
@@ -186,110 +193,96 @@
       <button class="btn-lnk" data-url="{{ link.url }}" data-role="{{ link.role }}"
               onclick="doQR(this)" title="QR Code">▣</button>
     </div>
-
   </div>
-  {% endfor %}
+{% endfor %}
 
 </div>
 
-<!-- ══ RIGHT: Board preview + instructions ══════════════════════════════════ -->
+<!-- ══ RIGHT: Game info ══════════════════════════════════════════════════════ -->
 <div>
-
-  <!-- Board preview -->
   <div class="card" style="margin-bottom:1.2rem;">
-    <div class="card-title" style="margin-bottom:.3rem;">Initial Board State</div>
-    <p style="font-size:.68rem; color:var(--muted); margin-bottom:.75rem;">
-      <span style="color:#ffd36a;">■</span> Orders placed &nbsp;
-      <span style="color:#8ecbff;">■</span> Shipping / Production delay &nbsp;
-      <span style="color:var(--success);">■</span> Inventory
-    </p>
-
-    <div class="lbp">
-      <!-- Customer column -->
-      <div class="lbp-col">
-        <div class="lbp-name">👤 Client</div>
-        <div class="lbp-slot a">—</div>
-        <div class="lbp-lbl">Commande</div>
-        <div style="flex:1; min-height:20px;"></div>
-        <div class="lbp-slot" style="opacity:.3;">—</div>
-        <div class="lbp-lbl">No stock</div>
-        <div class="lbp-slot" style="opacity:.3; margin-top:2px;">—</div>
-        <div class="lbp-lbl"></div>
-      </div>
-
-      <div class="lbp-arr">→</div>
-
-      {% for player in initial_players %}
-      {% with role=player.role %}
-
-      <div class="lbp-col">
-        <div class="lbp-name">
-          {% if role == 'retailer' %}🛒{% elif role == 'wholesaler' %}🏪{% elif role == 'distributor' %}🚚{% else %}🏭{% endif %}
-          {{ role|slice:":4"|upper }}
-        </div>
-
-        <!-- Orders placed / Production requests (top amber slots) -->
-        <div class="lbp-slot a">{{ initial_orders }}</div>
-        <div class="lbp-lbl">{% if role == 'factory' %}Prod req.{% else %}Orders placed{% endif %}</div>
-        <div class="lbp-slot a">{{ initial_orders }}</div>
-        <div class="lbp-lbl">{% if role == 'factory' %}Prod req.{% else %}Inc. orders{% endif %}</div>
-
-        <!-- Inventory -->
-        <div class="lbp-slot inv">{{ player.inventory }}</div>
-        <div class="lbp-lbl">Inventory</div>
-
-        <!-- Shipping / Production delay (bottom blue slots) -->
-        <div class="lbp-slot b" style="margin-top:2px;">{{ initial_ships }}</div>
-        <div class="lbp-lbl">{% if role == 'factory' %}Prod delay{% else %}Ship delay{% endif %}</div>
-        <div class="lbp-slot b">{{ initial_ships }}</div>
-        <div class="lbp-lbl">{% if role == 'factory' %}Prod delay{% else %}Ship delay{% endif %}</div>
-      </div>
-
-      {% if not forloop.last %}<div class="lbp-arr">⇄</div>{% endif %}
-      {% endwith %}
-      {% endfor %}
-    </div>
-  </div>
-
-  <!-- Activity diagram summary -->
-  <div class="card" style="margin-bottom:1.2rem;">
-    <div class="card-title">Déroulement chaque semaine</div>
+    <div class="card-title">How each week works</div>
     <div style="display:flex; flex-direction:column; gap:.55rem; margin-top:.3rem;">
-
       <div style="display:flex; gap:.7rem; align-items:flex-start; font-size:.78rem; color:var(--muted);">
         <span style="color:var(--accent); font-family:var(--font-mono); font-weight:800; flex-shrink:0; min-width:22px;">1</span>
-        <span><strong style="color:var(--text);">Client Final</strong> — S'authentifie et passe commande sur la plateforme</span>
+        <span><strong style="color:var(--text);">Customer</strong> — logs in and places an order on the platform</span>
       </div>
       <div style="display:flex; gap:.7rem; align-items:flex-start; font-size:.78rem; color:var(--muted);">
         <span style="color:var(--distributor-color); font-family:var(--font-mono); font-weight:800; flex-shrink:0; min-width:22px;">2</span>
-        <span><strong style="color:var(--text);">Réception marchandises</strong> — chaque acteur reçoit et confirme les livraisons entrantes → mise à jour stock</span>
+        <span><strong style="color:var(--text);">Receive goods</strong> — each actor receives and confirms incoming deliveries → inventory updated</span>
       </div>
       <div style="display:flex; gap:.7rem; align-items:flex-start; font-size:.78rem; color:var(--muted);">
         <span style="color:var(--wholesaler-color); font-family:var(--font-mono); font-weight:800; flex-shrink:0; min-width:22px;">3</span>
-        <span><strong style="color:var(--text);">Livraison aval</strong> — reçoit la demande client (incoming orders), stock suffisant ? → livrer ou créer backlog</span>
+        <span><strong style="color:var(--text);">Downstream delivery</strong> — enough stock? → ship or create backlog</span>
       </div>
       <div style="display:flex; gap:.7rem; align-items:flex-start; font-size:.78rem; color:var(--muted);">
         <span style="color:var(--accent); font-family:var(--font-mono); font-weight:800; flex-shrink:0; min-width:22px;">4</span>
-        <span><strong style="color:var(--text);">Passer commandes</strong> — remplit formulaire hebdomadaire (orders placed) vers fournisseur amont</span>
+        <span><strong style="color:var(--text);">Place orders</strong> — fill in weekly order form to upstream supplier</span>
       </div>
       <div style="display:flex; gap:.7rem; align-items:flex-start; font-size:.78rem; color:var(--muted);">
         <span style="color:var(--factory-color); font-family:var(--font-mono); font-weight:800; flex-shrink:0; min-width:22px;">★</span>
-        <span><strong style="color:var(--text);">Usine</strong> — reçoit ordre de fabrication → si &gt; 0, lancer production avec délai 2 semaines</span>
+        <span><strong style="color:var(--text);">Factory</strong> — receives production order → starts production with 2-week delay</span>
       </div>
       <div style="display:flex; gap:.7rem; align-items:flex-start; font-size:.78rem; color:var(--muted);">
         <span style="color:var(--success); font-family:var(--font-mono); font-weight:800; flex-shrink:0; min-width:22px;">✓</span>
-        <span><strong style="color:var(--text);">Fin de semaine</strong> — chaque acteur clique <em>Prêt pour semaine suivante</em> → semaine avance quand tous prêts</span>
+        <span><strong style="color:var(--text);">End of week</strong> — each actor clicks <em>Ready for next week</em> → week advances when all are ready</span>
       </div>
     </div>
   </div>
 
-  <!-- Demo tip -->
   <div style="background:rgba(59,130,246,.07); border:1px solid rgba(59,130,246,.2); border-radius:10px; padding:.85rem 1rem; font-size:.76rem; color:var(--muted);">
-    🎯 <strong style="color:var(--text);">Demo:</strong> Cliquez <strong style="color:var(--text);">↗ Open</strong> sur chaque rôle pour ouvrir 5 onglets sur une seule machine. Les QR codes permettent de jouer depuis d'autres appareils sur le même réseau.
+    🎯 <strong style="color:var(--text);">Demo:</strong> Click <strong style="color:var(--text);">↗ Open</strong> on each role to open tabs on one machine. QR codes let you play from other devices on the same network.
   </div>
-
 </div>
 </div><!-- /.lobby-grid -->
+</div><!-- /#section-pregame -->
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     SPECTATOR SECTION — shown once the game starts
+════════════════════════════════════════════════════════════════════════════ -->
+<div id="section-spectate">
+
+  <!-- live indicator + progress -->
+  <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:.75rem; margin-bottom:1rem;">
+    <div style="display:flex; align-items:center; gap:.55rem;">
+      <span class="live-dot"></span>
+      <span style="font-family:var(--font-mono); font-size:.78rem; color:var(--danger); font-weight:700;">LIVE</span>
+      <span style="font-size:.78rem; color:var(--muted);">Auto-refreshing every 3 s</span>
+    </div>
+    <div style="display:flex; gap:.5rem; flex-wrap:wrap;">
+      <a href="{% url 'dashboard' session.id %}" class="btn btn-ghost btn-sm">📋 Full Dashboard</a>
+      <a href="{% url 'results' session.id %}" class="btn btn-ghost btn-sm" id="btn-results" style="display:none;">📊 Results</a>
+    </div>
+  </div>
+
+  <!-- week progress bar -->
+  <div style="margin-bottom:1.5rem;">
+    <div class="progress-bar"><div class="progress-fill" id="spec-progress" style="width:0%"></div></div>
+    <div style="display:flex; justify-content:space-between; font-size:.7rem; color:var(--muted); margin-top:.25rem;">
+      <span>Week 0</span><span id="spec-maxwk">Week {{ session.max_weeks }}</span>
+    </div>
+  </div>
+
+  <!-- customer demand banner -->
+  <div id="demand-banner" style="display:none; background:rgba(245,200,66,.07); border:1px solid rgba(245,200,66,.25); border-radius:10px; padding:.7rem 1rem; margin-bottom:1.2rem; font-size:.82rem; color:var(--muted);">
+    👤 <strong style="color:var(--text);">Customer demand this week:</strong>
+    <span id="demand-val" style="font-family:var(--font-mono); font-size:1.1rem; color:var(--accent); font-weight:800; margin-left:.4rem;">—</span> units
+  </div>
+
+  <!-- player stat cards -->
+  <div class="spec-grid" id="spec-cards">
+    <!-- populated by JS -->
+  </div>
+
+  <!-- finished overlay message -->
+  <div id="finished-banner" style="display:none; text-align:center; margin-top:2rem; padding:1.5rem; background:rgba(245,200,66,.06); border:1px solid rgba(245,200,66,.25); border-radius:14px;">
+    <div style="font-size:1.8rem; margin-bottom:.5rem;">🏆</div>
+    <div style="font-family:var(--font-mono); font-size:1.1rem; color:var(--accent); font-weight:700;">Game Over!</div>
+    <div style="font-size:.82rem; color:var(--muted); margin:.4rem 0 1rem;">All weeks completed. Check the results for the final scores.</div>
+    <a href="{% url 'results' session.id %}" class="btn btn-primary">📊 View Results</a>
+  </div>
+
+</div><!-- /#section-spectate -->
 
 <div style="display:flex; gap:.75rem; justify-content:center; margin-top:2rem; padding-bottom:2rem;">
   <a href="{% url 'home' %}" class="btn btn-ghost">← Sessions</a>
@@ -297,15 +290,16 @@
 
 <script>
 const SESSION_ID = {{ session.id }};
-// Build role→url map from server-rendered data attributes (avoids template-in-JS issues)
 const ROLE_URLS = {};
 document.querySelectorAll('[id^="pill-"]').forEach(el => {
   const role = el.id.replace('pill-', '');
   ROLE_URLS[role] = el.textContent.trim();
 });
 
-// ── Polling ────────────────────────────────────────────────────────────────
-let poll = setInterval(fetchStatus, 2500);
+const EMOJIS = { customer:'👤', retailer:'🛒', wholesaler:'🏪', distributor:'🚚', factory:'🏭' };
+
+let isGameLive = false;
+let poll = setInterval(fetchStatus, 3000);
 fetchStatus();
 
 async function fetchStatus() {
@@ -314,32 +308,26 @@ async function fetchStatus() {
     if (!r.ok) return;
     const d = await r.json();
     updateUI(d);
-    if (d.game_started) {
-      clearInterval(poll);
-      toast('🚀 Tous les joueurs sont prêts — jeu en cours!', 'ok');
-      setTimeout(() => { window.location.href = '/game/' + SESSION_ID + '/'; }, 1500);
-    }
   } catch(e) {}
 }
 
 function updateUI(d) {
   const joined    = d.joined    || [];
   const connected = d.connected || [];
-  let count = 0;
 
+  // ── Week badge & header ──────────────────────────────────────────────────
+  const wb = document.getElementById('week-badge');
+  if (wb) wb.innerHTML = `<strong>${d.current_week}</strong> / ${d.max_weeks} weeks`;
+
+  // ── Orbs ─────────────────────────────────────────────────────────────────
+  let count = 0;
   Object.keys(ROLE_URLS).forEach(role => {
     const isIn = joined.includes(role) || connected.includes(role);
     if (isIn) count++;
-
-    // Card
     const card = document.getElementById('card-' + role);
     if (card) card.classList.toggle('joined', isIn);
-
-    // Dot
     const dot = document.getElementById('dot-' + role);
     if (dot) dot.className = 'rc-dot ' + (isIn ? 'on' : 'off');
-
-    // Name tag
     const tag  = document.getElementById('ntag-'  + role);
     const nEl  = document.getElementById('ntext-' + role);
     if (isIn && d.names?.[role]) {
@@ -348,20 +336,97 @@ function updateUI(d) {
     } else {
       if (tag)  tag.classList.remove('show');
     }
-
-    // Orb
     const orb = document.getElementById('orb-' + role);
     if (orb) orb.className = 'orb ' + (isIn ? 'joined' : '');
   });
 
-  // Status message
+  // ── Pre-game status message ───────────────────────────────────────────────
   const total = Object.keys(ROLE_URLS).length;
   const msg   = document.getElementById('status-msg');
-  if (msg) {
-    if (count === 0)      { msg.textContent = 'En attente de joueurs…'; msg.style.color = 'var(--muted)'; }
-    else if (count < total){ msg.textContent = `${count} / ${total} joueurs connectés`; msg.style.color = 'var(--accent)'; }
-    else                   { msg.textContent = '✓ Tous les joueurs sont là!'; msg.style.color = 'var(--success)'; }
+
+  if (d.game_started || d.is_finished) {
+    // Switch to spectator mode
+    if (!isGameLive) {
+      isGameLive = true;
+      document.getElementById('section-pregame').style.display = 'none';
+      document.getElementById('section-spectate').style.display = 'block';
+      document.getElementById('hdr-label').textContent = d.is_finished ? 'Game Over — Final Board' : 'Spectator View';
+      document.getElementById('hdr-sub').textContent   = d.is_finished ? 'The game has ended' : 'Watching the game live';
+      // Increase poll frequency while game is live
+      clearInterval(poll);
+      poll = setInterval(fetchStatus, 3000);
+    }
+
+    // Progress bar
+    const pct = d.max_weeks > 0 ? Math.round(d.current_week / d.max_weeks * 100) : 0;
+    const pb = document.getElementById('spec-progress');
+    if (pb) pb.style.width = pct + '%';
+
+    // Status orb area
+    if (msg) {
+      if (d.is_finished) { msg.textContent = '🏆 Game finished'; msg.style.color = 'var(--accent)'; }
+      else { msg.textContent = `📡 Week ${d.current_week} / ${d.max_weeks} — live`; msg.style.color = 'var(--success)'; }
+    }
+
+    // Customer demand banner
+    const demandBanner = document.getElementById('demand-banner');
+    const demandVal    = document.getElementById('demand-val');
+    if (d.last_demand !== null && d.last_demand !== undefined) {
+      if (demandBanner) demandBanner.style.display = 'block';
+      if (demandVal)    demandVal.textContent = d.last_demand;
+    }
+
+    // Finished banner
+    const finBanner = document.getElementById('finished-banner');
+    const btnResults = document.getElementById('btn-results');
+    if (d.is_finished) {
+      if (finBanner)  finBanner.style.display  = 'block';
+      if (btnResults) btnResults.style.display = 'inline-flex';
+      clearInterval(poll);
+    }
+
+    // Player stat cards
+    renderSpecCards(d.players || []);
+  } else {
+    // Pre-game
+    if (msg) {
+      if (count === 0)       { msg.textContent = 'Waiting for players…';               msg.style.color = 'var(--muted)'; }
+      else if (count < total){ msg.textContent = `${count} / ${total} players joined`; msg.style.color = 'var(--accent)'; }
+      else                   { msg.textContent = '✓ All players are here!';            msg.style.color = 'var(--success)'; }
+    }
   }
+}
+
+function renderSpecCards(players) {
+  const container = document.getElementById('spec-cards');
+  if (!container || !players.length) return;
+  container.innerHTML = '';
+  players.forEach(p => {
+    const invClass = p.inventory > 6 ? 'inv-good' : p.inventory > 0 ? 'inv-warn' : 'inv-bad';
+    const invVal   = p.inventory > 6 ? 'good'     : p.inventory > 0 ? 'warn'     : 'bad';
+    const blkVal   = p.backlog === 0  ? 'good'     : p.backlog < 5   ? 'warn'     : 'bad';
+    container.innerHTML += `
+      <div class="spec-card ${invClass}">
+        <div class="spec-role">${EMOJIS[p.role] || ''} <span class="role-badge role-${p.role}">${p.role}</span></div>
+        <div class="spec-name">${p.name || '—'}</div>
+        <div class="spec-stat">
+          <span class="spec-stat-lbl">Inventory</span>
+          <span class="spec-stat-val ${invVal}">${p.inventory}</span>
+        </div>
+        <div class="spec-stat">
+          <span class="spec-stat-lbl">Backlog</span>
+          <span class="spec-stat-val ${blkVal}">${p.backlog}</span>
+        </div>
+        <div class="spec-stat">
+          <span class="spec-stat-lbl">Total Cost</span>
+          <span class="spec-stat-val warn">$${p.total_cost}</span>
+        </div>
+        <div class="spec-stat">
+          <span class="spec-stat-lbl">Last Order</span>
+          <span class="spec-stat-val">${p.order_placed}</span>
+        </div>
+      </div>`;
+  });
 }
 
 // ── Copy ──────────────────────────────────────────────────────────────────
@@ -369,14 +434,12 @@ function doCopy(btn) {
   const url  = btn.dataset.url;
   const role = btn.dataset.role;
   if (!url) return;
-
   const doIt = () => {
-    btn.textContent = '✓ Copié!';
+    btn.textContent = '✓ Copied!';
     btn.classList.add('copied');
     setTimeout(() => { btn.textContent = '📋 Copy'; btn.classList.remove('copied'); }, 2200);
-    toast(`Lien copié — ${role}`, 'ok');
+    toast(`Link copied — ${role}`, 'ok');
   };
-
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(url).then(doIt).catch(() => fallbackCopy(url, doIt));
   } else {
@@ -403,7 +466,7 @@ function doQR(btn) {
   const ov   = document.getElementById('qr-ov');
   el.innerHTML = '';
   if (qrInst) { try { qrInst.clear(); } catch(e){} qrInst = null; }
-  document.getElementById('qr-title').textContent = role.charAt(0).toUpperCase() + role.slice(1) + ' — Scanner pour rejoindre';
+  document.getElementById('qr-title').textContent = role.charAt(0).toUpperCase() + role.slice(1) + ' — Scan to join';
   ov.classList.add('open');
   qrInst = new QRCode(el, { text: url, width:200, height:200, colorDark:'#0d0f14', colorLight:'#fff', correctLevel: QRCode.CorrectLevel.M });
 }

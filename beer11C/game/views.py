@@ -251,14 +251,40 @@ def lobby_status(request, session_id):
     connected   = [ps.role for ps in player_sessions if ps.is_connected]
     names       = {ps.role: ps.name for ps in player_sessions if ps.name}
     game_started = session.status == GameSession.STATUS_PLAYING
+    is_finished  = session.status == GameSession.STATUS_FINISHED
+
+    # Include live player board data so the lobby can act as a spectator view
+    players_data = []
+    if game_started or is_finished:
+        for player in _sorted_players(session.players.all()):
+            last_state = player.history.order_by('-week').first()
+            players_data.append({
+                'role':         player.role,
+                'name':         player.name,
+                'inventory':    player.inventory,
+                'backlog':      player.backlog,
+                'total_cost':   round(player.total_cost, 1),
+                'order_placed': last_state.order_placed if last_state else 0,
+            })
+
+    # Last customer demand (useful for spectators)
+    last_demand = None
+    if game_started or is_finished:
+        d = CustomerDemand.objects.filter(session=session, week=session.current_week).first()
+        if d:
+            last_demand = d.quantity
+
     return JsonResponse({
-        'joined':       joined,
-        'connected':    connected,
-        'names':        names,
-        'game_started': game_started,
-        'status':       session.status,
-        'current_week': session.current_week,
-        'max_weeks':    session.max_weeks,
+        'joined':        joined,
+        'connected':     connected,
+        'names':         names,
+        'game_started':  game_started,
+        'is_finished':   is_finished,
+        'status':        session.status,
+        'current_week':  session.current_week,
+        'max_weeks':     session.max_weeks,
+        'players':       players_data,
+        'last_demand':   last_demand,
     })
 
 
