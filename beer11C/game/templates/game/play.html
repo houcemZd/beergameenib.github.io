@@ -747,9 +747,9 @@
 
   <div style="background:rgba(59,130,246,.06); border:1px solid rgba(59,130,246,.2); border-radius:8px; padding:.65rem .9rem; margin-bottom:.85rem; font-size:.78rem; color:var(--muted);">
     Production you started <strong style="color:var(--text);">2 weeks ago</strong> has completed and is ready to enter your inventory.
-    Your <strong style="color:var(--text);">production request from last week</strong> now enters the 2-week production pipeline.
-    You will also see the <strong style="color:var(--text);">Incoming Order from the Distributor</strong> — placed 2 weeks ago, now arriving at your desk.
-    You will fill that order in Step 2, then decide how much new production to start in Step 3.
+    Your <strong style="color:var(--text);">own production request from last week</strong> (the quantity <em>you</em> decided to produce last turn) now enters the 2-week production pipeline.
+    You will also see the <strong style="color:var(--text);">Incoming Order from the Distributor</strong> — this is the <em>Distributor's demand</em> placed 2 weeks ago, now arriving at your desk.
+    You will fill that Distributor order in Step 2, then decide how much new production to start in Step 3.
   </div>
 
   <!-- Production completing this week (blue — from production delay pipeline) -->
@@ -768,8 +768,8 @@
   <!-- Production request starting (green — enters production pipeline now) -->
   <div class="confirm-row" id="recv-prod-start-row" style="margin-top:.5rem; border-left:3px solid rgba(34,197,94,.5); padding-left:1rem;">
     <div>
-      <div class="confirm-label" style="font-weight:700; color:var(--success);">⚙️ Production request starting now</div>
-      <div class="confirm-sub">Last week's request enters the 2-week production pipeline → ready in 2 weeks</div>
+      <div class="confirm-label" style="font-weight:700; color:var(--success);">⚙️ Your production request starting now</div>
+      <div class="confirm-sub">Your own decision from last week enters the 2-week production pipeline → ready in 2 weeks</div>
     </div>
     <div class="confirm-qty" id="recv-prod-start-qty" style="color:var(--success);">—</div>
   </div>
