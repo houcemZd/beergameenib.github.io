@@ -742,21 +742,14 @@
 <div class="phase-panel" id="panel-receive">
 
   {% if role == 'factory' %}
-  <!-- ── Factory: receive completed production + read incoming order ── -->
-  <div class="panel-title">📦 Step 1 — Receive Completed Production</div>
-
-  <div style="background:rgba(59,130,246,.06); border:1px solid rgba(59,130,246,.2); border-radius:8px; padding:.65rem .9rem; margin-bottom:.85rem; font-size:.78rem; color:var(--muted);">
-    Production you started <strong style="color:var(--text);">2 weeks ago</strong> has completed and is ready to enter your inventory.
-    Your <strong style="color:var(--text);">own production request from last week</strong> (the quantity <em>you</em> decided to produce last turn) now enters the 2-week production pipeline.
-    You will also see the <strong style="color:var(--text);">Incoming Order from the Distributor</strong> — this is the <em>Distributor's demand</em> placed 2 weeks ago, now arriving at your desk.
-    You will fill that Distributor order in Step 2, then decide how much new production to start in Step 3.
-  </div>
+  <!-- ── Factory: receive completed production ── -->
+  <div class="panel-title">📦 Step 1 — Receive Production</div>
 
   <!-- Production completing this week (blue — from production delay pipeline) -->
   <div class="confirm-row" style="border-left:3px solid rgba(59,130,246,.5); padding-left:1rem;" id="recv-prod-row">
     <div>
-      <div class="confirm-label" style="font-weight:700; color:var(--wholesaler-color);">🏭 Production completing this week</div>
-      <div class="confirm-sub">Units that finished the 2-week production delay → added to your inventory</div>
+      <div class="confirm-label" style="font-weight:700; color:var(--wholesaler-color);">🏭 Production ready</div>
+      <div class="confirm-sub">Completed 2-week pipeline → added to inventory</div>
     </div>
     <div class="confirm-qty" id="recv-prod-qty" style="color:var(--wholesaler-color);">—</div>
   </div>
@@ -768,34 +761,25 @@
   <!-- Production request starting (green — enters production pipeline now) -->
   <div class="confirm-row" id="recv-prod-start-row" style="margin-top:.5rem; border-left:3px solid rgba(34,197,94,.5); padding-left:1rem;">
     <div>
-      <div class="confirm-label" style="font-weight:700; color:var(--success);">⚙️ Your production request starting now</div>
-      <div class="confirm-sub">Your own decision from last week enters the 2-week production pipeline → ready in 2 weeks</div>
+      <div class="confirm-label" style="font-weight:700; color:var(--success);">⚙️ Production request entering pipeline</div>
+      <div class="confirm-sub">Last week's request → 2-week production delay</div>
     </div>
     <div class="confirm-qty" id="recv-prod-start-qty" style="color:var(--success);">—</div>
   </div>
 
-  <!-- Incoming order from Distributor (amber — order delay pipeline) -->
-  <div class="confirm-row" style="margin-top:.5rem; border-left:3px solid rgba(245,200,66,.6); padding-left:1rem;">
-    <div>
-      <div class="confirm-label" style="font-weight:700; color:var(--accent);">📋 Incoming Order (from Distributor)</div>
-      <div class="confirm-sub">Order placed by Distributor 2 weeks ago — you will ship this in Step 2</div>
-    </div>
-    <div class="confirm-qty" id="recv-qty" style="color:var(--accent);">—</div>
-  </div>
-
   <button class="btn btn-primary" id="btn-receive" onclick="doConfirmReceive()"
     style="width:100%; justify-content:center; font-size:1rem; padding:.75rem; margin-top:.85rem; background:var(--wholesaler-color); color:#0d0f14;">
-    ✓ Goods Received — Proceed to Fill Order
+    ✓ Confirm & See Distributor Order
   </button>
 
   {% else %}
   <!-- ── All other roles: receive incoming shipment ── -->
-  <div class="panel-title">📦 Step 1 — Receive Incoming Shipment</div>
+  <div class="panel-title">📦 Step 1 — Receive Shipment</div>
 
   <div class="confirm-row" id="recv-row">
     <div>
-      <div class="confirm-label" style="font-weight:700; color:var(--distributor-color);">📦 Shipment arriving from upstream</div>
-      <div class="confirm-sub">Shipped 2 weeks ago — ready to enter your inventory</div>
+      <div class="confirm-label" style="font-weight:700; color:var(--distributor-color);">📦 Incoming shipment</div>
+      <div class="confirm-sub">Shipped 2 weeks ago → added to inventory</div>
     </div>
     <div class="confirm-qty" id="recv-qty" style="color:var(--distributor-color);">—</div>
   </div>
@@ -804,15 +788,9 @@
     No goods arriving this week.
   </div>
 
-  <div style="background:rgba(168,85,247,.06); border:1px solid rgba(168,85,247,.18); border-radius:8px; padding:.6rem .85rem; margin:.6rem 0; font-size:.76rem; color:var(--muted);">
-    {% if role == 'retailer' %}
-    ℹ️ Once confirmed, these units are added to your <strong style="color:var(--text);">Current Inventory</strong>. You will then see the incoming order to fill.
-    {% endif %}
-  </div>
-
   <button class="btn btn-primary" id="btn-receive" onclick="doConfirmReceive()"
     style="width:100%; justify-content:center; font-size:1rem; padding:.75rem; background:var(--distributor-color); color:#0d0f14;">
-    ✓ Confirm Receipt — Add to Inventory
+    ✓ Confirm Receipt
   </button>
   {% endif %}
 
@@ -858,10 +836,6 @@
     ⚠️ Insufficient stock — partial shipment. Remainder goes to backlog.
   </div>
 
-  <div style="background:rgba(59,130,246,.06); border:1px solid rgba(59,130,246,.18); border-radius:8px; padding:.6rem .85rem; margin:.6rem 0; font-size:.76rem; color:var(--muted);">
-    ℹ️ Shipment enters the <strong style="color:var(--text);">Shipping Delay</strong> and arrives in <strong style="color:var(--text);">2 weeks</strong>. Your inventory is deducted now.
-  </div>
-
   <button class="btn btn-primary" id="btn-ship" onclick="doConfirmShip()"
     style="width:100%; justify-content:center; font-size:1rem; padding:.75rem; background:var(--wholesaler-color); color:#0d0f14;">
     ✓ Confirm — Send Shipment
@@ -893,11 +867,7 @@
 
     {% if role == 'factory' %}
     <div style="background:rgba(34,197,94,.06); border:1px solid rgba(34,197,94,.2); border-radius:8px; padding:.7rem .9rem; margin-bottom:.75rem; font-size:.78rem; color:var(--muted);">
-      🏭 <strong style="color:var(--text);">Your own decision</strong> — how many units do you want to start producing right now?
-      This is your <strong style="color:var(--text);">production request to yourself</strong>.
-      Units will enter the <strong style="color:var(--text);">Production Delay</strong> pipeline and be ready in <strong style="color:var(--text);">3 weeks total</strong>
-      (1-week request delay + 2-week production delay).
-      There is no production limit.
+      🏭 How many units do you want to start producing? Ready in <strong style="color:var(--text);">3 weeks</strong> (1w request + 2w production).
     </div>
     {% endif %}
 
@@ -905,9 +875,9 @@
 
     <div style="font-size:.76rem; color:var(--muted); margin-bottom:.85rem; text-align:center;">
       {% if role == 'factory' %}
-        Production request enters <strong style="color:var(--text);">1-week delay</strong>, then <strong style="color:var(--text);">2-week production pipeline</strong> — ready in <strong style="color:var(--text);">3 weeks total</strong>
+        1w request delay → 2w production → ready in 3 weeks
       {% else %}
-        Order placed travels <strong style="color:var(--text);">2 weeks</strong> upstream, shipment back in <strong style="color:var(--text);">2 more weeks</strong>
+        2w upstream → shipment arrives in 2 more weeks
       {% endif %}
     </div>
 
@@ -1459,28 +1429,23 @@ function showReceivePanel(receivedQty, demandIncoming, productionRequest) {
   // ────────────────────────────────────────────────────────────────────────────
 
   if (MY_ROLE === 'factory') {
-    // Factory phase 1 has three rows:
-    //   recv-prod-qty       = production completing this week (from 2-week production pipeline, blue)
-    //   recv-prod-start-qty = production request starting now (from last week's self-order, green)
-    //   recv-qty            = incoming order from Distributor (amber)
-    const prodEl      = document.getElementById('recv-prod-qty');       // production completing
+    // Factory phase 1: production completing + production request starting
+    //   recv-prod-qty       = production completing this week (blue)
+    //   recv-prod-start-qty = production request entering pipeline (green)
+    const prodEl      = document.getElementById('recv-prod-qty');
     const prodRow     = document.getElementById('recv-prod-row');
-    const startEl     = document.getElementById('recv-prod-start-qty'); // production request starting
+    const startEl     = document.getElementById('recv-prod-start-qty');
     const startRow    = document.getElementById('recv-prod-start-row');
-    const orderEl     = document.getElementById('recv-qty');             // incoming order from Distributor
     const noneEl      = document.getElementById('recv-none');
 
-    // Production completing (receivedQty = units arriving from production delay)
+    // Production completing
     if (prodEl)  prodEl.textContent = receivedQty > 0 ? '+' + receivedQty : '0';
     if (prodRow) prodRow.style.display = 'flex';
     if (noneEl)  noneEl.style.display  = receivedQty > 0 ? 'none' : 'block';
 
-    // Production request starting now (productionRequest = last week's self-order quantity)
+    // Production request starting
     if (startEl)  startEl.textContent = (productionRequest != null) ? productionRequest : '0';
     if (startRow) startRow.style.display = (productionRequest != null && productionRequest > 0) ? 'flex' : 'none';
-
-    // Incoming order from Distributor (demandIncoming)
-    if (orderEl) orderEl.textContent = demandIncoming ?? '—';
   } else {
     // Non-factory: show incoming shipment
     const qEl  = document.getElementById('recv-qty');
@@ -1502,8 +1467,8 @@ function showReceivePanel(receivedQty, demandIncoming, productionRequest) {
   if (btn) {
     btn.disabled = false;
     btn.textContent = MY_ROLE === 'factory'
-      ? '✓ Goods Received — Proceed to Fill Order'
-      : '✓ Confirm Receipt — Add to Inventory';
+      ? '✓ Confirm & See Distributor Order'
+      : '✓ Confirm Receipt';
   }
 }
 
@@ -1528,15 +1493,15 @@ function showShipPanel(demandQty, justReceived, currentInv, currentBlg) {
 
   document.getElementById('ship-demand-qty').textContent = totalDemand;
   document.getElementById('ship-demand-sub').textContent =
-    MY_ROLE === 'retailer'     ? 'from Customer — units to fulfill' :
-    MY_ROLE === 'wholesaler'   ? `from Retailer (+ backlog: ${totalBacklog})` :
-    MY_ROLE === 'distributor'  ? `from Wholesaler (+ backlog: ${totalBacklog})` :
-    MY_ROLE === 'factory'      ? `Incoming Order from Distributor (+ backlog: ${totalBacklog})` :
-                                 `from downstream (+ backlog: ${totalBacklog})`;
+    MY_ROLE === 'retailer'     ? 'from Customer' :
+    MY_ROLE === 'wholesaler'   ? `from Retailer  · backlog: ${totalBacklog}` :
+    MY_ROLE === 'distributor'  ? `from Wholesaler · backlog: ${totalBacklog}` :
+    MY_ROLE === 'factory'      ? `from Distributor · backlog: ${totalBacklog}` :
+                                 `from downstream · backlog: ${totalBacklog}`;
 
   document.getElementById('ship-qty').textContent = willShip;
   document.getElementById('ship-amount-sub').textContent =
-    `min(${available} on hand, ${totalDemand + totalBacklog} total demand) = ${willShip} shipped`;
+    `min(${available} stock, ${totalDemand + totalBacklog} demand) = ${willShip}`;
 
   const shortNote = document.getElementById('ship-shortage-note');
   if (shortNote) shortNote.style.display = shortage > 0 ? 'block' : 'none';
@@ -1575,12 +1540,11 @@ function showDonePanel(orderQty, msg) {
   document.getElementById('order-submitted-section').style.display = 'block';
   const ql = document.getElementById('submitted-qty-label');
   if (MY_ROLE === 'factory') {
-    // Factory: production request → 1w order delay → then 2w production delay
-    if (ql) ql.textContent = `Production request: ${orderQty} units → 1w delay → production starts next week (ready in 3 weeks)`;
+    if (ql) ql.textContent = `${orderQty} units → 1w delay → production starts next week`;
     log('order', `Production request: ${orderQty} units placed`);
     toast(`✓ Production request: ${orderQty} units`, 'success');
   } else {
-    if (ql) ql.textContent = `Order placed: ${orderQty} units → 2w delay upstream`;
+    if (ql) ql.textContent = `${orderQty} units → 2w upstream`;
     log('order', `Order placed: ${orderQty} units`);
     toast(`✓ Order placed: ${orderQty}`, 'success');
   }
