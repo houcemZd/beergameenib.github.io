@@ -1,57 +1,87 @@
 {% extends "game/base.html" %}
-{% block title %}Connexion — Beer Game{% endblock %}
+{% block title %}Sign In — Beer Game{% endblock %}
 
 {% block extra_head %}
 <style>
 .auth-wrap {
-  min-height: calc(100vh - 56px);
+  min-height: calc(100vh - var(--nav-height));
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 2rem 1rem;
 }
+
+/* Floating blobs */
+.auth-blob {
+  position: fixed; pointer-events: none; border-radius: 50%; z-index: 0;
+  filter: blur(80px); opacity: .06;
+}
+.auth-blob-1 { width: 400px; height: 400px; background: #f5c842; top: -10%; left: -10%; animation: drift 18s ease-in-out infinite; }
+.auth-blob-2 { width: 300px; height: 300px; background: #3b82f6; bottom: 10%; right: -5%; animation: drift 22s ease-in-out infinite reverse; }
+@keyframes drift {
+  0%,100% { transform: translate(0,0) scale(1); }
+  33%  { transform: translate(30px,-20px) scale(1.05); }
+  66%  { transform: translate(-20px,15px) scale(.95); }
+}
+
 .auth-card {
+  position: relative; z-index: 1;
   width: 100%;
   max-width: 420px;
-  background: var(--surface);
+  background: rgba(19,22,31,.95);
   border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 2.5rem 2rem;
-  box-shadow: 0 24px 64px rgba(0,0,0,.4);
+  border-radius: 20px;
+  padding: 2.5rem 2.25rem;
+  box-shadow: 0 32px 80px rgba(0,0,0,.55), 0 0 0 1px rgba(245,200,66,.06);
+  backdrop-filter: blur(12px);
+  animation: fadeUp .4s ease both;
 }
+.auth-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(245,200,66,.4), transparent);
+  border-radius: 20px 20px 0 0;
+}
+
 .auth-logo {
   text-align: center;
   margin-bottom: 2rem;
 }
 .auth-logo-icon {
-  font-size: 2.8rem;
+  font-size: 3rem;
   display: block;
-  margin-bottom: .5rem;
+  margin-bottom: .6rem;
+  filter: drop-shadow(0 0 16px rgba(245,200,66,.5));
+  animation: float 3.5s ease-in-out infinite;
+}
+@keyframes float {
+  0%,100% { transform: translateY(0); }
+  50%     { transform: translateY(-6px); }
 }
 .auth-logo-title {
   font-family: var(--font-mono);
-  font-size: 1.3rem;
+  font-size: 1.4rem;
   font-weight: 700;
   color: var(--accent);
-  letter-spacing: .05em;
+  letter-spacing: .06em;
+  text-shadow: 0 0 20px var(--accent-glow);
 }
 .auth-logo-sub {
-  font-size: .75rem;
+  font-size: .72rem;
   color: var(--muted);
-  margin-top: .2rem;
-  letter-spacing: .1em;
+  margin-top: .3rem;
+  letter-spacing: .12em;
   text-transform: uppercase;
 }
-.auth-field {
-  margin-bottom: 1.1rem;
-}
+
+.auth-field { margin-bottom: 1.1rem; }
 .auth-label {
   display: block;
-  font-size: .75rem;
+  font-size: .72rem;
   color: var(--muted);
   text-transform: uppercase;
-  letter-spacing: .08em;
-  margin-bottom: .4rem;
+  letter-spacing: .1em;
+  margin-bottom: .45rem;
   font-weight: 600;
 }
 .auth-input {
@@ -60,80 +90,87 @@
   border: 1.5px solid var(--border);
   border-radius: 10px;
   color: var(--text);
-  padding: .7rem 1rem;
+  padding: .75rem 1rem;
   font-size: .95rem;
   font-family: var(--font-body);
   outline: none;
-  transition: border-color .15s, box-shadow .15s;
+  transition: border-color .18s, box-shadow .18s;
   box-sizing: border-box;
 }
 .auth-input:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(245,200,66,.12);
+  box-shadow: 0 0 0 3px var(--accent-dim);
 }
+.auth-input::placeholder { color: var(--muted2); }
+
 .auth-btn {
   width: 100%;
-  padding: .8rem;
+  padding: .85rem;
   font-size: 1rem;
   font-weight: 700;
   margin-top: .5rem;
   border-radius: 10px;
   justify-content: center;
+  letter-spacing: .02em;
 }
 .auth-divider {
   text-align: center;
-  margin: 1.4rem 0 1rem;
+  margin: 1.5rem 0 1.1rem;
   position: relative;
 }
 .auth-divider::before {
   content: '';
-  position: absolute;
-  top: 50%;
-  left: 0; right: 0;
-  height: 1px;
-  background: var(--border);
+  position: absolute; top: 50%; left: 0; right: 0;
+  height: 1px; background: var(--border);
 }
 .auth-divider span {
   position: relative;
-  background: var(--surface);
-  padding: 0 .75rem;
-  font-size: .75rem;
+  background: rgba(19,22,31,.95);
+  padding: 0 .9rem;
+  font-size: .72rem;
   color: var(--muted);
 }
 .auth-link {
   text-align: center;
-  font-size: .83rem;
+  font-size: .85rem;
   color: var(--muted);
   margin-top: 1.25rem;
 }
 .auth-link a { color: var(--accent); font-weight: 600; }
+.auth-link a:hover { text-decoration: underline; }
 .auth-error {
-  background: rgba(239,68,68,.08);
+  display: flex; align-items: flex-start; gap: .55rem;
+  background: var(--danger-dim);
   border: 1px solid rgba(239,68,68,.3);
+  border-left: 3px solid var(--danger);
   border-radius: 8px;
-  padding: .65rem .9rem;
-  font-size: .82rem;
-  color: var(--danger);
-  margin-bottom: 1.1rem;
+  padding: .7rem .9rem;
+  font-size: .83rem;
+  color: #fca5a5;
+  margin-bottom: 1.25rem;
 }
 .auth-roles {
   display: flex;
-  gap: .5rem;
+  gap: .4rem;
   justify-content: center;
   margin-top: 1.75rem;
   flex-wrap: wrap;
 }
 .auth-role-pill {
-  font-size: .68rem;
-  padding: .2rem .6rem;
+  font-size: .65rem;
+  padding: .18rem .6rem;
   border-radius: 999px;
   border: 1px solid var(--border);
   color: var(--muted);
+  background: var(--surface2);
 }
 </style>
 {% endblock %}
 
 {% block content %}
+<div class="auth-blob auth-blob-1"></div>
+<div class="auth-blob auth-blob-2"></div>
+
 <div class="auth-wrap">
   <div class="auth-card">
 
@@ -145,7 +182,7 @@
 
     {% if messages %}
       {% for message in messages %}
-      <div class="auth-error">{{ message }}</div>
+      <div class="auth-error">⚠️ {{ message }}</div>
       {% endfor %}
     {% endif %}
 
@@ -153,36 +190,36 @@
       {% csrf_token %}
 
       <div class="auth-field">
-        <label class="auth-label" for="username">Nom d'utilisateur</label>
+        <label class="auth-label" for="username">Username</label>
         <input class="auth-input" type="text" id="username" name="username"
-               placeholder="Votre identifiant" autocomplete="username" autofocus
+               placeholder="your-username" autocomplete="username" autofocus
                value="{{ request.POST.username|default:'' }}" />
       </div>
 
       <div class="auth-field">
-        <label class="auth-label" for="password">Mot de passe</label>
+        <label class="auth-label" for="password">Password</label>
         <input class="auth-input" type="password" id="password" name="password"
                placeholder="••••••••" autocomplete="current-password" />
       </div>
 
       <button type="submit" class="btn btn-primary auth-btn">
-        Connexion →
+        Sign In →
       </button>
     </form>
 
-    <div class="auth-divider"><span>ou</span></div>
+    <div class="auth-divider"><span>or</span></div>
 
     <div class="auth-link">
-      Pas encore de compte ?
-      <a href="{% url 'register' %}">Créer un compte</a>
+      No account yet?
+      <a href="{% url 'register' %}">Create one free</a>
     </div>
 
     <div class="auth-roles">
-      <span class="auth-role-pill">👤 Client</span>
-      <span class="auth-role-pill">🛒 Détaillant</span>
-      <span class="auth-role-pill">🏪 Grossiste</span>
-      <span class="auth-role-pill">🚚 Distributeur</span>
-      <span class="auth-role-pill">🏭 Usine</span>
+      <span class="auth-role-pill">👤 Customer</span>
+      <span class="auth-role-pill">🛒 Retailer</span>
+      <span class="auth-role-pill">🏪 Wholesaler</span>
+      <span class="auth-role-pill">🚚 Distributor</span>
+      <span class="auth-role-pill">🏭 Factory</span>
     </div>
 
   </div>

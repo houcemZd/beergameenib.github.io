@@ -3,114 +3,150 @@
 
 {% block extra_head %}
 <style>
-  .result-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.5rem;
-  }
-  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
-  .kpi-box {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 1.25rem;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-  }
-  .kpi-box.winner {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 1px rgba(245,200,66,.25), 0 4px 24px rgba(245,200,66,.12);
-    background: rgba(245,200,66,.04);
-  }
-  .kpi-winner-badge {
-    position: absolute;
-    top: 0; right: 0;
-    font-size: .6rem;
-    font-weight: 800;
-    background: var(--accent);
-    color: #0d0f14;
-    padding: .2rem .55rem;
-    border-radius: 0 10px 0 8px;
-    letter-spacing: .06em;
-    text-transform: uppercase;
-  }
-  .kpi-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; }
-  .kpi-value { font-family: var(--font-mono); font-size: 2rem; font-weight: 700; margin: 0.4rem 0; }
-  .kpi-sub { font-size: 0.75rem; color: var(--muted); }
-  .chart-wrap { position: relative; height: 280px; }
-  .charts-grid-2 {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
-    margin-bottom: 1.5rem;
-  }
-  @media (max-width: 700px) { .charts-grid-2 { grid-template-columns: 1fr; } }
-  .bullwhip-bar-row { display: flex; align-items:center; gap: 1rem; margin-bottom: 0.75rem; }
-  .bullwhip-bar-label { width: 90px; font-size: 0.8rem; text-align: right; color: var(--muted); }
-  .bullwhip-bar-track { flex: 1; height: 20px; background: var(--surface2); border-radius: 4px; overflow: hidden; position: relative; }
-  .bullwhip-bar-fill  { height: 100%; border-radius: 4px; transition: width 1s ease; }
-  .bullwhip-bar-marker { position: absolute; top: 0; bottom: 0; width: 2px; background: rgba(255,255,255,.2); }
-  .bullwhip-bar-val   { width: 50px; font-family: var(--font-mono); font-size: 0.8rem; color: var(--text); }
+/* ── KPI grid ─────────────────────────────────────────────────────────────── */
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+.kpi-box {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.4rem 1.25rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  transition: border-color .2s, box-shadow .2s;
+}
+.kpi-box::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: var(--kpi-cl, var(--border));
+  transition: opacity .2s;
+}
+.kpi-box.winner {
+  border-color: rgba(245,200,66,.4);
+  box-shadow: 0 0 0 1px rgba(245,200,66,.15), 0 8px 32px rgba(245,200,66,.1);
+  background: rgba(245,200,66,.04);
+}
+.kpi-winner-badge {
+  position: absolute; top: 0; right: 0;
+  font-size: .58rem; font-weight: 800;
+  background: var(--accent); color: #0a0c11;
+  padding: .22rem .6rem;
+  border-radius: 0 14px 0 8px;
+  letter-spacing: .06em; text-transform: uppercase;
+}
+.kpi-label { font-size: .68rem; color: var(--muted); text-transform: uppercase; letter-spacing: .12em; margin-bottom: .5rem; }
+.kpi-value { font-family: var(--font-mono); font-size: 2.1rem; font-weight: 700; margin: .2rem 0; line-height: 1.1; }
+.kpi-sub   { font-size: .72rem; color: var(--muted); }
+
+/* ── Result card ──────────────────────────────────────────────────────────── */
+.result-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.chart-wrap { position: relative; height: 280px; margin-top: .5rem; }
+.charts-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+@media (max-width: 700px) { .charts-grid-2 { grid-template-columns: 1fr; } }
+
+/* ── Bullwhip bars ────────────────────────────────────────────────────────── */
+.bullwhip-bar-row { display: flex; align-items: center; gap: 1rem; margin-bottom: .85rem; }
+.bullwhip-bar-label { width: 100px; font-size: .8rem; text-align: right; color: var(--muted); flex-shrink: 0; }
+.bullwhip-bar-track { flex: 1; height: 22px; background: var(--surface2); border-radius: 6px; overflow: hidden; position: relative; border: 1px solid var(--border); }
+.bullwhip-bar-fill  { height: 100%; border-radius: 6px; transition: width 1.2s cubic-bezier(.4,0,.2,1); }
+.bullwhip-bar-marker { position: absolute; top: 0; bottom: 0; width: 2px; background: rgba(255,255,255,.25); }
+.bullwhip-bar-val   { width: 50px; font-family: var(--font-mono); font-size: .8rem; color: var(--text); flex-shrink: 0; }
+
+/* ── Page header ──────────────────────────────────────────────────────────── */
+.results-header {
+  display: flex; align-items: flex-start; gap: 1rem;
+  margin-bottom: 2rem; flex-wrap: wrap;
+}
+.results-header-main { flex: 1; min-width: 0; }
+.results-header h2 {
+  font-family: var(--font-mono);
+  font-size: 1.5rem; margin-bottom: .3rem;
+}
+.results-header p { color: var(--muted); font-size: .85rem; }
+
+/* ── Podium ───────────────────────────────────────────────────────────────── */
+.podium {
+  display: flex; align-items: flex-end; justify-content: center;
+  gap: .75rem; margin-bottom: 2rem;
+}
+.podium-slot {
+  display: flex; flex-direction: column; align-items: center; gap: .35rem;
+  flex: 0 0 100px;
+}
+.podium-bar {
+  width: 100%; border-radius: 8px 8px 0 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-mono); font-size: .85rem; font-weight: 800;
+  color: var(--text); padding-top: .5rem;
+  transition: height .8s cubic-bezier(.4,0,.2,1);
+}
+.podium-rank { font-family: var(--font-mono); font-size: .7rem; color: var(--muted); }
+.podium-role { font-size: .72rem; }
 </style>
 {% endblock %}
 
 {% block content %}
 
-<div style="display:flex; align-items:center; gap:1rem; margin-bottom:2rem; flex-wrap:wrap;">
-  <div>
-    <h2 style="font-family: var(--font-mono); font-size: 1.4rem;">
-      📊 Results — <span style="color:var(--accent)">{{ session.name }}</span>
-    </h2>
-    <p style="color:var(--muted); font-size:0.875rem;">{{ session.max_weeks }} weeks completed</p>
+<!-- Page header -->
+<div class="results-header fade-up">
+  <div class="results-header-main">
+    <h2>🏆 Results — <span style="color:var(--accent)">{{ session.name }}</span></h2>
+    <p>{{ session.max_weeks }} weeks completed · Final scoreboard</p>
   </div>
-  <div style="margin-left:auto; display:flex; gap:0.75rem;">
+  <div style="display:flex; gap:.6rem; flex-shrink:0; align-items:flex-start; flex-wrap:wrap;">
     <a href="{% url 'dashboard' session.id %}" class="btn btn-ghost btn-sm">← Dashboard</a>
     <a href="{% url 'home' %}" class="btn btn-ghost btn-sm">Sessions</a>
+    <a href="{% url 'new_game' %}" class="btn btn-primary btn-sm">🚀 Play Again</a>
   </div>
 </div>
 
-<!-- KPI row -->
-<div class="kpi-grid mb-2">
+<!-- KPI cards -->
+<div class="kpi-grid fade-up-delay">
   {% for player in players %}
-  <div class="kpi-box {% if player.role == winner_role %}winner{% endif %}">
-    {% if player.role == winner_role %}<div class="kpi-winner-badge">🏆 Best</div>{% endif %}
+  <div class="kpi-box {% if player.role == winner_role %}winner{% endif %}"
+       style="--kpi-cl:var(--{{ player.role }}-color);">
+    {% if player.role == winner_role %}
+      <div class="kpi-winner-badge">🏆 Winner</div>
+    {% endif %}
     <div class="kpi-label"><span class="role-badge role-{{ player.role }}">{{ player.role }}</span></div>
-    <div class="kpi-value" style="color: var(--{{ player.role }}-color);">
+    <div class="kpi-value" style="color:var(--{{ player.role }}-color);">
       ${{ player.total_cost|floatformat:0 }}
     </div>
-    <div class="kpi-sub">Total cost</div>
+    <div class="kpi-sub">total cost</div>
   </div>
   {% endfor %}
 
-  <div class="kpi-box" style="border-color: var(--accent);">
-    <div class="kpi-label">Total Chain Cost</div>
-    <div class="kpi-value" style="color: var(--accent);">
-      ${{ total_cost|floatformat:0 }}
-    </div>
-    <div class="kpi-sub">Sum across all roles</div>
+  <div class="kpi-box" style="--kpi-cl:var(--accent); border-color:rgba(245,200,66,.3);">
+    <div class="kpi-label">Chain Total</div>
+    <div class="kpi-value" style="color:var(--accent);">${{ total_cost|floatformat:0 }}</div>
+    <div class="kpi-sub">sum across all roles</div>
   </div>
 </div>
 
 <!-- Bullwhip Effect -->
 {% if bullwhip %}
-<div class="result-card mb-2">
-  <div class="card-title">Bullwhip Effect Index (σ_orders / σ_demand)</div>
-  <p style="color:var(--muted); font-size:0.8rem; margin-bottom:1rem;">
-    A ratio &gt; 1 means the role amplifies demand variability — the classic bullwhip effect.
-    Ratio = 1 means perfect demand matching.
+<div class="result-card">
+  <div class="card-title">📈 Bullwhip Effect Index (σ_orders / σ_demand)</div>
+  <p style="color:var(--muted); font-size:.8rem; margin-bottom:1.25rem; line-height:1.55;">
+    A ratio &gt; 1 means the role <em>amplifies</em> demand variability — the classic bullwhip.
+    Ratio = 1 is perfect demand matching.
   </p>
   {% for role, ratio in bullwhip.items %}
   <div class="bullwhip-bar-row">
-    <div class="bullwhip-bar-label">{{ role|title }}</div>
+    <div class="bullwhip-bar-label">
+      <span class="role-badge role-{{ role }}">{{ role }}</span>
+    </div>
     <div class="bullwhip-bar-track">
       <div class="bullwhip-bar-fill"
-           style="width: {% widthratio ratio bullwhip_max 100 %}%;
-                  max-width: 100%;
-                  background: {% if ratio < 1.5 %}var(--success){% elif ratio < 3 %}var(--accent){% else %}var(--danger){% endif %};">
+           style="width:{% widthratio ratio bullwhip_max 100 %}%; max-width:100%;
+                  background:{% if ratio < 1.5 %}var(--success){% elif ratio < 3 %}var(--accent){% else %}var(--danger){% endif %};">
       </div>
-      <!-- marker at ratio=1 to show the "perfect" baseline (only shown when bullwhip_max >= 1) -->
       {% if bullwhip_max >= 1 %}
       <div class="bullwhip-bar-marker" style="left:{% widthratio 1 bullwhip_max 100 %}%;"></div>
       {% endif %}
@@ -118,45 +154,39 @@
     <div class="bullwhip-bar-val">{{ ratio }}×</div>
   </div>
   {% endfor %}
-  <div style="font-size:.68rem; color:var(--muted); margin-top:.5rem;">
-    ▏= ratio 1.0 baseline (perfect match). Scale: 0 → {{ bullwhip_max }}×
+  <div style="font-size:.65rem; color:var(--muted); margin-top:.75rem;">
+    ▏ = ratio 1.0 baseline (perfect match) &nbsp;·&nbsp; Scale: 0 → {{ bullwhip_max }}×
   </div>
 </div>
 {% endif %}
 
-<!-- Charts -->
-<div class="result-card mb-2">
-  <div class="card-title">Inventory History (All Roles)</div>
-  <div class="chart-wrap">
-    <canvas id="inventoryChart"></canvas>
-  </div>
+<!-- Inventory history chart -->
+<div class="result-card">
+  <div class="card-title">📦 Inventory History — All Roles</div>
+  <div class="chart-wrap"><canvas id="inventoryChart"></canvas></div>
 </div>
 
+<!-- Orders + Backlog -->
 <div class="charts-grid-2">
-  <div class="result-card">
-    <div class="card-title">Orders Placed — Bullwhip Amplification</div>
-    <div class="chart-wrap">
-      <canvas id="ordersChart"></canvas>
-    </div>
+  <div class="result-card" style="margin-bottom:0;">
+    <div class="card-title">📋 Orders Placed — Bullwhip Amplification</div>
+    <div class="chart-wrap"><canvas id="ordersChart"></canvas></div>
   </div>
-  <div class="result-card">
-    <div class="card-title">Backlog Over Time</div>
-    <div class="chart-wrap">
-      <canvas id="backlogChart"></canvas>
-    </div>
+  <div class="result-card" style="margin-bottom:0;">
+    <div class="card-title">⚠️ Backlog Over Time</div>
+    <div class="chart-wrap"><canvas id="backlogChart"></canvas></div>
   </div>
 </div>
 
-<div class="result-card mb-2">
-  <div class="card-title">Cumulative Cost Comparison</div>
-  <div class="chart-wrap">
-    <canvas id="costChart"></canvas>
-  </div>
+<!-- Cumulative cost -->
+<div class="result-card" style="margin-top:1.5rem;">
+  <div class="card-title">💰 Cumulative Cost Comparison</div>
+  <div class="chart-wrap"><canvas id="costChart"></canvas></div>
 </div>
 
-<!-- Action row -->
-<div style="display:flex; gap:1rem; justify-content:center; margin-bottom:3rem;">
-  <a href="{% url 'new_game' %}" class="btn btn-primary">🚀 Play Again</a>
+<!-- Bottom actions -->
+<div style="display:flex; gap:1rem; justify-content:center; margin:2rem 0 3rem;">
+  <a href="{% url 'new_game' %}" class="btn btn-primary" style="padding:.65rem 1.5rem;">🚀 Play Again</a>
   <a href="{% url 'home' %}" class="btn btn-ghost">← All Sessions</a>
 </div>
 
@@ -165,6 +195,22 @@ const RAW = {{ chart_data|safe }};
 const COLORS = {
   retailer: '#f5c842', wholesaler: '#3b82f6',
   distributor: '#a855f7', factory: '#22c55e',
+};
+const CHART_OPTIONS = {
+  responsive: true,
+  maintainAspectRatio: false,
+  animation: { duration: 800, easing: 'easeInOutQuart' },
+  plugins: {
+    legend: { labels: { color: '#94a3b8', font: { size: 11 }, boxWidth: 12, padding: 14 } },
+    tooltip: {
+      backgroundColor: '#1a1e2a', borderColor: '#252b3b', borderWidth: 1,
+      titleColor: '#eceef5', bodyColor: '#94a3b8', padding: 10,
+    }
+  },
+  scales: {
+    x: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { color: '#252b3b' } },
+    y: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { color: '#252b3b' } },
+  }
 };
 
 function labels() { return RAW['retailer']?.history.map(h => `W${h.week}`) || []; }
@@ -180,19 +226,14 @@ function makeChart(id, field, fill = false) {
         label: role.charAt(0).toUpperCase() + role.slice(1),
         data: RAW[role]?.history.map(h => h[field]) || [],
         borderColor: color,
-        backgroundColor: fill ? color + '22' : 'transparent',
-        fill, tension: 0.3, pointRadius: 3,
+        backgroundColor: fill ? color + '18' : 'transparent',
+        fill, tension: 0.35,
+        pointRadius: 3, pointHoverRadius: 5,
+        pointBackgroundColor: color,
+        borderWidth: 2,
       }))
     },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { labels: { color: '#9ca3af', font: { size: 11 } } } },
-      scales: {
-        x: { ticks: { color: '#6b7280', font: { size: 10 } }, grid: { color: '#2a2f3d' } },
-        y: { ticks: { color: '#6b7280', font: { size: 10 } }, grid: { color: '#2a2f3d' } },
-      }
-    }
+    options: CHART_OPTIONS,
   });
 }
 

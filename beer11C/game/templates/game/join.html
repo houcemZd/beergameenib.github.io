@@ -1,72 +1,168 @@
 {% extends "game/base.html" %}
-{% block title %}Rejoindre — {{ role|title }}{% endblock %}
+{% block title %}Join — {{ role|title }} · {{ session.name }}{% endblock %}
+
+{% block extra_head %}
+<style>
+.join-wrap {
+  min-height: calc(100vh - var(--nav-height));
+  display: flex; align-items: center; justify-content: center;
+  padding: 2rem 1rem;
+}
+.join-card {
+  width: 100%; max-width: 480px;
+  background: rgba(19,22,31,.96);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 2.5rem 2rem 2rem;
+  box-shadow: 0 32px 80px rgba(0,0,0,.55);
+  animation: fadeUp .35s ease both;
+  position: relative;
+  overflow: hidden;
+}
+.join-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg,
+    var(--role-cl, var(--accent)) 0%,
+    transparent 100%);
+}
+.role-hero {
+  text-align: center;
+  margin-bottom: 1.75rem;
+}
+.role-emoji {
+  font-size: 4rem;
+  display: block;
+  line-height: 1;
+  margin-bottom: .75rem;
+  filter: drop-shadow(0 0 20px var(--role-cl, var(--accent-glow)));
+  animation: float 3s ease-in-out infinite;
+}
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
+.role-title {
+  font-family: var(--font-mono);
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin-bottom: .3rem;
+  color: var(--text);
+}
+.role-session {
+  font-size: .82rem;
+  color: var(--muted);
+}
+.rejoin-box {
+  text-align: center;
+  background: var(--success-dim);
+  border: 1px solid rgba(34,197,94,.2);
+  border-radius: 12px;
+  padding: 1.25rem 1rem;
+  margin-bottom: 1.5rem;
+}
+.role-desc {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: .9rem 1rem;
+  margin-bottom: 1rem;
+  font-size: .82rem;
+  color: var(--muted);
+  line-height: 1.55;
+}
+.role-desc strong { color: var(--text); }
+.delay-tip {
+  background: rgba(245,200,66,.06);
+  border: 1px solid rgba(245,200,66,.2);
+  border-radius: 10px;
+  padding: .7rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: .78rem;
+  color: var(--muted);
+}
+.join-input {
+  width: 100%;
+  background: var(--surface2);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  padding: .8rem 1rem;
+  font-size: 1rem;
+  font-family: var(--font-body);
+  outline: none;
+  transition: border-color .18s, box-shadow .18s;
+  margin-bottom: 1.1rem;
+}
+.join-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
+.join-input::placeholder { color: var(--muted2); }
+</style>
+<script>
+(function(){
+  const ROLE_COLORS = { retailer:'#f5c842', wholesaler:'#3b82f6', distributor:'#a855f7', factory:'#22c55e', customer:'#f5c842' };
+  const role = '{{ role }}';
+  document.documentElement.style.setProperty('--role-cl', ROLE_COLORS[role] || '#f5c842');
+})();
+</script>
+{% endblock %}
 
 {% block content %}
-<div style="max-width:440px; margin:4rem auto; text-align:center;">
+<div class="join-wrap">
+  <div class="join-card">
 
-  <div style="font-size:4rem; margin-bottom:.75rem;">{{ emoji }}</div>
-  <h2 style="font-family:var(--font-mono); font-size:1.4rem; margin-bottom:.2rem;">
-    Vous êtes le <span class="role-badge role-{{ role }}" style="font-size:.95rem; padding:.3rem .8rem;">{{ role }}</span>
-  </h2>
-  <p style="color:var(--muted); font-size:.83rem; margin-bottom:1.75rem;">
-    {{ session.name }} &nbsp;·&nbsp; {{ session.max_weeks }} semaines
-  </p>
-
-  <div class="card" style="text-align:left;">
+    <div class="role-hero">
+      <span class="role-emoji">{{ emoji }}</span>
+      <div class="role-title">
+        You are the
+        <span class="role-badge role-{{ role }}" style="font-size:.9rem; padding:.28rem .8rem; vertical-align:middle;">{{ role }}</span>
+      </div>
+      <div class="role-session">{{ session.name }} &nbsp;·&nbsp; {{ session.max_weeks }} weeks</div>
+    </div>
 
     {% if already_claimed %}
-    <!-- Fast rejoin — user already owns this role -->
-    <div style="text-align:center; padding:.5rem 0 1rem;">
-      <div style="font-size:1.5rem; margin-bottom:.4rem;">👋</div>
-      <div style="font-family:var(--font-mono); color:var(--success); font-size:.95rem; margin-bottom:.25rem;">
-        Ce rôle vous appartient déjà
+    <!-- ── Fast rejoin ── -->
+    <div class="rejoin-box">
+      <div style="font-size:1.6rem; margin-bottom:.4rem;">👋</div>
+      <div style="font-family:var(--font-mono); color:var(--success); font-size:.95rem; margin-bottom:.2rem;">
+        This role belongs to you
       </div>
       <div style="color:var(--muted); font-size:.78rem; margin-bottom:1.25rem;">
-        Rejoignez directement la partie.
+        Rejoin the game directly.
       </div>
     </div>
     <form method="POST">
       {% csrf_token %}
       <input type="hidden" name="name" value="{{ default_name }}" />
-      <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; font-size:1rem; padding:.8rem;">
-        Rejoindre la partie →
+      <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; font-size:1rem; padding:.85rem;">
+        🚀 Rejoin Game
       </button>
     </form>
 
     {% else %}
-    <!-- First join — enter name -->
-    <div class="card-title" style="margin-bottom:1rem;">Entrez votre nom pour rejoindre</div>
+    <!-- ── First join ── -->
+    <div class="role-desc">
+      {% if role == 'customer' %}
+        👤 <strong>End Customer:</strong> You place orders every week. Your behaviour triggers the bullwhip effect across the chain.
+      {% elif role == 'retailer' %}
+        🛒 <strong>Retailer:</strong> You serve the customer. You're the only role that sees real demand. Orders go upstream to the Wholesaler.
+      {% elif role == 'wholesaler' %}
+        🏪 <strong>Wholesaler:</strong> You supply the Retailer and order from the Distributor. Real demand is hidden from you.
+      {% elif role == 'distributor' %}
+        🚚 <strong>Distributor:</strong> You supply the Wholesaler and order from the Factory. Two hops from the customer.
+      {% elif role == 'factory' %}
+        🏭 <strong>Factory:</strong> You produce goods. Production delay: <strong>2 weeks</strong>. No upstream supplier.
+      {% endif %}
+    </div>
+
+    <div class="delay-tip">
+      ⏱ <strong style="color:var(--text);">Reminder:</strong> All orders and shipments have a <strong style="color:var(--text);">2-week delay</strong>. Plan ahead — don't panic!
+    </div>
+
     <form method="POST">
       {% csrf_token %}
-      <div style="margin-bottom:1.1rem;">
-        <input type="text" name="name"
-               placeholder="Votre prénom (ex. Alice)"
-               autofocus maxlength="50"
-               value="{{ default_name }}"
-               style="font-size:1rem; padding:.75rem 1rem;" />
-      </div>
-
-      <!-- Role description -->
-      <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:.85rem; margin-bottom:1.1rem; font-size:.8rem; color:var(--muted);">
-        {% if role == 'customer' %}
-          👤 <strong style="color:var(--text)">Client Final :</strong> Vous passez des commandes chaque semaine. Votre comportement déclenche l'effet coup de fouet.
-        {% elif role == 'retailer' %}
-          🛒 <strong style="color:var(--text)">Détaillant :</strong> Vous servez le client. Vous seul voyez la demande réelle. Vos commandes remontent vers le Grossiste.
-        {% elif role == 'wholesaler' %}
-          🏪 <strong style="color:var(--text)">Grossiste :</strong> Vous approvisionnez le Détaillant et commandez au Distributeur. La demande réelle vous est cachée.
-        {% elif role == 'distributor' %}
-          🚚 <strong style="color:var(--text)">Distributeur :</strong> Vous approvisionnez le Grossiste et commandez à l'Usine. Deux maillons vous séparent du client.
-        {% elif role == 'factory' %}
-          🏭 <strong style="color:var(--text)">Usine :</strong> Vous produisez les marchandises. Délai de production : <strong style="color:var(--text)">2 semaines</strong>. Pas de fournisseur amont.
-        {% endif %}
-      </div>
-
-      <div style="background:rgba(245,200,66,.07); border:1px solid rgba(245,200,66,.2); border-radius:8px; padding:.7rem; margin-bottom:1.1rem; font-size:.76rem; color:var(--muted);">
-        ⚠️ <strong style="color:var(--text)">Rappel :</strong> Délais commandes et livraisons = <strong style="color:var(--text)">2 semaines</strong>. Ne paniquez pas !
-      </div>
-
-      <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; font-size:1rem; padding:.8rem;">
-        Rejoindre la partie →
+      <input class="join-input" type="text" name="name"
+             placeholder="Your name (e.g. Alice)"
+             autofocus maxlength="50"
+             value="{{ default_name }}" />
+      <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; font-size:1rem; padding:.85rem;">
+        🚀 Join Game
       </button>
     </form>
     {% endif %}

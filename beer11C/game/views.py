@@ -274,6 +274,14 @@ def lobby_status(request, session_id):
         if d:
             last_demand = d.quantity
 
+    # Full pipeline data for supply-chain board
+    pipeline_data = []
+    if game_started or is_finished:
+        pipeline_data = _build_pipeline_data(
+            _sorted_players(session.players.all()),
+            session.current_week + 1,
+        )
+
     return JsonResponse({
         'joined':        joined,
         'connected':     connected,
@@ -285,6 +293,7 @@ def lobby_status(request, session_id):
         'max_weeks':     session.max_weeks,
         'players':       players_data,
         'last_demand':   last_demand,
+        'pipeline':      pipeline_data,
     })
 
 
