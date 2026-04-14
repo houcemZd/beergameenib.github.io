@@ -4,47 +4,90 @@
 
 {% block extra_head %}
 <style>
-  .player-card { border:1px solid var(--border); border-radius:var(--radius); background:var(--surface); overflow:hidden; transition:transform .15s; }
-  .player-card:hover { transform:translateY(-2px); }
-  .player-card-header { padding:1rem 1.25rem .75rem; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
-  .player-card-body { padding:1.25rem; }
-  .order-input-row { display:flex; gap:.5rem; align-items:center; margin-top:1rem; }
-  .order-input-row input { flex:1; }
-  .history-table { width:100%; border-collapse:collapse; font-size:.78rem; font-family:var(--font-mono); }
-  .history-table th { color:var(--muted); text-align:right; padding:.3rem .5rem; font-weight:600; font-size:.7rem; text-transform:uppercase; letter-spacing:.08em; border-bottom:1px solid var(--border); }
-  .history-table th:first-child { text-align:left; }
-  .history-table td { padding:.3rem .5rem; text-align:right; border-bottom:1px solid rgba(255,255,255,.04); }
-  .history-table td:first-child { text-align:left; color:var(--muted); }
-  .history-table tr:hover td { background:var(--surface2); }
-  .inv-positive { color:var(--success); }
-  .inv-zero     { color:var(--muted); }
-  .inv-negative { color:var(--danger); }
-  .chart-wrap { position:relative; height:220px; }
+  /* ── Player card ────────────────────────────────────────────────────────── */
+  .player-card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    overflow: hidden;
+    transition: transform .18s, border-color .18s, box-shadow .18s;
+    position: relative;
+  }
+  .player-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: var(--role-cl, var(--border));
+  }
+  .player-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--border-hover);
+  }
+  .player-card-header {
+    padding: 1rem 1.25rem .75rem;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .player-card-body { padding: 1.25rem; }
+  .order-input-row  { display: flex; gap: .5rem; align-items: center; margin-top: 1rem; }
+  .order-input-row input { flex: 1; }
+
+  /* ── History table ──────────────────────────────────────────────────────── */
+  .history-table { width: 100%; border-collapse: collapse; font-size: .78rem; font-family: var(--font-mono); }
+  .history-table th {
+    color: var(--muted); text-align: right; padding: .35rem .5rem;
+    font-weight: 600; font-size: .68rem; text-transform: uppercase;
+    letter-spacing: .1em; border-bottom: 1px solid var(--border);
+  }
+  .history-table th:first-child { text-align: left; }
+  .history-table td { padding: .32rem .5rem; text-align: right; border-bottom: 1px solid rgba(255,255,255,.04); }
+  .history-table td:first-child { text-align: left; color: var(--muted); }
+  .history-table tr:hover td { background: var(--surface2); }
+  .inv-positive { color: var(--success); font-weight: 700; }
+  .inv-zero     { color: var(--muted); }
+  .inv-negative { color: var(--danger); font-weight: 700; }
+
+  /* ── Chart ──────────────────────────────────────────────────────────────── */
+  .chart-wrap { position: relative; height: 220px; }
+
+  /* ── Customer demand card ───────────────────────────────────────────────── */
+  .demand-card {
+    background: var(--surface);
+    border: 1.5px solid rgba(245,200,66,.4);
+    border-radius: var(--radius);
+    padding: 1.1rem 1.25rem;
+    margin-bottom: 1.25rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .demand-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--accent), #fdd835, transparent);
+  }
 </style>
 {% endblock %}
 
 {% block content %}
 
 <!-- Header -->
-<div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem;">
+<div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem;" class="fade-up">
   <div>
-    <h2 style="font-family:var(--font-mono); font-size:1.3rem;">{{ session.name }}</h2>
-    <div style="display:flex; align-items:center; gap:1rem; margin-top:.4rem; flex-wrap:wrap;">
+    <h2 style="font-family:var(--font-mono); font-size:1.3rem; margin-bottom:.3rem;">{{ session.name }}</h2>
+    <div style="display:flex; align-items:center; gap:1rem; flex-wrap:wrap;">
       <span class="week-badge">Week <strong>{{ session.current_week }}</strong> / {{ session.max_weeks }}</span>
       {% if session.is_finished %}
-      <span style="color:var(--accent); font-size:.8rem; font-family:var(--font-mono);">● GAME OVER</span>
+      <span style="color:var(--accent); font-size:.78rem; font-family:var(--font-mono); background:var(--accent-dim); border:1px solid rgba(245,200,66,.3); border-radius:999px; padding:.18rem .7rem;">● GAME OVER</span>
       {% endif %}
     </div>
   </div>
-  <div style="display:flex; gap:.5rem; flex-wrap:wrap; align-items:center;">
+  <div style="display:flex; gap:.45rem; flex-wrap:wrap; align-items:center;">
     {% if session.is_finished %}
-    <a href="{% url 'results' session.id %}" class="btn btn-primary">📊 Results</a>
+    <a href="{% url 'results' session.id %}" class="btn btn-primary btn-sm">📊 Results</a>
     {% endif %}
-    <!-- Customer view link -->
-    <a href="{% url 'customer_view' session.id %}" class="btn btn-ghost btn-sm" style="border-color:var(--accent); color:var(--accent);">
+    <a href="{% url 'customer_view' session.id %}" class="btn btn-ghost btn-sm" style="border-color:rgba(245,200,66,.35); color:var(--accent);">
       👤 Customer
     </a>
-    <!-- Per-role client views -->
     {% for r in roles %}
     <a href="{% url 'client_view' session.id r %}" class="btn btn-ghost btn-sm" style="font-size:.72rem; padding:.25rem .6rem;">
       {% if r == 'retailer' %}🛒{% elif r == 'wholesaler' %}🏪{% elif r == 'distributor' %}🚚{% else %}🏭{% endif %}{{ r|slice:":4"|upper }}
@@ -59,7 +102,7 @@
   <div class="progress-bar">
     <div class="progress-fill" style="width:{% widthratio session.current_week session.max_weeks 100 %}%"></div>
   </div>
-  <div style="display:flex; justify-content:space-between; font-size:.7rem; color:var(--muted); margin-top:.25rem;">
+  <div style="display:flex; justify-content:space-between; font-size:.65rem; color:var(--muted); margin-top:.3rem; font-family:var(--font-mono);">
     <span>Week 0</span><span>Week {{ session.max_weeks }}</span>
   </div>
 </div>
@@ -68,23 +111,23 @@
 <form method="POST" action="{% url 'next_turn' session.id %}">
 {% csrf_token %}
 
-<!-- Customer demand input — required every week -->
-<div class="card" style="margin-bottom:1.25rem; border-color:var(--accent);">
+<!-- Customer demand input -->
+<div class="demand-card">
   <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:.75rem;">
-    <div>
-      <div style="display:flex; align-items:center; gap:.5rem;">
-        <span style="font-size:1.4rem;">👤</span>
-        <div>
-          <div style="font-family:var(--font-mono); font-size:.8rem; color:var(--accent); font-weight:700;">CUSTOMER DEMAND — Week {{ session.current_week|add:1 }}</div>
-          <div style="font-size:.72rem; color:var(--muted); margin-top:.1rem;">How many units does the customer order this week?</div>
+    <div style="display:flex; align-items:center; gap:.75rem;">
+      <span style="font-size:1.6rem; filter:drop-shadow(0 0 8px rgba(245,200,66,.4));">👤</span>
+      <div>
+        <div style="font-family:var(--font-mono); font-size:.78rem; color:var(--accent); font-weight:700; letter-spacing:.08em;">
+          CUSTOMER DEMAND — WEEK {{ session.current_week|add:1 }}
         </div>
+        <div style="font-size:.7rem; color:var(--muted); margin-top:.1rem;">Units the customer orders this week</div>
       </div>
     </div>
     <div style="display:flex; align-items:center; gap:.75rem;">
-      {% if last_demand %}<span style="font-size:.75rem; color:var(--muted);">Last week: <strong style="color:var(--text)">{{ last_demand.quantity }}</strong> units</span>{% endif %}
+      {% if last_demand %}<span style="font-size:.73rem; color:var(--muted);">Last: <strong style="color:var(--text)">{{ last_demand.quantity }}</strong></span>{% endif %}
       <input type="number" name="customer_demand" min="0" required
-             placeholder="units demanded" value="{{ last_demand.quantity|default:4 }}"
-             style="width:120px; font-family:var(--font-mono); font-size:1.1rem; text-align:center;" />
+             placeholder="qty" value="{{ last_demand.quantity|default:4 }}"
+             style="width:110px; font-family:var(--font-mono); font-size:1.15rem; text-align:center;" />
     </div>
   </div>
 </div>
@@ -93,15 +136,15 @@
 <!-- Player cards -->
 <div class="grid-4" style="margin-bottom:2rem;">
   {% for player in players %}
-  <div class="player-card">
+  <div class="player-card" style="--role-cl:var(--{{ player.role }}-color);">
     <div class="player-card-header">
       <div>
-        <div class="role-badge role-{{ player.role }}">{{ player.role }}</div>
-        <div style="font-family:var(--font-mono); font-size:.9rem; margin-top:.4rem;">{{ player.name }}</div>
+        <div><span class="role-badge role-{{ player.role }}">{{ player.role }}</span></div>
+        <div style="font-family:var(--font-mono); font-size:.9rem; margin-top:.4rem; font-weight:700;">{{ player.name }}</div>
       </div>
       <div style="text-align:right;">
-        <div style="font-size:.7rem; color:var(--muted);">Total Cost</div>
-        <div style="font-family:var(--font-mono); color:var(--accent);">${{ player.total_cost|floatformat:1 }}</div>
+        <div style="font-size:.65rem; color:var(--muted); text-transform:uppercase; letter-spacing:.08em;">Cost</div>
+        <div style="font-family:var(--font-mono); color:var(--accent); font-size:1rem; font-weight:700;">${{ player.total_cost|floatformat:1 }}</div>
       </div>
     </div>
     <div class="player-card-body">
@@ -118,10 +161,10 @@
       {% if last_week_states %}
         {% for role, s in last_week_states.items %}
           {% if role == player.role %}
-          <div style="margin-top:.75rem; font-size:.75rem; color:var(--muted); display:flex; gap:.75rem; flex-wrap:wrap;">
-            <span>📦 Rcvd: <span style="color:var(--text)">{{ s.shipment_received }}</span></span>
-            <span>📤 Shipped: <span style="color:var(--text)">{{ s.shipment_sent }}</span></span>
-            <span>📋 Ordered: <span style="color:var(--text)">{{ s.order_placed }}</span></span>
+          <div style="margin-top:.75rem; font-size:.72rem; color:var(--muted); display:flex; gap:.65rem; flex-wrap:wrap;">
+            <span>📦 Rcvd: <strong style="color:var(--text)">{{ s.shipment_received }}</strong></span>
+            <span>📤 Sent: <strong style="color:var(--text)">{{ s.shipment_sent }}</strong></span>
+            <span>📋 Ord: <strong style="color:var(--text)">{{ s.order_placed }}</strong></span>
           </div>
           {% endif %}
         {% endfor %}
@@ -130,11 +173,13 @@
       <div class="order-input-row">
         <input type="number" name="order_{{ player.id }}" min="0"
                {% if player.role != 'factory' %}max="999"{% endif %}
-               placeholder="{% if player.role == 'factory' %}Produce qty (∞){% else %}Order qty{% endif %}"
-               value="{{ ai_orders|get_item:player.id|default:4 }}" />
+               placeholder="{% if player.role == 'factory' %}Produce qty{% else %}Order qty{% endif %}"
+               value="{{ ai_orders|get_item:player.id|default:4 }}"
+               style="font-family:var(--font-mono); font-size:1rem; text-align:center;" />
       </div>
-      <div style="font-size:.7rem; color:var(--muted); margin-top:.3rem;">
-        {% if player.role == 'factory' %}Production — no limit{% else %}Order upstream (AI suggests: {{ ai_orders|get_item:player.id|default:4 }}){% endif %}
+      <div style="font-size:.68rem; color:var(--muted); margin-top:.3rem; text-align:center;">
+        {% if player.role == 'factory' %}Production — no upstream limit
+        {% else %}AI suggests: <strong style="color:var(--text)">{{ ai_orders|get_item:player.id|default:4 }}</strong>{% endif %}
       </div>
       {% endif %}
     </div>
@@ -144,7 +189,7 @@
 
 {% if not session.is_finished %}
 <div style="display:flex; justify-content:center; margin-bottom:2.5rem;">
-  <button type="submit" class="btn btn-primary" style="font-size:1rem; padding:.75rem 2.5rem;">
+  <button type="submit" class="btn btn-primary" style="font-size:1rem; padding:.8rem 2.75rem;">
     ⏭ Advance to Week {{ session.current_week|add:1 }}
   </button>
 </div>

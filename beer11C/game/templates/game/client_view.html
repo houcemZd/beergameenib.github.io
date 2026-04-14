@@ -6,19 +6,21 @@
 /* ── Role accent ──────────────────────────────────────────────────────────── */
 :root {
   --role-color: {% if role == 'retailer' %}#f5c842{% elif role == 'wholesaler' %}#3b82f6{% elif role == 'distributor' %}#a855f7{% else %}#22c55e{% endif %};
-  --role-bg: {% if role == 'retailer' %}rgba(245,200,66,.08){% elif role == 'wholesaler' %}rgba(59,130,246,.08){% elif role == 'distributor' %}rgba(168,85,247,.08){% else %}rgba(34,197,94,.08){% endif %};
+  --role-bg: {% if role == 'retailer' %}rgba(245,200,66,.06){% elif role == 'wholesaler' %}rgba(59,130,246,.06){% elif role == 'distributor' %}rgba(168,85,247,.06){% else %}rgba(34,197,94,.06){% endif %};
 }
 
 /* ── Hero header ─────────────────────────────────────────────────────────── */
 .cv-hero {
   display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap;
   gap:1rem; margin-bottom:1.5rem;
-  background:var(--role-bg); border:1px solid var(--role-color)33;
-  border-radius:14px; padding:1.25rem 1.5rem;
-  box-shadow:0 0 40px var(--role-color)0d;
+  background:var(--role-bg); border:1px solid rgba(0,0,0,0);
+  border-color: color-mix(in srgb, var(--role-color) 22%, transparent);
+  border-radius:16px; padding:1.25rem 1.5rem;
+  box-shadow:0 0 0 1px rgba(0,0,0,0.4), 0 8px 32px rgba(0,0,0,.2);
+  animation: fadeUp .35s ease both;
 }
 .cv-hero-left { display:flex; align-items:center; gap:1rem; }
-.cv-emoji { font-size:2.8rem; line-height:1; filter:drop-shadow(0 0 12px var(--role-color)); }
+.cv-emoji { font-size:2.8rem; line-height:1; filter:drop-shadow(0 0 14px var(--role-color)); }
 .cv-name  { font-family:var(--font-mono); font-size:1.25rem; font-weight:700; color:var(--text); line-height:1.2; }
 .cv-meta  { font-size:0.78rem; color:var(--muted); margin-top:.2rem; }
 .cv-role-switch { display:flex; gap:.4rem; flex-wrap:wrap; align-items:center; }
