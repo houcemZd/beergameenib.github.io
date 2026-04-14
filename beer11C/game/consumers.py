@@ -556,15 +556,13 @@ class GameConsumer(AsyncWebsocketConsumer):
     async def _maybe_broadcast_updated_demand(self, customer_qty):
         """
         After customer submits, push updated demand_incoming to retailer
-        if retailer is still in PHASE_SHIP (so they see the real number).
+        so they see the real customer order immediately on their board.
         """
         ps_retailer = await database_sync_to_async(
             lambda: self.player_session.game_session.player_sessions
                     .filter(role='retailer').first()
         )()
-        if ps_retailer and ps_retailer.turn_phase in (
-            PlayerSession.PHASE_RECEIVE, PlayerSession.PHASE_SHIP
-        ):
+        if ps_retailer:
             await self.channel_layer.group_send(self.group_name, {
                 'type':        'broadcast_state_update',
                 'target_role': 'retailer',

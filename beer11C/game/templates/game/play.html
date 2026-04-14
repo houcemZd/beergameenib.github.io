@@ -1405,6 +1405,15 @@ function handle(msg) {
       if (dEl) dEl.textContent = msg.demand_incoming ?? '—';
       const dSub = document.getElementById('ship-demand-sub');
       if (dSub) dSub.textContent = `from customer (updated) — Week ${msg.week || ''}`;
+      // Update the customer demand box on the board immediately
+      {
+        const custSlot = document.getElementById('cust-ord-1');
+        if (custSlot) {
+          const vEl = custSlot.querySelector('.bgb-v');
+          if (vEl) vEl.textContent = msg.demand_incoming ?? '—';
+          custSlot.className = 'bgb-slot amber' + (msg.demand_incoming != null ? ' arriving' : '');
+        }
+      }
       break;
 
     case 'ready_status':
