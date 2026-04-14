@@ -945,7 +945,7 @@ class GameConsumer(AsyncWebsocketConsumer):
                 incoming_orders_to_me = _two_items(list(PipelineOrder.objects.filter(
                     sender=distributor_player, fulfilled=False,
                     arrives_on_week=playing_week,
-                ).order_by('arrives_on_week')))
+                )))
             else:
                 incoming_orders_to_me = []
 
@@ -955,7 +955,7 @@ class GameConsumer(AsyncWebsocketConsumer):
                 incoming_orders_to_me = _two_items(list(PipelineOrder.objects.filter(
                     sender=downstream_player, fulfilled=False,
                     arrives_on_week=playing_week,
-                ).order_by('arrives_on_week')))
+                )))
 
         if role in ('wholesaler', 'distributor', 'factory') and downstream_player:
             outgoing_shipments_from_me = _two_items(list(PipelineShipment.objects.filter(
