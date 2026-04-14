@@ -492,7 +492,7 @@
   gap: .55rem;
   padding-bottom: .5rem;
 }
-@media (max-width: 820px) {
+@media (max-width: 1100px) {
   #game-screen { grid-template-columns: 1fr; height: auto; overflow: visible; }
   #game-action-col, #game-board-col { overflow-y: visible; }
 }
@@ -587,12 +587,15 @@
 
 /* ── Board card neon border + scanner line ───────────────────────────── */
 #bgb-board-card {
-  position:relative; overflow:hidden;
+  position:relative; overflow:visible;
   border-color:rgba(245,200,66,.22) !important;
   box-shadow:0 0 0 1px rgba(245,200,66,.08), 0 0 40px rgba(245,200,66,.07) !important;
 }
+.board-scanner-clip {
+  position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:20; border-radius:inherit;
+}
 .board-scanner {
-  position: absolute; left: 0; right: 0; height: 3px; top: 0; z-index: 20;
+  position: absolute; left: 0; right: 0; height: 3px; top: 0;
   pointer-events: none;
   background: linear-gradient(90deg, transparent 5%, rgba(245,200,66,.55) 45%, rgba(245,200,66,.55) 55%, transparent 95%);
   animation: scanner-run 6s ease-in-out infinite;
@@ -1024,7 +1027,7 @@
 
 <!-- ═══════════════ SUPPLY CHAIN ROAD BOARD ══════════════════════════════ -->
 <div class="card" id="bgb-board-card" style="padding:1rem 1.1rem;">
-  <div class="board-scanner"></div>
+  <div class="board-scanner-clip"><div class="board-scanner"></div></div>
   <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:.7rem;">
     <div class="card-title" style="margin:0;display:inline-flex;align-items:center;gap:.35rem;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M4 4v16" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity="0.5"/><path d="M20 4v16" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity="0.5"/><path d="M12 4v3M12 10v3M12 16v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="3 3" opacity="0.7"/></svg> Supply Chain Highway</div>
     <div style="font-size:.6rem; color:var(--muted); font-family:var(--font-mono); display:flex; align-items:center; gap:.6rem;">
