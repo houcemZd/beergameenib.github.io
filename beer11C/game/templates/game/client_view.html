@@ -205,7 +205,7 @@ document.addEventListener('DOMContentLoaded', function(){
     <a href="{% url 'client_view' session.id r %}"
        class="btn btn-ghost btn-sm {% if r == role %}btn-primary{% endif %}"
        style="font-size:.7rem; padding:.22rem .6rem;">
-      {{ role_emojis|default_if_none:'' }}{% if r == 'retailer' %}🛒{% elif r == 'wholesaler' %}🏪{% elif r == 'distributor' %}🚚{% else %}🏭{% endif %}
+      {% if r == 'retailer' %}🛒{% elif r == 'wholesaler' %}🏪{% elif r == 'distributor' %}🚚{% else %}🏭{% endif %}
       {{ r|slice:":4"|upper }}
     </a>
     {% endfor %}
@@ -278,7 +278,7 @@ document.addEventListener('DOMContentLoaded', function(){
     </div>
     <div></div>
     <span class="cv-pipe-badge {% if s.arrives_on_week <= session.current_week %}now{% else %}soon{% endif %}">
-      {% if s.arrives_on_week <= session.current_week %}NOW{% else %}in {{ s.arrives_on_week }} w{% endif %}
+      {% if s.arrives_on_week <= session.current_week %}NOW{% else %}Wk {{ s.arrives_on_week }}{% endif %}
     </span>
   </div>
   {% endfor %}
@@ -317,7 +317,7 @@ document.addEventListener('DOMContentLoaded', function(){
     </div>
     <div></div>
     <span class="cv-pipe-badge {% if o.arrives_on_week <= session.current_week %}now{% else %}soon{% endif %}">
-      {% if o.arrives_on_week <= session.current_week %}NOW{% else %}in {{ o.arrives_on_week }} w{% endif %}
+      {% if o.arrives_on_week <= session.current_week %}NOW{% else %}Wk {{ o.arrives_on_week }}{% endif %}
     </span>
   </div>
   {% endfor %}
