@@ -827,12 +827,16 @@ class GameConsumer(AsyncWebsocketConsumer):
             "distributor":"wholesaler","factory":"distributor",
         }
 
+        # The "playing week" is always current_week + 1 because
+        # session.current_week stores the last *completed* week.
+        playing_week = session.current_week + 1
+
         def _two_items(rows):
             return [
                 {
                     "quantity":     r.quantity,
                     "arrives_week": r.arrives_on_week,
-                    "weeks_away":   max(0, r.arrives_on_week - session.current_week),
+                    "weeks_away":   max(0, r.arrives_on_week - playing_week),
                 }
                 for r in rows[:2]
             ]
@@ -883,7 +887,7 @@ class GameConsumer(AsyncWebsocketConsumer):
             {
                 'quantity':     s.quantity,
                 'arrives_week': s.arrives_on_week,
-                'weeks_away':   max(0, s.arrives_on_week - session.current_week),
+                'weeks_away':   max(0, s.arrives_on_week - playing_week),
             }
             for s in incoming_ships_qs
         ]
@@ -897,7 +901,7 @@ class GameConsumer(AsyncWebsocketConsumer):
             {
                 'quantity':     o.quantity,
                 'arrives_week': o.arrives_on_week,
-                'weeks_away':   max(0, o.arrives_on_week - session.current_week),
+                'weeks_away':   max(0, o.arrives_on_week - playing_week),
             }
             for o in outgoing_orders_qs
         ]

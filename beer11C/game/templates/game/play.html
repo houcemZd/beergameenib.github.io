@@ -1011,12 +1011,12 @@
       <!-- ── ROAD R↔W ───────────────────────────────────────────────────── -->
       <div class="road-seg">
         <div class="road-orders-row">
-          <div class="bgb-slot" id="rt-ord-1" data-tip="Order to Wholesaler — arriving in 1 wk (placed last week)"><span class="bgb-v">·</span></div>
-          <div class="bgb-slot" id="rt-ord-2" data-tip="Order to Wholesaler — arriving in 2 wks (placed this week)"><span class="bgb-v">·</span></div>
+          <div class="bgb-slot" id="rt-ord-1" data-tip="Order to Wholesaler — arriving now (placed 2 weeks ago)"><span class="bgb-v">·</span></div>
+          <div class="bgb-slot" id="rt-ord-2" data-tip="Order to Wholesaler — arriving next week (placed last week)"><span class="bgb-v">·</span></div>
         </div>
         <div class="road-surface">
-          <div class="bgb-slot" id="rt-ship-1" data-tip="Shipment from Wholesaler — arriving NEXT week (1 wk away)"><span class="bgb-v">·</span></div>
-          <div class="bgb-slot" id="rt-ship-2" data-tip="Shipment from Wholesaler — arriving in 2 wks (just shipped this week)"><span class="bgb-v">·</span></div>
+          <div class="bgb-slot" id="rt-ship-1" data-tip="Shipment from Wholesaler — arriving now (shipped 2 weeks ago)"><span class="bgb-v">·</span></div>
+          <div class="bgb-slot" id="rt-ship-2" data-tip="Shipment from Wholesaler — arriving next week (shipped last week)"><span class="bgb-v">·</span></div>
           <div class="road-flow-dir">
             <span class="rfd amber">→</span>
             <span class="rfd blue">←</span>
@@ -1043,12 +1043,12 @@
       <!-- ── ROAD W↔D ───────────────────────────────────────────────────── -->
       <div class="road-seg">
         <div class="road-orders-row">
-          <div class="bgb-slot" id="wh-ord-1" data-tip="Order to Distributor — arriving in 1 wk (placed last week)"><span class="bgb-v">·</span></div>
-          <div class="bgb-slot" id="wh-ord-2" data-tip="Order to Distributor — arriving in 2 wks (placed this week)"><span class="bgb-v">·</span></div>
+          <div class="bgb-slot" id="wh-ord-1" data-tip="Order to Distributor — arriving now (placed 2 weeks ago)"><span class="bgb-v">·</span></div>
+          <div class="bgb-slot" id="wh-ord-2" data-tip="Order to Distributor — arriving next week (placed last week)"><span class="bgb-v">·</span></div>
         </div>
         <div class="road-surface">
-          <div class="bgb-slot" id="wh-ship-1" data-tip="Shipment from Distributor — arriving NEXT week (1 wk away)"><span class="bgb-v">·</span></div>
-          <div class="bgb-slot" id="wh-ship-2" data-tip="Shipment from Distributor — arriving in 2 wks (just shipped this week)"><span class="bgb-v">·</span></div>
+          <div class="bgb-slot" id="wh-ship-1" data-tip="Shipment from Distributor — arriving now (shipped 2 weeks ago)"><span class="bgb-v">·</span></div>
+          <div class="bgb-slot" id="wh-ship-2" data-tip="Shipment from Distributor — arriving next week (shipped last week)"><span class="bgb-v">·</span></div>
           <div class="road-flow-dir">
             <span class="rfd amber">→</span>
             <span class="rfd blue">←</span>
@@ -1075,12 +1075,12 @@
       <!-- ── ROAD D↔F ───────────────────────────────────────────────────── -->
       <div class="road-seg">
         <div class="road-orders-row">
-          <div class="bgb-slot" id="di-ord-1" data-tip="Order to Factory — arriving in 1 wk (placed last week)"><span class="bgb-v">·</span></div>
-          <div class="bgb-slot" id="di-ord-2" data-tip="Order to Factory — arriving in 2 wks (placed this week)"><span class="bgb-v">·</span></div>
+          <div class="bgb-slot" id="di-ord-1" data-tip="Order to Factory — arriving now (placed 2 weeks ago)"><span class="bgb-v">·</span></div>
+          <div class="bgb-slot" id="di-ord-2" data-tip="Order to Factory — arriving next week (placed last week)"><span class="bgb-v">·</span></div>
         </div>
         <div class="road-surface">
-          <div class="bgb-slot" id="di-ship-1" data-tip="Shipment from Factory — arriving NEXT week (1 wk away)"><span class="bgb-v">·</span></div>
-          <div class="bgb-slot" id="di-ship-2" data-tip="Shipment from Factory — arriving in 2 wks (just shipped this week)"><span class="bgb-v">·</span></div>
+          <div class="bgb-slot" id="di-ship-1" data-tip="Shipment from Factory — arriving now (shipped 2 weeks ago)"><span class="bgb-v">·</span></div>
+          <div class="bgb-slot" id="di-ship-2" data-tip="Shipment from Factory — arriving next week (shipped last week)"><span class="bgb-v">·</span></div>
           <div class="road-flow-dir">
             <span class="rfd amber">→</span>
             <span class="rfd blue">←</span>
@@ -1112,8 +1112,8 @@
               <div class="fac-pipe-arrow">→</div>
               <div class="fac-pipe-col">
                 <div class="fac-pipe-lbl blue">⚙️ Prod (2w)</div>
-                <div class="bgb-slot" id="fa-prod-1" data-tip="In production (2-week delay) — completing next week"><span class="bgb-v">·</span></div>
-                <div class="bgb-slot" id="fa-prod-2" data-tip="In production (2-week delay) — completing in 2 weeks"><span class="bgb-v">·</span></div>
+                <div class="bgb-slot" id="fa-prod-1" data-tip="In production (2-week delay) — completing now"><span class="bgb-v">·</span></div>
+                <div class="bgb-slot" id="fa-prod-2" data-tip="In production (2-week delay) — completing next week"><span class="bgb-v">·</span></div>
               </div>
             </div>
           </div>
@@ -2347,7 +2347,7 @@ function animateBoardShip(role, shippedQty, newInv, newBlg) {
       const vEl = box.querySelector('.bgb-v');
       const lEl = box.querySelector('.bgb-slot-lbl');
       if (vEl) vEl.textContent = shippedQty;
-      if (lEl) lEl.textContent = '2w';
+      if (lEl) lEl.textContent = '1w';
       box.className = 'bgb-slot blue anim-ship';
       box.addEventListener('animationend', () => box.classList.remove('anim-ship'), {once:true});
     }, 350);
@@ -2357,14 +2357,14 @@ function animateBoardShip(role, shippedQty, newInv, newBlg) {
 /**
  * animateBoardOrder — called after order/production request submitted
  * Factory: fa-req-1 pulses amber (production request → 1-week delay, only 1 slot)
- * Others:  pre-ord-2 pulses amber (order placed → 2-week delay upstream, slot 2 = newly placed)
+ * Others:  pre-ord-2 pulses amber (order placed → slot 2 = newly placed, 1 week away)
  */
 function animateBoardOrder(role, orderQty) {
   const pre    = role === 'factory' ? 'fa' : role.slice(0,2);
   // Factory: production request has 1-week delay → slot 1 (only one req slot)
-  // Non-factory: newly placed order takes 2 weeks → slot 2 (slot 1 holds the existing 1-wk-away order)
+  // Non-factory: newly placed order → slot 2 (slot 1 holds the arriving-now order)
   const slotId = role === 'factory' ? 'fa-req-1' : pre + '-ord-2';
-  const label  = role === 'factory' ? '1w' : '2w';
+  const label  = role === 'factory' ? '1w' : '1w';
   setTimeout(() => {
     const box = document.getElementById(slotId);
     if (!box) return;
@@ -2390,11 +2390,11 @@ function flashDepart(slotId) {
 
 function getDownstreamShipSlot(role) {
   // Returns the slot id where the shipment FROM this role TO downstream appears.
-  // A newly sent shipment takes 2 weeks → goes to slot 2 (slot 1 holds the existing 1-week-away ship).
+  // A newly sent shipment → goes to slot 2 (slot 1 holds the arriving-now ship).
   const map = {
-    wholesaler:  'rt-ship-2',  // wholesaler ships to retailer — new ship = 2 wks away
-    distributor: 'wh-ship-2',  // distributor ships to wholesaler — new ship = 2 wks away
-    factory:     'di-ship-2',  // factory ships to distributor — new ship = 2 wks away
+    wholesaler:  'rt-ship-2',  // wholesaler ships to retailer — new ship in slot 2
+    distributor: 'wh-ship-2',  // distributor ships to wholesaler — new ship in slot 2
+    factory:     'di-ship-2',  // factory ships to distributor — new ship in slot 2
     retailer:    null,         // retailer ships to customer (no board slot)
   };
   return map[role] || null;
