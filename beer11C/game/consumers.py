@@ -939,19 +939,22 @@ class GameConsumer(AsyncWebsocketConsumer):
             factory_pending_requests = _two_items(outgoing_orders_qs)
             factory_production_delay = _two_items(incoming_ships_qs)
             # The factory's "incoming orders" are the distributor's PipelineOrders
-            # travelling upstream to the factory (2-week order delay).
+            # arriving THIS week only — future orders are not visible.
             distributor_player = players.get('distributor')
             if distributor_player:
                 incoming_orders_to_me = _two_items(list(PipelineOrder.objects.filter(
-                    sender=distributor_player, fulfilled=False
+                    sender=distributor_player, fulfilled=False,
+                    arrives_on_week=playing_week,
                 ).order_by('arrives_on_week')))
             else:
                 incoming_orders_to_me = []
 
         elif role in ('wholesaler', 'distributor'):
             if downstream_player:
+                # Only show the incoming order arriving THIS week — future orders are hidden.
                 incoming_orders_to_me = _two_items(list(PipelineOrder.objects.filter(
-                    sender=downstream_player, fulfilled=False
+                    sender=downstream_player, fulfilled=False,
+                    arrives_on_week=playing_week,
                 ).order_by('arrives_on_week')))
 
         if role in ('wholesaler', 'distributor', 'factory') and downstream_player:
