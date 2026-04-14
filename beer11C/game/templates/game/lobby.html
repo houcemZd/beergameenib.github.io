@@ -308,8 +308,8 @@
     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:.9rem;">
       <div class="card-title" style="margin:0;">Supply Chain Board</div>
       <div style="font-size:.62rem; color:var(--muted); font-family:var(--font-mono);">
-        <span style="color:rgba(245,200,66,.8);">■</span> orders &nbsp;
-        <span style="color:rgba(59,130,246,.8);">■</span> shipments
+        <span style="color:rgba(59,130,246,.8);">■</span> shipments &nbsp;
+        <span style="color:rgba(245,200,66,.8);">■</span> orders
       </div>
     </div>
     <div style="overflow-x:auto; padding:.2rem 0;">
@@ -548,7 +548,7 @@ function renderChain(players, pipeline, lastDemand) {
     const p   = playerMap[role];
 
     // Arrow before each actor (including first, after customer)
-    html += `<div class="sc-arrow"><span style="font-size:.7rem;color:rgba(245,200,66,.7);">→</span><span style="font-size:.7rem;color:rgba(59,130,246,.7);">←</span></div>`;
+    html += `<div class="sc-arrow"><span style="font-size:.7rem;color:rgba(59,130,246,.7);">←</span><span style="font-size:.7rem;color:rgba(245,200,66,.7);">→</span></div>`;
 
     if (!p) {
       // Player not yet in game
@@ -569,10 +569,10 @@ function renderChain(players, pipeline, lastDemand) {
     <div class="sc-actor" style="border:1.5px solid ${cfg.border};box-shadow:0 0 12px ${cfg.shadow};">
       <div class="sc-actor-header" style="background:${cfg.hbg};color:${cfg.hclr};">${cfg.emoji} ${role.charAt(0).toUpperCase()+role.slice(1)}</div>
       <div class="sc-actor-body">
-        <!-- Orders out (amber) -->
+        <!-- Incoming shipments (blue) -->
         <div class="sc-slot-col">
-          <div class="sc-slot-label" style="color:rgba(245,200,66,.65);">${ordLabel}</div>
-          ${buildSlots(orders[cfg.pre], 'amber', false)}
+          <div class="sc-slot-label" style="color:rgba(59,130,246,.65);">${shpLabel}</div>
+          ${buildSlots(ships[cfg.pre], 'blue', true)}
         </div>
         <!-- Inventory -->
         <div class="sc-inv">
@@ -585,10 +585,10 @@ function renderChain(players, pipeline, lastDemand) {
             <div style="font-size:.5rem;color:var(--muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60px;">${p.name || ''}</div>
           </div>
         </div>
-        <!-- Incoming shipments (blue) -->
+        <!-- Orders out (amber) -->
         <div class="sc-slot-col">
-          <div class="sc-slot-label" style="color:rgba(59,130,246,.65);">${shpLabel}</div>
-          ${buildSlots(ships[cfg.pre], 'blue', true)}
+          <div class="sc-slot-label" style="color:rgba(245,200,66,.65);">${ordLabel}</div>
+          ${buildSlots(orders[cfg.pre], 'amber', false)}
         </div>
       </div>
     </div>`;

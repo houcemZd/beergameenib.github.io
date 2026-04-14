@@ -293,21 +293,21 @@
   to   { transform:translateY(-50%) translateX(28px); }
 }
 
-/* ── bgb-slot on the road → truck badge ──────────────────────────────── */
-.road-surface .bgb-slot {
+/* ── bgb-slot in top row → truck badge (shipments) ───────────────────── */
+.road-orders-row .bgb-slot {
   flex-shrink:0; position:relative; border-radius:4px 8px 8px 4px;
   height:36px; min-width:48px; width:auto;
   display:flex; align-items:center; justify-content:center;
   transition:border-color .2s, background .2s;
 }
-.road-surface .bgb-slot.blue {
+.road-orders-row .bgb-slot.blue {
   background:linear-gradient(135deg, rgba(10,26,60,.9) 0%, rgba(20,40,90,.85) 100%);
   border:2px solid rgba(59,130,246,.65);
   border-left:4px solid rgba(59,130,246,.85);
   box-shadow:0 2px 8px rgba(59,130,246,.15);
 }
 /* Truck icon (SVG instead of emoji) */
-.road-surface .bgb-slot.blue::before {
+.road-orders-row .bgb-slot.blue::before {
   content:''; position:absolute; left:-22px; top:50%;
   transform:translateY(-50%);
   width:18px; height:14px;
@@ -316,44 +316,44 @@
   filter:drop-shadow(0 0 4px rgba(59,130,246,.6));
 }
 /* Cargo quantity */
-.road-surface .bgb-slot.blue .bgb-v {
+.road-orders-row .bgb-slot.blue .bgb-v {
   color:#93c5fd; font-size:.9rem; font-weight:900;
   text-shadow:0 0 6px rgba(59,130,246,.6);
   padding-left:2px;
 }
 /* Arriving truck glows green */
-.road-surface .bgb-slot.arriving {
+.road-orders-row .bgb-slot.arriving {
   border-color:var(--success)!important;
   background:rgba(10,40,20,.85)!important;
   animation:truck-pulse 1.1s ease infinite;
 }
-.road-surface .bgb-slot.arriving .bgb-v { color:#4ade80!important; }
+.road-orders-row .bgb-slot.arriving .bgb-v { color:#4ade80!important; }
 @keyframes truck-pulse {
   0%,100%{ box-shadow:0 0 0 0 rgba(34,197,94,0); }
   50%    { box-shadow:0 0 10px 3px rgba(34,197,94,.4); }
 }
 /* Empty/blank truck */
-.road-surface .bgb-slot:not(.blue):not(.amber):not(.arriving) {
+.road-orders-row .bgb-slot:not(.blue):not(.amber):not(.arriving) {
   opacity:.13; border:1px dashed rgba(255,255,255,.08);
   background:transparent; border-radius:5px;
 }
-.road-surface .bgb-slot:not(.blue):not(.amber):not(.arriving) .bgb-v { color:transparent; }
+.road-orders-row .bgb-slot:not(.blue):not(.amber):not(.arriving) .bgb-v { color:transparent; }
 
-/* ── bgb-slot in order row → order document badge ────────────────────── */
-.road-orders-row .bgb-slot {
+/* ── bgb-slot on the road → order document badge ─────────────────────── */
+.road-surface .bgb-slot {
   flex-shrink:0; position:relative; border-radius:5px;
   height:30px; min-width:48px; width:auto;
   display:flex; align-items:center; justify-content:center;
   transition:border-color .2s, background .2s;
 }
-.road-orders-row .bgb-slot.amber {
+.road-surface .bgb-slot.amber {
   background:linear-gradient(135deg, rgba(60,42,0,.8) 0%, rgba(80,55,0,.75) 100%);
   border:1.5px solid rgba(245,200,66,.6);
   border-top:3px solid rgba(245,200,66,.75);
   box-shadow:0 2px 8px rgba(245,200,66,.12);
 }
 /* Order document icon (SVG instead of emoji) */
-.road-orders-row .bgb-slot.amber::before {
+.road-surface .bgb-slot.amber::before {
   content:''; position:absolute; left:-19px; top:50%;
   transform:translateY(-50%);
   width:14px; height:16px;
@@ -361,15 +361,15 @@
   background-size:contain; background-repeat:no-repeat;
   filter:drop-shadow(0 0 3px rgba(245,200,66,.5));
 }
-.road-orders-row .bgb-slot.amber .bgb-v {
+.road-surface .bgb-slot.amber .bgb-v {
   color:#fde68a; font-size:.82rem; font-weight:900;
   text-shadow:0 0 5px rgba(245,200,66,.5);
 }
 /* Empty order slot */
-.road-orders-row .bgb-slot:not(.amber):not(.arriving) {
+.road-surface .bgb-slot:not(.amber):not(.blue):not(.arriving) {
   opacity:.12; border:1px dashed rgba(245,200,66,.15); background:transparent;
 }
-.road-orders-row .bgb-slot:not(.amber):not(.arriving) .bgb-v { color:transparent; }
+.road-surface .bgb-slot:not(.amber):not(.blue):not(.arriving) .bgb-v { color:transparent; }
 
 /* Bottom label row */
 .road-seg-labels {
@@ -1074,20 +1074,20 @@
       <!-- ── ROAD R↔W ───────────────────────────────────────────────────── -->
       <div class="road-seg">
         <div class="road-orders-row">
-          <div class="bgb-slot" id="rt-ord-1" data-tip="Order to Wholesaler — arriving next week (placed last week)"><span class="bgb-v">·</span></div>
-          <div class="bgb-slot" id="rt-ord-2" data-tip="Order to Wholesaler — arriving now (placed 2 weeks ago)"><span class="bgb-v">·</span></div>
-        </div>
-        <div class="road-surface">
           <div class="bgb-slot" id="rt-ship-1" data-tip="Shipment from Wholesaler — arriving now (shipped 2 weeks ago)"><span class="bgb-v">·</span></div>
           <div class="bgb-slot" id="rt-ship-2" data-tip="Shipment from Wholesaler — arriving next week (shipped last week)"><span class="bgb-v">·</span></div>
+        </div>
+        <div class="road-surface">
+          <div class="bgb-slot" id="rt-ord-1" data-tip="Order to Wholesaler — arriving next week (placed last week)"><span class="bgb-v">·</span></div>
+          <div class="bgb-slot" id="rt-ord-2" data-tip="Order to Wholesaler — arriving now (placed 2 weeks ago)"><span class="bgb-v">·</span></div>
           <div class="road-flow-dir">
-            <span class="rfd amber">→</span>
             <span class="rfd blue">←</span>
+            <span class="rfd amber">→</span>
           </div>
         </div>
         <div class="road-seg-labels">
-          <span class="road-seg-lbl amber">orders ▸</span>
           <span class="road-seg-lbl blue">◂ ships</span>
+          <span class="road-seg-lbl amber">orders ▸</span>
         </div>
       </div>
 
@@ -1106,20 +1106,20 @@
       <!-- ── ROAD W↔D ───────────────────────────────────────────────────── -->
       <div class="road-seg">
         <div class="road-orders-row">
-          <div class="bgb-slot" id="wh-ord-1" data-tip="Order to Distributor — arriving next week (placed last week)"><span class="bgb-v">·</span></div>
-          <div class="bgb-slot" id="wh-ord-2" data-tip="Order to Distributor — arriving now (placed 2 weeks ago)"><span class="bgb-v">·</span></div>
-        </div>
-        <div class="road-surface">
           <div class="bgb-slot" id="wh-ship-1" data-tip="Shipment from Distributor — arriving now (shipped 2 weeks ago)"><span class="bgb-v">·</span></div>
           <div class="bgb-slot" id="wh-ship-2" data-tip="Shipment from Distributor — arriving next week (shipped last week)"><span class="bgb-v">·</span></div>
+        </div>
+        <div class="road-surface">
+          <div class="bgb-slot" id="wh-ord-1" data-tip="Order to Distributor — arriving next week (placed last week)"><span class="bgb-v">·</span></div>
+          <div class="bgb-slot" id="wh-ord-2" data-tip="Order to Distributor — arriving now (placed 2 weeks ago)"><span class="bgb-v">·</span></div>
           <div class="road-flow-dir">
-            <span class="rfd amber">→</span>
             <span class="rfd blue">←</span>
+            <span class="rfd amber">→</span>
           </div>
         </div>
         <div class="road-seg-labels">
-          <span class="road-seg-lbl amber">orders ▸</span>
           <span class="road-seg-lbl blue">◂ ships</span>
+          <span class="road-seg-lbl amber">orders ▸</span>
         </div>
       </div>
 
@@ -1138,20 +1138,20 @@
       <!-- ── ROAD D↔F ───────────────────────────────────────────────────── -->
       <div class="road-seg">
         <div class="road-orders-row">
-          <div class="bgb-slot" id="di-ord-1" data-tip="Order to Factory — arriving next week (placed last week)"><span class="bgb-v">·</span></div>
-          <div class="bgb-slot" id="di-ord-2" data-tip="Order to Factory — arriving now (placed 2 weeks ago)"><span class="bgb-v">·</span></div>
-        </div>
-        <div class="road-surface">
           <div class="bgb-slot" id="di-ship-1" data-tip="Shipment from Factory — arriving now (shipped 2 weeks ago)"><span class="bgb-v">·</span></div>
           <div class="bgb-slot" id="di-ship-2" data-tip="Shipment from Factory — arriving next week (shipped last week)"><span class="bgb-v">·</span></div>
+        </div>
+        <div class="road-surface">
+          <div class="bgb-slot" id="di-ord-1" data-tip="Order to Factory — arriving next week (placed last week)"><span class="bgb-v">·</span></div>
+          <div class="bgb-slot" id="di-ord-2" data-tip="Order to Factory — arriving now (placed 2 weeks ago)"><span class="bgb-v">·</span></div>
           <div class="road-flow-dir">
-            <span class="rfd amber">→</span>
             <span class="rfd blue">←</span>
+            <span class="rfd amber">→</span>
           </div>
         </div>
         <div class="road-seg-labels">
-          <span class="road-seg-lbl amber">orders ▸</span>
           <span class="road-seg-lbl blue">◂ ships</span>
+          <span class="road-seg-lbl amber">orders ▸</span>
         </div>
       </div>
 
