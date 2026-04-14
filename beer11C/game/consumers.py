@@ -827,12 +827,16 @@ class GameConsumer(AsyncWebsocketConsumer):
             "distributor":"wholesaler","factory":"distributor",
         }
 
+        # The "playing week" is always current_week + 1 because
+        # session.current_week stores the last *completed* week.
+        playing_week = session.current_week + 1
+
         def _two_items(rows):
             return [
                 {
                     "quantity":     r.quantity,
                     "arrives_week": r.arrives_on_week,
-                    "weeks_away":   max(0, r.arrives_on_week - session.current_week),
+                    "weeks_away":   max(0, r.arrives_on_week - playing_week),
                 }
                 for r in rows[:2]
             ]
@@ -883,7 +887,7 @@ class GameConsumer(AsyncWebsocketConsumer):
             {
                 'quantity':     s.quantity,
                 'arrives_week': s.arrives_on_week,
-                'weeks_away':   max(0, s.arrives_on_week - session.current_week),
+                'weeks_away':   max(0, s.arrives_on_week - playing_week),
             }
             for s in incoming_ships_qs
         ]
@@ -897,7 +901,7 @@ class GameConsumer(AsyncWebsocketConsumer):
             {
                 'quantity':     o.quantity,
                 'arrives_week': o.arrives_on_week,
-                'weeks_away':   max(0, o.arrives_on_week - session.current_week),
+                'weeks_away':   max(0, o.arrives_on_week - playing_week),
             }
             for o in outgoing_orders_qs
         ]
@@ -935,20 +939,23 @@ class GameConsumer(AsyncWebsocketConsumer):
             factory_pending_requests = _two_items(outgoing_orders_qs)
             factory_production_delay = _two_items(incoming_ships_qs)
             # The factory's "incoming orders" are the distributor's PipelineOrders
-            # travelling upstream to the factory (2-week order delay).
+            # arriving THIS week only — future orders are not visible.
             distributor_player = players.get('distributor')
             if distributor_player:
                 incoming_orders_to_me = _two_items(list(PipelineOrder.objects.filter(
-                    sender=distributor_player, fulfilled=False
-                ).order_by('arrives_on_week')))
+                    sender=distributor_player, fulfilled=False,
+                    arrives_on_week=playing_week,
+                )))
             else:
                 incoming_orders_to_me = []
 
         elif role in ('wholesaler', 'distributor'):
             if downstream_player:
+                # Only show the incoming order arriving THIS week — future orders are hidden.
                 incoming_orders_to_me = _two_items(list(PipelineOrder.objects.filter(
-                    sender=downstream_player, fulfilled=False
-                ).order_by('arrives_on_week')))
+                    sender=downstream_player, fulfilled=False,
+                    arrives_on_week=playing_week,
+                )))
 
         if role in ('wholesaler', 'distributor', 'factory') and downstream_player:
             outgoing_shipments_from_me = _two_items(list(PipelineShipment.objects.filter(

@@ -390,7 +390,7 @@ def dashboard(request, session_id):
     players = _sorted_players(session.players.prefetch_related('history').all())
 
     chart_data    = json.dumps(get_chart_data(session))
-    pipeline_data = json.dumps(_build_pipeline_data(players, session.current_week))
+    pipeline_data = json.dumps(_build_pipeline_data(players, session.current_week + 1))
 
     last_week_states = {}
     if session.current_week > 0:
