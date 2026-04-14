@@ -102,6 +102,40 @@
 .spec-stat-val.warn { color:var(--accent); }
 .spec-stat-val.bad  { color:var(--danger); }
 
+/* ── Supply-chain board (spectator) ─────────────────────────────────────── */
+#spec-chain { display:flex; align-items:stretch; gap:0; min-width:680px; font-family:var(--font-mono); }
+.sc-actor {
+  display:flex; flex-direction:column; flex:1; min-width:0;
+  border-radius:8px; overflow:hidden;
+}
+.sc-actor-header {
+  font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em;
+  padding:.35rem .4rem .28rem; text-align:center; height:26px;
+  display:flex; align-items:center; justify-content:center; gap:.3rem;
+}
+.sc-actor-body {
+  display:flex; flex-direction:row; flex:1; padding:3px; gap:2px; background:var(--surface);
+}
+.sc-slot-col { display:flex; flex-direction:column; align-items:center; width:32px; flex-shrink:0; gap:2px; }
+.sc-slot-label { font-size:.4rem; text-transform:uppercase; letter-spacing:.03em; height:18px; display:flex; align-items:center; justify-content:center; text-align:center; }
+.sc-slot {
+  width:100%; min-height:32px; border-radius:4px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:.78rem; font-weight:800;
+}
+.sc-slot.amber { border:1px solid rgba(245,200,66,.3); background:rgba(245,200,66,.07); color:#ffd36a; }
+.sc-slot.amber.dim { border-color:rgba(245,200,66,.2); background:rgba(245,200,66,.04); opacity:.7; }
+.sc-slot.blue  { border:1px solid rgba(59,130,246,.3);  background:rgba(59,130,246,.07);  color:#8ecbff; }
+.sc-slot.blue.dim  { border-color:rgba(59,130,246,.2);  background:rgba(59,130,246,.04);  opacity:.7; }
+.sc-slot.arrives { border-color:var(--success) !important; color:var(--success) !important; }
+.sc-inv {
+  flex:1; display:flex; align-items:center; justify-content:center;
+  background:var(--surface2); border-radius:6px; padding:.35rem .25rem;
+  text-align:center; position:relative; overflow:hidden; min-height:82px;
+}
+.sc-inv-bar { position:absolute; bottom:0; left:0; right:0; height:3px; border-radius:0 0 6px 6px; }
+.sc-arrow { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; flex-shrink:0; width:18px; padding-top:26px; }
+
 /* live pulse dot */
 .live-dot { width:8px; height:8px; border-radius:50%; background:var(--danger); display:inline-block; animation:live-pulse 1.2s infinite; }
 @keyframes live-pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.75)} }
@@ -268,7 +302,22 @@
     <span id="demand-val" style="font-family:var(--font-mono); font-size:1.1rem; color:var(--accent); font-weight:800; margin-left:.4rem;">—</span> units
   </div>
 
+  <!-- ── Supply chain board ─────────────────────────────────────────────── -->
+  <div class="card" style="margin-bottom:1.5rem; padding:1.1rem 1.25rem;">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:.9rem;">
+      <div class="card-title" style="margin:0;">Supply Chain Board</div>
+      <div style="font-size:.62rem; color:var(--muted); font-family:var(--font-mono);">
+        <span style="color:rgba(245,200,66,.8);">■</span> orders &nbsp;
+        <span style="color:rgba(59,130,246,.8);">■</span> shipments
+      </div>
+    </div>
+    <div style="overflow-x:auto; padding:.2rem 0;">
+      <div id="spec-chain"><!-- built by JS --></div>
+    </div>
+  </div>
+
   <!-- player stat cards -->
+  <div style="font-size:.68rem; color:var(--muted); text-transform:uppercase; letter-spacing:.1em; margin-bottom:.6rem;">Player Summary</div>
   <div class="spec-grid" id="spec-cards">
     <!-- populated by JS -->
   </div>
@@ -385,8 +434,9 @@ function updateUI(d) {
       clearInterval(poll);
     }
 
-    // Player stat cards
+    // Player stat cards + supply-chain board
     renderSpecCards(d.players || []);
+    renderChain(d.players || [], d.pipeline || [], d.last_demand);
   } else {
     // Pre-game
     if (msg) {
@@ -427,6 +477,123 @@ function renderSpecCards(players) {
         </div>
       </div>`;
   });
+}
+
+// ── Supply-chain board ─────────────────────────────────────────────────────
+const ROLE_CFG = {
+  retailer:    { emoji:'🛒', pre:'re', border:'rgba(245,200,66,.35)',  hbg:'rgba(245,200,66,.1)',  hclr:'#ffd36a', shadow:'rgba(245,200,66,.06)'  },
+  wholesaler:  { emoji:'🏪', pre:'wh', border:'rgba(59,130,246,.35)',  hbg:'rgba(59,130,246,.1)',  hclr:'#8ecbff', shadow:'rgba(59,130,246,.06)'  },
+  distributor: { emoji:'🚚', pre:'di', border:'rgba(168,85,247,.35)',  hbg:'rgba(168,85,247,.1)',  hclr:'#d8a4ff', shadow:'rgba(168,85,247,.06)'  },
+  factory:     { emoji:'🏭', pre:'fa', border:'rgba(34,197,94,.35)',   hbg:'rgba(34,197,94,.1)',   hclr:'#4ade80', shadow:'rgba(34,197,94,.06)'   },
+};
+
+function renderChain(players, pipeline, lastDemand) {
+  const container = document.getElementById('spec-chain');
+  if (!container) return;
+
+  // Build per-role pipeline buckets
+  const PRE = { retailer:'re', wholesaler:'wh', distributor:'di', factory:'fa' };
+  const ships = {}, orders = {};
+  (pipeline || []).forEach(item => {
+    const toKey   = PRE[item.to]   || item.to.slice(0,2);
+    const fromKey = PRE[item.from] || item.from.slice(0,2);
+    if (item.type !== 'order') {
+      if (!ships[toKey])   ships[toKey]   = [];
+      ships[toKey].push(item);
+    } else {
+      if (!orders[fromKey]) orders[fromKey] = [];
+      orders[fromKey].push(item);
+    }
+  });
+
+  function slotHTML(qty, cls) {
+    const arriving = qty !== null && qty !== undefined && qty !== '·';
+    return `<div class="sc-slot ${cls}${arriving ? '' : ''}">${qty !== null && qty !== undefined ? qty : '·'}</div>`;
+  }
+
+  function buildSlots(items, cls, isArriving) {
+    const slots = [null, null];
+    (items || []).slice(0,2).forEach((item, i) => { slots[i] = item; });
+    return slots.map((item, i) => {
+      const dimCls = i === 1 ? ' dim' : '';
+      const arrivingCls = item && item.weeks_away === 0 ? ' arrives' : '';
+      return `<div class="sc-slot ${cls}${dimCls}${arrivingCls}" title="${item ? (item.weeks_away === 0 ? 'Arriving this week!' : `${item.weeks_away} week(s) away`) : ''}">${item ? item.qty : '·'}</div>`;
+    }).join('');
+  }
+
+  let html = '';
+
+  // Customer node
+  const demandTxt = lastDemand !== null && lastDemand !== undefined ? lastDemand : '—';
+  html += `
+    <div style="display:flex;flex-direction:column;align-items:center;flex:0 0 72px;min-width:72px;">
+      <div style="font-size:.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;padding:.3rem .2rem .25rem;text-align:center;height:26px;display:flex;align-items:center;justify-content:center;">
+        👤 Customer
+      </div>
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.5rem .3rem;width:100%;text-align:center;min-height:82px;">
+        <div>
+          <div style="font-size:1.5rem;font-weight:800;line-height:1;color:var(--accent);">${demandTxt}</div>
+          <div style="font-size:.52rem;color:var(--muted);margin-top:2px;">units</div>
+        </div>
+      </div>
+    </div>`;
+
+  const ACTOR_ROLES = ['retailer', 'wholesaler', 'distributor', 'factory'];
+  const playerMap = {};
+  (players || []).forEach(p => { playerMap[p.role] = p; });
+
+  ACTOR_ROLES.forEach((role, idx) => {
+    const cfg = ROLE_CFG[role];
+    const p   = playerMap[role];
+
+    // Arrow before each actor (including first, after customer)
+    html += `<div class="sc-arrow"><span style="font-size:.7rem;color:rgba(245,200,66,.7);">→</span><span style="font-size:.7rem;color:rgba(59,130,246,.7);">←</span></div>`;
+
+    if (!p) {
+      // Player not yet in game
+      html += `<div class="sc-actor" style="border:1.5px solid ${cfg.border};box-shadow:0 0 12px ${cfg.shadow};">
+        <div class="sc-actor-header" style="background:${cfg.hbg};color:${cfg.hclr};">${cfg.emoji} ${role.charAt(0).toUpperCase()+role.slice(1)}</div>
+        <div style="flex:1;display:flex;align-items:center;justify-content:center;background:var(--surface);padding:1rem;font-size:.7rem;color:var(--muted);">—</div>
+      </div>`;
+      return;
+    }
+
+    const invColor = p.inventory > 8 ? '#22c55e' : p.inventory > 0 ? '#f5c842' : '#ef4444';
+    const invBarPct = Math.min(100, Math.max(0, Math.round(p.inventory / 40 * 100)));
+    const isFactory = role === 'factory';
+    const ordLabel  = isFactory ? 'REQ' : 'ORD';
+    const shpLabel  = isFactory ? 'PROD' : 'SHP';
+
+    html += `
+    <div class="sc-actor" style="border:1.5px solid ${cfg.border};box-shadow:0 0 12px ${cfg.shadow};">
+      <div class="sc-actor-header" style="background:${cfg.hbg};color:${cfg.hclr};">${cfg.emoji} ${role.charAt(0).toUpperCase()+role.slice(1)}</div>
+      <div class="sc-actor-body">
+        <!-- Orders out (amber) -->
+        <div class="sc-slot-col">
+          <div class="sc-slot-label" style="color:rgba(245,200,66,.65);">${ordLabel}</div>
+          ${buildSlots(orders[cfg.pre], 'amber', false)}
+        </div>
+        <!-- Inventory -->
+        <div class="sc-inv">
+          <div class="sc-inv-bar" style="background:${invColor};width:${invBarPct}%;"></div>
+          <div>
+            <div style="font-size:1.4rem;font-weight:800;line-height:1;color:${invColor};">${p.inventory}</div>
+            ${p.backlog > 0
+              ? `<div style="font-size:.52rem;color:var(--danger);margin-top:2px;font-weight:700;">blg:${p.backlog}</div>`
+              : `<div style="font-size:.52rem;color:var(--muted);margin-top:2px;">blg:0</div>`}
+            <div style="font-size:.5rem;color:var(--muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60px;">${p.name || ''}</div>
+          </div>
+        </div>
+        <!-- Incoming shipments (blue) -->
+        <div class="sc-slot-col">
+          <div class="sc-slot-label" style="color:rgba(59,130,246,.65);">${shpLabel}</div>
+          ${buildSlots(ships[cfg.pre], 'blue', true)}
+        </div>
+      </div>
+    </div>`;
+  });
+
+  container.innerHTML = html;
 }
 
 // ── Copy ──────────────────────────────────────────────────────────────────
