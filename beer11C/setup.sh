@@ -151,8 +151,8 @@ sep
 SESSION_COUNT=$(python3 -c "
 import os, sys, django
 sys.path.insert(0, '.')
-django.setup()
 try:
+    django.setup()
     from game.models import GameSession
     print(GameSession.objects.count())
 except Exception:
@@ -167,11 +167,14 @@ if [ "$SESSION_COUNT" -gt 10 ]; then
     python3 -c "
 import os, sys, django
 sys.path.insert(0, '.')
-django.setup()
-from game.models import GameSession
-n = GameSession.objects.count()
-GameSession.objects.all().delete()
-print(f'Deleted {n} sessions.')
+try:
+    django.setup()
+    from game.models import GameSession
+    n = GameSession.objects.count()
+    GameSession.objects.all().delete()
+    print(f'Deleted {n} sessions.')
+except Exception:
+    pass
 " 2>/dev/null
     ok "All sessions cleared"
   else
