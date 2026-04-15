@@ -293,21 +293,21 @@
   to   { transform:translateY(-50%) translateX(28px); }
 }
 
-/* ── bgb-slot in top row → truck badge (shipments) ───────────────────── */
-.road-orders-row .bgb-slot {
+/* ── bgb-slot on the road → truck badge (shipments / shipping delay) ── */
+.road-surface .bgb-slot {
   flex-shrink:0; position:relative; border-radius:4px 8px 8px 4px;
   height:36px; min-width:48px; width:auto;
   display:flex; align-items:center; justify-content:center;
   transition:border-color .2s, background .2s;
 }
-.road-orders-row .bgb-slot.blue {
+.road-surface .bgb-slot.blue {
   background:linear-gradient(135deg, rgba(10,26,60,.9) 0%, rgba(20,40,90,.85) 100%);
   border:2px solid rgba(59,130,246,.65);
   border-left:4px solid rgba(59,130,246,.85);
   box-shadow:0 2px 8px rgba(59,130,246,.15);
 }
 /* Truck icon (SVG instead of emoji) */
-.road-orders-row .bgb-slot.blue::before {
+.road-surface .bgb-slot.blue::before {
   content:''; position:absolute; left:-22px; top:50%;
   transform:translateY(-50%);
   width:18px; height:14px;
@@ -316,44 +316,44 @@
   filter:drop-shadow(0 0 4px rgba(59,130,246,.6));
 }
 /* Cargo quantity */
-.road-orders-row .bgb-slot.blue .bgb-v {
+.road-surface .bgb-slot.blue .bgb-v {
   color:#93c5fd; font-size:.9rem; font-weight:900;
   text-shadow:0 0 6px rgba(59,130,246,.6);
   padding-left:2px;
 }
 /* Arriving truck glows green */
-.road-orders-row .bgb-slot.arriving {
+.road-surface .bgb-slot.arriving {
   border-color:var(--success)!important;
   background:rgba(10,40,20,.85)!important;
   animation:truck-pulse 1.1s ease infinite;
 }
-.road-orders-row .bgb-slot.arriving .bgb-v { color:#4ade80!important; }
+.road-surface .bgb-slot.arriving .bgb-v { color:#4ade80!important; }
 @keyframes truck-pulse {
   0%,100%{ box-shadow:0 0 0 0 rgba(34,197,94,0); }
   50%    { box-shadow:0 0 10px 3px rgba(34,197,94,.4); }
 }
 /* Empty/blank truck */
-.road-orders-row .bgb-slot:not(.blue):not(.amber):not(.arriving) {
+.road-surface .bgb-slot:not(.blue):not(.amber):not(.arriving) {
   opacity:.13; border:1px dashed rgba(255,255,255,.08);
   background:transparent; border-radius:5px;
 }
-.road-orders-row .bgb-slot:not(.blue):not(.amber):not(.arriving) .bgb-v { color:transparent; }
+.road-surface .bgb-slot:not(.blue):not(.amber):not(.arriving) .bgb-v { color:transparent; }
 
-/* ── bgb-slot on the road → order document badge ─────────────────────── */
-.road-surface .bgb-slot {
+/* ── bgb-slot in top row → order document badge ──────────────────────── */
+.road-orders-row .bgb-slot {
   flex-shrink:0; position:relative; border-radius:5px;
   height:30px; min-width:48px; width:auto;
   display:flex; align-items:center; justify-content:center;
   transition:border-color .2s, background .2s;
 }
-.road-surface .bgb-slot.amber {
+.road-orders-row .bgb-slot.amber {
   background:linear-gradient(135deg, rgba(60,42,0,.8) 0%, rgba(80,55,0,.75) 100%);
   border:1.5px solid rgba(245,200,66,.6);
   border-top:3px solid rgba(245,200,66,.75);
   box-shadow:0 2px 8px rgba(245,200,66,.12);
 }
 /* Order document icon (SVG instead of emoji) */
-.road-surface .bgb-slot.amber::before {
+.road-orders-row .bgb-slot.amber::before {
   content:''; position:absolute; left:-19px; top:50%;
   transform:translateY(-50%);
   width:14px; height:16px;
@@ -361,15 +361,15 @@
   background-size:contain; background-repeat:no-repeat;
   filter:drop-shadow(0 0 3px rgba(245,200,66,.5));
 }
-.road-surface .bgb-slot.amber .bgb-v {
+.road-orders-row .bgb-slot.amber .bgb-v {
   color:#fde68a; font-size:.82rem; font-weight:900;
   text-shadow:0 0 5px rgba(245,200,66,.5);
 }
 /* Empty order slot */
-.road-surface .bgb-slot:not(.amber):not(.blue):not(.arriving) {
+.road-orders-row .bgb-slot:not(.amber):not(.arriving) {
   opacity:.12; border:1px dashed rgba(245,200,66,.15); background:transparent;
 }
-.road-surface .bgb-slot:not(.amber):not(.blue):not(.arriving) .bgb-v { color:transparent; }
+.road-orders-row .bgb-slot:not(.amber):not(.arriving) .bgb-v { color:transparent; }
 
 /* Bottom label row */
 .road-seg-labels {
@@ -1070,20 +1070,20 @@
       <!-- ── ROAD R↔W ───────────────────────────────────────────────────── -->
       <div class="road-seg">
         <div class="road-orders-row">
-          <div class="bgb-slot" id="rt-ship-1" data-tip="Shipment from Wholesaler — arriving now (shipped 2 weeks ago)"><span class="bgb-v">·</span></div>
-          <div class="bgb-slot" id="rt-ship-2" data-tip="Shipment from Wholesaler — arriving next week (shipped last week)"><span class="bgb-v">·</span></div>
-        </div>
-        <div class="road-surface">
           <div class="bgb-slot" id="rt-ord-1" data-tip="Order to Wholesaler — arriving next week (placed last week)"><span class="bgb-v">·</span></div>
           <div class="bgb-slot" id="rt-ord-2" data-tip="Order to Wholesaler — arriving now (placed 2 weeks ago)"><span class="bgb-v">·</span></div>
+        </div>
+        <div class="road-surface">
+          <div class="bgb-slot" id="rt-ship-1" data-tip="Shipment from Wholesaler — arriving now (shipped 2 weeks ago)"><span class="bgb-v">·</span></div>
+          <div class="bgb-slot" id="rt-ship-2" data-tip="Shipment from Wholesaler — arriving next week (shipped last week)"><span class="bgb-v">·</span></div>
           <div class="road-flow-dir">
-            <span class="rfd blue">←</span>
             <span class="rfd amber">→</span>
+            <span class="rfd blue">←</span>
           </div>
         </div>
         <div class="road-seg-labels">
-          <span class="road-seg-lbl blue">◂ ships</span>
           <span class="road-seg-lbl amber">orders ▸</span>
+          <span class="road-seg-lbl blue">◂ ships</span>
         </div>
       </div>
 
@@ -1102,20 +1102,20 @@
       <!-- ── ROAD W↔D ───────────────────────────────────────────────────── -->
       <div class="road-seg">
         <div class="road-orders-row">
-          <div class="bgb-slot" id="wh-ship-1" data-tip="Shipment from Distributor — arriving now (shipped 2 weeks ago)"><span class="bgb-v">·</span></div>
-          <div class="bgb-slot" id="wh-ship-2" data-tip="Shipment from Distributor — arriving next week (shipped last week)"><span class="bgb-v">·</span></div>
-        </div>
-        <div class="road-surface">
           <div class="bgb-slot" id="wh-ord-1" data-tip="Order to Distributor — arriving next week (placed last week)"><span class="bgb-v">·</span></div>
           <div class="bgb-slot" id="wh-ord-2" data-tip="Order to Distributor — arriving now (placed 2 weeks ago)"><span class="bgb-v">·</span></div>
+        </div>
+        <div class="road-surface">
+          <div class="bgb-slot" id="wh-ship-1" data-tip="Shipment from Distributor — arriving now (shipped 2 weeks ago)"><span class="bgb-v">·</span></div>
+          <div class="bgb-slot" id="wh-ship-2" data-tip="Shipment from Distributor — arriving next week (shipped last week)"><span class="bgb-v">·</span></div>
           <div class="road-flow-dir">
-            <span class="rfd blue">←</span>
             <span class="rfd amber">→</span>
+            <span class="rfd blue">←</span>
           </div>
         </div>
         <div class="road-seg-labels">
-          <span class="road-seg-lbl blue">◂ ships</span>
           <span class="road-seg-lbl amber">orders ▸</span>
+          <span class="road-seg-lbl blue">◂ ships</span>
         </div>
       </div>
 
@@ -1134,20 +1134,20 @@
       <!-- ── ROAD D↔F ───────────────────────────────────────────────────── -->
       <div class="road-seg">
         <div class="road-orders-row">
-          <div class="bgb-slot" id="di-ship-1" data-tip="Shipment from Factory — arriving now (shipped 2 weeks ago)"><span class="bgb-v">·</span></div>
-          <div class="bgb-slot" id="di-ship-2" data-tip="Shipment from Factory — arriving next week (shipped last week)"><span class="bgb-v">·</span></div>
-        </div>
-        <div class="road-surface">
           <div class="bgb-slot" id="di-ord-1" data-tip="Order to Factory — arriving next week (placed last week)"><span class="bgb-v">·</span></div>
           <div class="bgb-slot" id="di-ord-2" data-tip="Order to Factory — arriving now (placed 2 weeks ago)"><span class="bgb-v">·</span></div>
+        </div>
+        <div class="road-surface">
+          <div class="bgb-slot" id="di-ship-1" data-tip="Shipment from Factory — arriving now (shipped 2 weeks ago)"><span class="bgb-v">·</span></div>
+          <div class="bgb-slot" id="di-ship-2" data-tip="Shipment from Factory — arriving next week (shipped last week)"><span class="bgb-v">·</span></div>
           <div class="road-flow-dir">
-            <span class="rfd blue">←</span>
             <span class="rfd amber">→</span>
+            <span class="rfd blue">←</span>
           </div>
         </div>
         <div class="road-seg-labels">
-          <span class="road-seg-lbl blue">◂ ships</span>
           <span class="road-seg-lbl amber">orders ▸</span>
+          <span class="road-seg-lbl blue">◂ ships</span>
         </div>
       </div>
 
@@ -1287,6 +1287,9 @@ function handle(msg) {
       showShipPanel(msg.demand_incoming, msg.received, msg.new_inventory, msg.backlog);
       setPhaseIndicator(2);
       updateMiniHUD(msg.new_inventory, msg.backlog);
+      // Refresh the full board with updated state from server
+      renderBoard(msg);
+      updatePipeline(msg.pipeline || [], msg.outgoing_orders || []);
       // Animate board only if we didn't already do it optimistically on button click
       if (!_receiveOptimisticDone) {
         animateBoardReceive(MY_ROLE, msg.received, msg.new_inventory, msg.backlog);
@@ -1306,6 +1309,9 @@ function handle(msg) {
       showOrderPanel(msg.shipped, msg.new_inventory, msg.new_backlog);
       setPhaseIndicator(3);
       updateMiniHUD(msg.new_inventory, msg.new_backlog);
+      // Refresh the full board with updated state from server
+      renderBoard(msg);
+      updatePipeline(msg.pipeline || [], msg.outgoing_orders || []);
       // Animate board only if we didn't already do it optimistically on button click
       if (!_shipOptimisticDone) {
         animateBoardShip(MY_ROLE, msg.shipped, msg.new_inventory, msg.new_backlog);
@@ -1325,6 +1331,11 @@ function handle(msg) {
     case 'phase_done':
       showDonePanel(msg.order_placed ?? msg.quantity, msg);
       setPhaseIndicator(3, true);
+      // Refresh the full board with updated state from server
+      if (msg.map) {
+        renderBoard(msg);
+        updatePipeline(msg.pipeline || [], msg.outgoing_orders || []);
+      }
       // Animate: amber order slot pulses (order placed upstream)
       if (MY_ROLE !== 'customer') animateBoardOrder(MY_ROLE, msg.order_placed ?? msg.quantity);
       break;
@@ -2133,11 +2144,19 @@ function setSlot(id, item, cls) {
 }
 
 function setSlots(id1, id2, items, cls) {
-  const sorted = Array.isArray(items) ? [...items].sort((a,b) =>
-    cls === 'amber' ? b.weeks_away - a.weeks_away : a.weeks_away - b.weeks_away
-  ) : [];
-  setSlot(id1, sorted[0], cls);
-  setSlot(id2, sorted[1], cls);
+  const arr = Array.isArray(items) ? items : [];
+  if (cls === 'amber') {
+    // Orders go → (right): slot2 (RIGHT) = arriving this week, slot1 (LEFT) = arriving later
+    const thisWeek = arr.find(i => (i.weeks_away || 0) === 0) || null;
+    const nextWeek = arr.find(i => (i.weeks_away || 0) > 0)  || null;
+    setSlot(id1, nextWeek, cls);
+    setSlot(id2, thisWeek, cls);
+  } else {
+    // Shipments go ← (left): slot1 (LEFT) = arriving this week, slot2 (RIGHT) = arriving later
+    const sorted = [...arr].sort((a,b) => a.weeks_away - b.weeks_away);
+    setSlot(id1, sorted[0], cls);
+    setSlot(id2, sorted[1], cls);
+  }
 }
 
 function blankSlot(id) {
@@ -2201,14 +2220,10 @@ function renderBoard(msg) {
    * Their own slots + the pipeline slots directly connected to them
    *
    * Retailer:    rt-ord(own) rt-inv rt-ship
-   *              [WH column: wh-inv hidden, wh-ship blank; same data visible via R↔W road slots]
    * Wholesaler:  wh-ord(own) wh-inv wh-ship | rt-ord(retailer orders arriving) rt-ship(what I sent)
-   *              [D↔F road: blank — distributor orders placed hidden from wholesaler]
    * Distributor: di-ord(own) di-inv di-ship | wh-ord(wh orders arriving) wh-ship(what I sent)
-   *              fa-prod(=di-ship, factory production delay visible)
-   *              [fa-req: blank — factory production requests hidden from distributor]
+   *              [fa-prod/fa-req: blank — factory internal pipeline hidden from distributor]
    * Factory:     fa-req(own,1-wk) fa-inv fa-prod(own,2-wk) | di-ord(di orders arriving) di-ship(what I sent)
-   *              [wh-*, rt-*: blank]
    */
 
   if (role === 'retailer') {
@@ -2238,9 +2253,7 @@ function renderBoard(msg) {
     // Wholesaler slots visible to distributor:
     setSlots('wh-ord-1','wh-ord-2',   m.incoming_orders_to_me,      'amber'); // wh orders arriving at me
     setSlots('wh-ship-1','wh-ship-2', m.outgoing_shipments_from_me, 'blue');  // what I shipped to wh
-    // Factory's production delay (same data as distributor's incoming shipments):
-    setSlots('fa-prod-1','fa-prod-2', m.incoming_shipments_to_me,   'blue');  // factory shipped to me
-    // fa-req stays blank (factory production requests hidden from distributor per board rules)
+    // Factory production delay is NOT visible to distributor (only factory sees it)
   }
 
   else if (role === 'factory') {
