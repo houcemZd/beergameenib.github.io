@@ -1006,6 +1006,13 @@ class GameConsumer(AsyncWebsocketConsumer):
                 'pending_ship_qty':     ps.pending_ship_qty,
             }
 
+        # Leaderboard: all players' roles + total costs (for ranking UI)
+        leaderboard = [
+            {'role': p.role, 'total_cost': p.total_cost}
+            for p in players.values()
+            if p.role not in ('customer',)
+        ]
+
         return {
             'role':            role,
             'week':            session.current_week,
@@ -1018,6 +1025,7 @@ class GameConsumer(AsyncWebsocketConsumer):
             'history':         history,
             'submitted':       session.submitted_role_list,
             'ready':           session.ready_role_list,
+            'leaderboard':     leaderboard,
             **phase_data,
             'map': {
                 'demand_customer_to_retailer':  demand_customer_to_retailer,

@@ -997,6 +997,300 @@ body.crit-alert::after {
   box-shadow:0 0 6px currentColor;
 }
 
+/* ══════════════════════════════════════════════════════════════════════════
+   🎮  MEGA VIDEO-GAME UPGRADE — IMMERSIVE FEATURES
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Mini-map (floating supply chain overview) ──────────────────────────── */
+#mini-map {
+  position:fixed; bottom:1.2rem; left:1.2rem; z-index:500;
+  width:220px; background:rgba(13,16,23,.92); border:1px solid rgba(245,200,66,.2);
+  border-radius:12px; padding:.6rem .7rem; backdrop-filter:blur(8px);
+  box-shadow:0 4px 24px rgba(0,0,0,.5); transition:opacity .3s, transform .3s;
+  font-family:var(--font-mono);
+}
+#mini-map.collapsed { transform:translateY(calc(100% - 28px)); }
+#mini-map-toggle {
+  position:absolute; top:4px; right:6px; cursor:pointer;
+  font-size:.55rem; color:var(--muted); background:none; border:none;
+  text-transform:uppercase; letter-spacing:.08em; padding:.15rem .4rem;
+  border-radius:4px; transition:color .2s;
+}
+#mini-map-toggle:hover { color:var(--accent); }
+.mm-title {
+  font-size:.5rem; text-transform:uppercase; letter-spacing:.1em;
+  color:var(--muted); margin-bottom:.4rem;
+}
+.mm-chain {
+  display:flex; align-items:center; gap:3px; justify-content:space-between;
+}
+.mm-node {
+  width:32px; height:32px; border-radius:6px; display:flex;
+  flex-direction:column; align-items:center; justify-content:center;
+  border:1.5px solid var(--border); background:var(--surface2);
+  transition:border-color .3s, box-shadow .3s; position:relative;
+}
+.mm-node.you { border-color:rgba(255,255,255,.4); box-shadow:0 0 8px rgba(255,255,255,.15); }
+.mm-node-val { font-size:.52rem; font-weight:800; line-height:1; }
+.mm-node-lbl { font-size:.32rem; text-transform:uppercase; color:var(--muted); letter-spacing:.04em; }
+.mm-node.mm-good { border-color:rgba(34,197,94,.5); }
+.mm-node.mm-warn { border-color:rgba(245,200,66,.5); }
+.mm-node.mm-bad  { border-color:rgba(239,68,68,.5); box-shadow:0 0 6px rgba(239,68,68,.2); }
+.mm-arrow { font-size:.45rem; color:var(--muted); }
+.mm-node .mm-pulse {
+  position:absolute; inset:-2px; border-radius:8px; border:1px solid;
+  opacity:0; animation:mm-pulse 2s ease infinite;
+}
+@keyframes mm-pulse {
+  0%,100%{ opacity:0; transform:scale(1); }
+  50%    { opacity:.4; transform:scale(1.15); }
+}
+
+/* ── Leaderboard HUD ────────────────────────────────────────────────────── */
+#leaderboard-hud {
+  background:var(--surface); border:1px solid var(--border); border-radius:10px;
+  padding:.65rem .8rem; margin-bottom:.55rem;
+}
+.lb-title {
+  font-size:.52rem; text-transform:uppercase; letter-spacing:.1em;
+  color:var(--muted); margin-bottom:.35rem; display:flex; align-items:center; gap:.3rem;
+}
+.lb-row {
+  display:flex; align-items:center; gap:.4rem; padding:.25rem .35rem;
+  border-radius:6px; margin-bottom:.15rem; font-size:.72rem;
+  transition:background .2s, transform .2s;
+}
+.lb-row:hover { background:var(--surface2); }
+.lb-row.lb-you { background:rgba(245,200,66,.06); border:1px solid rgba(245,200,66,.15); }
+.lb-rank {
+  width:18px; height:18px; border-radius:50%; display:flex;
+  align-items:center; justify-content:center; font-size:.55rem;
+  font-weight:900; flex-shrink:0;
+}
+.lb-rank.gold   { background:rgba(245,200,66,.2); color:#ffd36a; border:1px solid rgba(245,200,66,.35); }
+.lb-rank.silver { background:rgba(200,200,200,.1); color:#c0c0c0; border:1px solid rgba(200,200,200,.2); }
+.lb-rank.bronze { background:rgba(205,127,50,.1);  color:#cd7f32; border:1px solid rgba(205,127,50,.2); }
+.lb-rank.normal { background:var(--surface2); color:var(--muted); border:1px solid var(--border); }
+.lb-name { flex:1; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.lb-cost { font-family:var(--font-mono); font-weight:700; font-size:.68rem; color:var(--accent); }
+.lb-bar { flex:0 0 50px; height:3px; background:var(--surface2); border-radius:2px; overflow:hidden; }
+.lb-bar-fill { height:100%; border-radius:2px; transition:width .5s ease; }
+
+/* ── Milestone celebration overlay ──────────────────────────────────────── */
+#milestone-overlay {
+  position:fixed; inset:0; z-index:9995; pointer-events:none;
+  display:flex; align-items:center; justify-content:center;
+  opacity:0; transition:opacity .3s;
+}
+#milestone-overlay.active { opacity:1; }
+.milestone-badge {
+  background:rgba(13,16,23,.95); border:2px solid rgba(168,85,247,.6);
+  border-radius:16px; padding:1.2rem 2rem; text-align:center;
+  box-shadow:0 0 60px rgba(168,85,247,.3), 0 20px 50px rgba(0,0,0,.6);
+  animation:milestone-entrance .6s cubic-bezier(.22,1,.36,1);
+  backdrop-filter:blur(10px);
+}
+@keyframes milestone-entrance {
+  0%   { transform:scale(.5) rotate(-5deg); opacity:0; filter:blur(10px); }
+  50%  { transform:scale(1.08) rotate(1deg); }
+  100% { transform:scale(1) rotate(0); opacity:1; filter:blur(0); }
+}
+.milestone-icon { font-size:2.5rem; margin-bottom:.3rem; }
+.milestone-title {
+  font-family:var(--font-mono); font-size:1rem; font-weight:700;
+  color:#d8a4ff; text-shadow:0 0 12px rgba(168,85,247,.5);
+  text-transform:uppercase; letter-spacing:.15em;
+}
+.milestone-sub { font-size:.75rem; color:var(--muted); margin-top:.2rem; }
+
+/* ── Dynamic weather/environment overlay ────────────────────────────────── */
+#env-overlay {
+  position:fixed; inset:0; pointer-events:none; z-index:1;
+  transition:opacity .8s;
+}
+/* Prosperity glow (good state) */
+#env-overlay.env-prosperity {
+  background:radial-gradient(ellipse 80% 50% at 50% 0%, rgba(34,197,94,.05) 0%, transparent 60%);
+}
+/* Storm effect (bad state) */
+#env-overlay.env-storm {
+  background:radial-gradient(ellipse 100% 80% at 50% 0%, rgba(239,68,68,.06) 0%, transparent 50%);
+}
+.rain-drop {
+  position:fixed; width:1px; pointer-events:none; z-index:2;
+  background:linear-gradient(180deg, transparent, rgba(100,130,200,.25));
+  animation:rain-fall var(--dur,.6s) linear infinite;
+}
+@keyframes rain-fall {
+  0%   { transform:translateY(-10vh); opacity:.6; }
+  100% { transform:translateY(110vh); opacity:0; }
+}
+/* Lightning flash */
+.lightning-flash {
+  position:fixed; inset:0; z-index:3; pointer-events:none;
+  background:rgba(255,255,255,.08);
+  animation:lightning .15s ease;
+}
+@keyframes lightning {
+  0%   { opacity:1; }
+  30%  { opacity:0; }
+  50%  { opacity:.6; }
+  100% { opacity:0; }
+}
+
+/* ── Animated role avatars ──────────────────────────────────────────────── */
+.avatar-container {
+  position:relative; width:48px; height:48px; margin:0 auto 4px;
+}
+.avatar-sprite {
+  width:100%; height:100%; border-radius:50%;
+  border:2px solid var(--border); overflow:hidden;
+  display:flex; align-items:center; justify-content:center;
+  font-size:1.5rem; background:var(--surface2);
+  animation:avatar-idle 3s ease-in-out infinite;
+  transition:border-color .3s, box-shadow .3s;
+}
+@keyframes avatar-idle {
+  0%,100%{ transform:translateY(0); }
+  50%    { transform:translateY(-2px); }
+}
+.avatar-sprite.active { animation:avatar-active 1.5s ease-in-out infinite; }
+@keyframes avatar-active {
+  0%,100%{ transform:translateY(0) scale(1); }
+  50%    { transform:translateY(-3px) scale(1.05); }
+}
+.avatar-status-dot {
+  position:absolute; bottom:0; right:0; width:10px; height:10px;
+  border-radius:50%; border:2px solid var(--surface);
+  background:var(--muted);
+}
+.avatar-status-dot.online  { background:var(--success); box-shadow:0 0 5px rgba(34,197,94,.5); }
+.avatar-status-dot.offline { background:var(--danger); }
+.avatar-status-dot.active  { background:var(--accent); box-shadow:0 0 5px rgba(245,200,66,.5); animation:dot-pulse 1.5s ease infinite; }
+@keyframes dot-pulse { 0%,100%{box-shadow:0 0 5px rgba(245,200,66,.5)} 50%{box-shadow:0 0 12px rgba(245,200,66,.8)} }
+
+/* ── Tutorial overlay ───────────────────────────────────────────────────── */
+#tutorial-overlay {
+  position:fixed; inset:0; z-index:9998; background:rgba(10,12,17,.88);
+  display:flex; align-items:center; justify-content:center;
+  backdrop-filter:blur(6px); transition:opacity .4s;
+}
+#tutorial-overlay.hidden { display:none; }
+.tut-card {
+  background:linear-gradient(145deg, var(--surface) 0%, var(--surface2) 100%);
+  border:1px solid rgba(245,200,66,.22); border-radius:18px;
+  padding:2rem; max-width:520px; width:92%; text-align:center;
+  box-shadow:0 0 60px rgba(245,200,66,.08), 0 24px 60px rgba(0,0,0,.6);
+}
+.tut-step-dots {
+  display:flex; gap:.4rem; justify-content:center; margin-bottom:1rem;
+}
+.tut-dot {
+  width:8px; height:8px; border-radius:50%; background:var(--border);
+  transition:background .2s, transform .2s;
+}
+.tut-dot.active { background:var(--accent); transform:scale(1.3); }
+.tut-dot.done   { background:var(--success); }
+.tut-icon { font-size:3rem; margin-bottom:.5rem; }
+.tut-title {
+  font-family:var(--font-mono); font-size:1.1rem; font-weight:700;
+  margin-bottom:.5rem; color:var(--accent);
+}
+.tut-body { font-size:.85rem; color:var(--muted); line-height:1.6; margin-bottom:1.25rem; }
+.tut-body strong { color:var(--text); }
+.tut-nav { display:flex; gap:.6rem; justify-content:center; }
+
+/* ── Enhanced game-over screen ──────────────────────────────────────────── */
+#gameover-screen {
+  position:fixed; inset:0; z-index:9994; background:rgba(10,12,17,.95);
+  display:none; align-items:center; justify-content:center;
+  backdrop-filter:blur(8px);
+}
+#gameover-screen.active { display:flex; }
+.go-card {
+  background:linear-gradient(145deg, var(--surface) 0%, var(--surface2) 100%);
+  border:1px solid rgba(245,200,66,.3); border-radius:20px;
+  padding:2rem 2.5rem; max-width:500px; width:92%; text-align:center;
+  box-shadow:0 0 80px rgba(245,200,66,.1), 0 24px 60px rgba(0,0,0,.6);
+  animation:go-entrance .8s cubic-bezier(.22,1,.36,1);
+}
+@keyframes go-entrance {
+  0%   { transform:scale(.6) translateY(40px); opacity:0; filter:blur(10px); }
+  100% { transform:scale(1) translateY(0); opacity:1; filter:blur(0); }
+}
+.go-title {
+  font-family:var(--font-mono); font-size:2rem; font-weight:700;
+  color:var(--accent); text-shadow:0 0 30px rgba(245,200,66,.4);
+  margin-bottom:.5rem;
+}
+.go-subtitle { font-size:.85rem; color:var(--muted); margin-bottom:1.5rem; }
+.go-stats {
+  display:grid; grid-template-columns:1fr 1fr; gap:.75rem; margin-bottom:1.5rem;
+}
+.go-stat {
+  background:var(--surface2); border:1px solid var(--border); border-radius:10px;
+  padding:.7rem .6rem; text-align:center;
+}
+.go-stat-val {
+  font-family:var(--font-mono); font-size:1.3rem; font-weight:800; line-height:1.1;
+}
+.go-stat-lbl { font-size:.55rem; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); margin-top:2px; }
+.go-final-grade {
+  display:inline-flex; align-items:center; justify-content:center;
+  width:64px; height:64px; border-radius:12px;
+  font-family:var(--font-mono); font-size:2.2rem; font-weight:900;
+  border:3px solid; margin-bottom:.75rem;
+}
+.go-rank-text { font-size:.75rem; color:var(--muted); margin-bottom:1.25rem; }
+.go-highlight {
+  display:flex; gap:.5rem; justify-content:center; flex-wrap:wrap; margin-bottom:1.25rem;
+}
+.go-hl-chip {
+  background:var(--surface2); border:1px solid var(--border); border-radius:999px;
+  padding:.25rem .7rem; font-size:.68rem; display:flex; align-items:center; gap:.3rem;
+}
+
+/* ── Background music controls ──────────────────────────────────────────── */
+#music-btn {
+  cursor:pointer; font-size:.65rem; padding:.2rem .5rem; border-radius:6px;
+  background:var(--surface2); border:1px solid var(--border);
+  color:var(--muted); font-family:var(--font-mono);
+  transition:all .2s; user-select:none;
+}
+#music-btn:hover { color:var(--text); border-color:var(--text); }
+#music-btn.on { border-color:var(--accent); color:var(--accent); }
+
+/* ── Power-up notification ──────────────────────────────────────────────── */
+.powerup-notif {
+  position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+  z-index:9996; pointer-events:none; text-align:center;
+  animation:powerup-in .8s cubic-bezier(.22,1,.36,1) forwards;
+}
+@keyframes powerup-in {
+  0%   { opacity:0; transform:translate(-50%,-50%) scale(2) rotate(-10deg); filter:blur(12px); }
+  25%  { opacity:1; transform:translate(-50%,-50%) scale(.9) rotate(2deg); filter:blur(0); }
+  50%  { transform:translate(-50%,-50%) scale(1.05) rotate(-1deg); }
+  75%  { opacity:1; transform:translate(-50%,-50%) scale(1); }
+  100% { opacity:0; transform:translate(-50%,-60%) scale(.8); }
+}
+.powerup-icon { font-size:3rem; }
+.powerup-label {
+  font-family:var(--font-mono); font-size:1rem; font-weight:700;
+  color:#d8a4ff; text-shadow:0 0 12px rgba(168,85,247,.6);
+  text-transform:uppercase; letter-spacing:.12em;
+}
+
+/* ── Accessibility: respect prefers-reduced-motion (additions) ──────────── */
+@media (prefers-reduced-motion: reduce) {
+  .avatar-sprite, .avatar-sprite.active { animation:none !important; }
+  .mm-node .mm-pulse { animation:none !important; }
+  .rain-drop { animation:none !important; display:none !important; }
+  .lightning-flash { animation:none !important; display:none !important; }
+  .milestone-badge { animation:none !important; }
+  .go-card { animation:none !important; }
+  .powerup-notif { animation:none !important; display:none !important; }
+}
+
 /* ── Confetti (CSS confetti pieces) ──────────────────────────────────────── */
 .confetti-piece {
   position:fixed; pointer-events:none; z-index:9989;
@@ -1036,6 +1330,40 @@ body.crit-alert::after {
 <div class="speed-lines" id="speed-lines"></div>
 <div id="week-flash"><div class="cine-bar top"></div><div class="cine-bar bot"></div><div id="week-flash-inner"></div></div>
 <div id="combo-strip"><span style="font-size:.52rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);">STREAK</span><span id="combo-count">×0</span><span style="font-size:.52rem;color:var(--muted);" id="combo-label">good weeks</span></div>
+<div id="env-overlay"></div>
+<div id="milestone-overlay"><div class="milestone-badge"><div class="milestone-icon" id="milestone-icon">🏆</div><div class="milestone-title" id="milestone-title">MILESTONE</div><div class="milestone-sub" id="milestone-sub">Achievement unlocked</div></div></div>
+<div id="gameover-screen"></div>
+
+<!-- ── Mini-map ── -->
+<div id="mini-map">
+  <button id="mini-map-toggle" onclick="toggleMiniMap()">▼ hide</button>
+  <div class="mm-title">⛓ Supply Chain</div>
+  <div class="mm-chain">
+    <div class="mm-node" id="mm-cust"><div class="mm-node-val" style="font-size:.6rem;">👤</div><div class="mm-node-lbl">CUST</div></div>
+    <div class="mm-arrow">→</div>
+    <div class="mm-node" id="mm-rt"><div class="mm-node-val" id="mm-rt-v">—</div><div class="mm-node-lbl">RT</div><div class="mm-pulse" style="border-color:rgba(245,200,66,.3);"></div></div>
+    <div class="mm-arrow">→</div>
+    <div class="mm-node" id="mm-wh"><div class="mm-node-val" id="mm-wh-v">—</div><div class="mm-node-lbl">WH</div><div class="mm-pulse" style="border-color:rgba(59,130,246,.3);"></div></div>
+    <div class="mm-arrow">→</div>
+    <div class="mm-node" id="mm-di"><div class="mm-node-val" id="mm-di-v">—</div><div class="mm-node-lbl">DI</div><div class="mm-pulse" style="border-color:rgba(168,85,247,.3);"></div></div>
+    <div class="mm-arrow">→</div>
+    <div class="mm-node" id="mm-fa"><div class="mm-node-val" id="mm-fa-v">—</div><div class="mm-node-lbl">FA</div><div class="mm-pulse" style="border-color:rgba(34,197,94,.3);"></div></div>
+  </div>
+</div>
+
+<!-- ── Tutorial overlay ── -->
+<div id="tutorial-overlay" class="hidden">
+  <div class="tut-card">
+    <div class="tut-step-dots" id="tut-dots"></div>
+    <div class="tut-icon" id="tut-icon">🍺</div>
+    <div class="tut-title" id="tut-title">Welcome to the Beer Game!</div>
+    <div class="tut-body" id="tut-body">Loading tutorial…</div>
+    <div class="tut-nav">
+      <button class="btn btn-ghost btn-sm" id="tut-prev" onclick="tutPrev()">← Back</button>
+      <button class="btn btn-primary btn-sm" id="tut-next" onclick="tutNext()">Next →</button>
+    </div>
+  </div>
+</div>
 
 <!-- ═══════════════ LOBBY OVERLAY ════════════════════════════════════════ -->
 <div id="lobby-overlay">
@@ -1085,6 +1413,8 @@ body.crit-alert::after {
   <div style="display:flex; align-items:center; gap:.6rem; flex-wrap:wrap;">
     <div style="font-size:.72rem; color:var(--muted);"><span id="conn-dot"></span><span id="conn-label">Connecting…</span></div>
     <button id="snd-btn" onclick="toggleSound()" title="Toggle sound effects">🔇 SFX</button>
+    <button id="music-btn" onclick="toggleMusic()" title="Toggle background music">🎵 BGM</button>
+    <button class="btn btn-ghost btn-sm" onclick="showTutorial()" title="How to play" style="font-size:.65rem;padding:.2rem .5rem;">❓</button>
     <div class="week-badge">Week <strong id="current-week">{{ session.current_week }}</strong> / {{ session.max_weeks }}</div>
   </div>
 </div>
@@ -1127,6 +1457,14 @@ body.crit-alert::after {
     {% for r in roles %}<div class="ready-pill offline" id="pill-{{ r }}">○ {{ r|title }}</div>{% endfor %}
   </div>
   <div id="waiting-msg" style="font-size:.78rem; color:var(--muted);"></div>
+</div>
+
+<!-- Leaderboard HUD -->
+<div id="leaderboard-hud">
+  <div class="lb-title"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z" fill="currentColor" opacity="0.6"/></svg> LEADERBOARD</div>
+  <div id="lb-rows">
+    <div class="lb-row"><span class="lb-rank normal">—</span><span class="lb-name" style="color:var(--muted);">Waiting for data…</span></div>
+  </div>
 </div>
 
 <!-- ════ PHASE 1: RECEIVE GOODS / READ PRODUCTION REQUEST ════════════════════ -->
@@ -3173,6 +3511,452 @@ flashWeek = function(w) {
   _origFlashWeek(w);
   screenShake(false);
 };
+
+// ╔══════════════════════════════════════════════════════════════════════════╗
+// ║  🎮  IMMERSIVE VIDEO GAME FEATURES                                      ║
+// ╚══════════════════════════════════════════════════════════════════════════╝
+
+// ── 🗺️ Mini-map (real-time supply chain overview) ──────────────────────────
+let _mmCollapsed = false;
+function toggleMiniMap() {
+  _mmCollapsed = !_mmCollapsed;
+  const mm = document.getElementById('mini-map');
+  const btn = document.getElementById('mini-map-toggle');
+  if (mm) mm.classList.toggle('collapsed', _mmCollapsed);
+  if (btn) btn.textContent = _mmCollapsed ? '▲ show' : '▼ hide';
+}
+
+function updateMiniMap(msg) {
+  const own = msg.own || {};
+  const map = msg.map || {};
+  const myPre = MY_ROLE === 'factory' ? 'fa' : MY_ROLE === 'customer' ? null : MY_ROLE.slice(0, 2);
+
+  // Update own node
+  const prefixMap = {retailer:'rt', wholesaler:'wh', distributor:'di', factory:'fa'};
+  const mmPre = prefixMap[MY_ROLE];
+  if (mmPre) {
+    const vEl = document.getElementById('mm-' + mmPre + '-v');
+    const nEl = document.getElementById('mm-' + mmPre);
+    if (vEl) vEl.textContent = own.inventory ?? '—';
+    if (nEl) {
+      nEl.classList.remove('mm-good', 'mm-warn', 'mm-bad', 'you');
+      nEl.classList.add('you');
+      const inv = own.inventory ?? 0;
+      nEl.classList.add(inv > 8 ? 'mm-good' : inv > 0 ? 'mm-warn' : 'mm-bad');
+    }
+  }
+
+  // Update leaderboard from map data if available
+  if (msg.leaderboard) updateLeaderboard(msg.leaderboard);
+}
+
+// Enhance updateHUD to also update mini-map
+const _origUpdateHUD_mm = updateHUD;
+updateHUD = function(msg) {
+  _origUpdateHUD_mm(msg);
+  updateMiniMap(msg);
+  updateEnvironment(msg.own?.backlog ?? 0, msg.own?.inventory ?? 0);
+  checkMilestones(msg);
+};
+
+// ── 🏆 Leaderboard ────────────────────────────────────────────────────────
+let _leaderboardData = [];
+
+function updateLeaderboard(data) {
+  if (!data || !Array.isArray(data)) return;
+  _leaderboardData = data;
+  renderLeaderboard();
+}
+
+function renderLeaderboard() {
+  const container = document.getElementById('lb-rows');
+  if (!container || !_leaderboardData.length) return;
+
+  // Sort by total cost ascending (lower is better)
+  const sorted = [..._leaderboardData].sort((a, b) => (a.total_cost ?? Infinity) - (b.total_cost ?? Infinity));
+
+  container.innerHTML = sorted.map((entry, i) => {
+    const rankCls = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : 'normal';
+    const isYou = entry.role === MY_ROLE;
+    const color = COLORS[entry.role] || 'var(--muted)';
+    const cost = entry.total_cost ?? 0;
+    const maxCost = Math.max(...sorted.map(e => e.total_cost ?? 1), 1);
+    const barPct = Math.max(5, Math.round((cost / maxCost) * 100));
+
+    return `<div class="lb-row ${isYou ? 'lb-you' : ''}">
+      <span class="lb-rank ${rankCls}">${i + 1}</span>
+      <span class="lb-name" style="color:${color};">${isYou ? '★ ' : ''}${entry.role ? entry.role.charAt(0).toUpperCase() + entry.role.slice(1) : '?'}</span>
+      <div class="lb-bar"><div class="lb-bar-fill" style="width:${barPct}%;background:${color};"></div></div>
+      <span class="lb-cost">$${cost}</span>
+    </div>`;
+  }).join('');
+}
+
+// Build leaderboard from own data even without server leaderboard array
+function buildLocalLeaderboard(msg) {
+  if (msg.leaderboard) {
+    updateLeaderboard(msg.leaderboard);
+    return;
+  }
+  // If no leaderboard data from server, build from own data
+  const own = msg.own;
+  if (!own) return;
+  let found = false;
+  for (const entry of _leaderboardData) {
+    if (entry.role === MY_ROLE) { entry.total_cost = own.total_cost ?? 0; found = true; break; }
+  }
+  if (!found) {
+    _leaderboardData.push({ role: MY_ROLE, total_cost: own.total_cost ?? 0 });
+  }
+  renderLeaderboard();
+}
+
+// Hook into updateHUD for leaderboard
+const _origUpdateHUD_lb = updateHUD;
+updateHUD = function(msg) {
+  _origUpdateHUD_lb(msg);
+  buildLocalLeaderboard(msg);
+};
+
+// ── 🌦️ Dynamic environment effects ────────────────────────────────────────
+let _envState = 'neutral';
+let _rainDrops = [];
+const _reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+function updateEnvironment(backlog, inventory) {
+  const overlay = document.getElementById('env-overlay');
+  if (!overlay) return;
+  const reduced = _reducedMotionQuery.matches;
+
+  let newState = 'neutral';
+  if (backlog >= 15) newState = 'storm';
+  else if (backlog >= 8) newState = 'storm-light';
+  else if (inventory > 12 && backlog === 0) newState = 'prosperity';
+
+  if (newState === _envState) return;
+  _envState = newState;
+
+  // Clear rain
+  _rainDrops.forEach(el => el.remove());
+  _rainDrops = [];
+  overlay.className = '';
+
+  if (newState === 'prosperity') {
+    overlay.className = 'env-prosperity';
+  } else if (newState === 'storm' || newState === 'storm-light') {
+    overlay.className = 'env-storm';
+    if (!reduced) spawnRain(newState === 'storm' ? 20 : 8);
+    if (!reduced && newState === 'storm') {
+      setTimeout(() => {
+        const flash = document.createElement('div');
+        flash.className = 'lightning-flash';
+        document.body.appendChild(flash);
+        flash.addEventListener('animationend', () => flash.remove(), {once: true});
+      }, 500);
+    }
+  }
+}
+
+function spawnRain(count) {
+  for (let i = 0; i < count; i++) {
+    const drop = document.createElement('div');
+    drop.className = 'rain-drop';
+    drop.style.left = Math.random() * 100 + 'vw';
+    drop.style.height = (12 + Math.random() * 20) + 'px';
+    drop.style.setProperty('--dur', (.3 + Math.random() * .5) + 's');
+    drop.style.animationDelay = (Math.random() * 2) + 's';
+    document.body.appendChild(drop);
+    _rainDrops.push(drop);
+  }
+}
+
+// ── 🏅 Milestones & achievements system ────────────────────────────────────
+const MILESTONES = [
+  { id: 'first_week',    check: m => (m.week ?? 0) >= 1,  icon: '🎯', title: 'FIRST ROUND',     sub: 'Complete your first week!' },
+  { id: 'week_5',        check: m => (m.week ?? 0) >= 5,  icon: '⭐', title: '5 WEEKS STRONG',  sub: 'Survived 5 weeks of supply chain!' },
+  { id: 'week_10',       check: m => (m.week ?? 0) >= 10, icon: '🔥', title: 'VETERAN',          sub: '10 weeks completed — halfway there!' },
+  { id: 'zero_backlog',  check: m => (m.own?.backlog ?? 1) === 0 && (m.week ?? 0) >= 3, icon: '💎', title: 'ZERO BACKLOG', sub: 'Cleared all unfilled orders!' },
+  { id: 'high_inv',      check: m => (m.own?.inventory ?? 0) >= 20, icon: '📦', title: 'WAREHOUSE KING', sub: 'Stocked 20+ units of inventory!' },
+  { id: 'low_cost',      check: m => (m.own?.total_cost ?? Infinity) <= 10 && (m.week ?? 0) >= 3, icon: '💰', title: 'PENNY PINCHER', sub: 'Kept total cost under $10!' },
+  { id: 'grade_s',       check: () => _lastGrade === 'S', icon: '👑', title: 'LEGENDARY',        sub: 'Achieved S-rank grade!' },
+  { id: 'combo_5',       check: () => _comboCount >= 5, icon: '🔥', title: 'ON FIRE',           sub: '5-week combo streak!' },
+];
+const _unlockedMilestones = new Set();
+
+function checkMilestones(msg) {
+  for (const ms of MILESTONES) {
+    if (_unlockedMilestones.has(ms.id)) continue;
+    if (ms.check(msg)) {
+      _unlockedMilestones.add(ms.id);
+      showMilestone(ms);
+    }
+  }
+}
+
+function showMilestone(ms) {
+  const overlay = document.getElementById('milestone-overlay');
+  const icon = document.getElementById('milestone-icon');
+  const title = document.getElementById('milestone-title');
+  const sub = document.getElementById('milestone-sub');
+  if (!overlay) return;
+
+  if (icon) icon.textContent = ms.icon;
+  if (title) title.textContent = ms.title;
+  if (sub) sub.textContent = ms.sub;
+
+  overlay.classList.add('active');
+  achieveToast(`${ms.icon} ${ms.title} — ${ms.sub}`);
+  sndLevelUp();
+
+  setTimeout(() => overlay.classList.remove('active'), 2800);
+}
+
+// ── 🎓 Tutorial system ────────────────────────────────────────────────────
+const TUT_STEPS = [
+  {
+    icon: '🍺',
+    title: 'Welcome to the Beer Game!',
+    body: 'This is a <strong>supply chain simulation</strong> where you manage inventory in a beer distribution network. Each player controls one role: <strong>Retailer</strong>, <strong>Wholesaler</strong>, <strong>Distributor</strong>, or <strong>Factory</strong>.'
+  },
+  {
+    icon: '📦',
+    title: 'Step 1 — Receive Goods',
+    body: 'Each week starts by <strong>receiving</strong> incoming shipments (or production output for factory). These units are added to your inventory automatically.'
+  },
+  {
+    icon: '🚚',
+    title: 'Step 2 — Ship Downstream',
+    body: 'Next, you <strong>fill orders</strong> from your downstream customer. You ship as much as you can from your inventory. Any shortfall becomes <strong>backlog</strong> (unfilled orders).'
+  },
+  {
+    icon: '📋',
+    title: 'Step 3 — Place Your Order',
+    body: 'Finally, <strong>place an order</strong> to your upstream supplier. Think carefully — orders take <strong>2 weeks</strong> to arrive (3 weeks for factory production).'
+  },
+  {
+    icon: '💡',
+    title: 'The Bullwhip Effect',
+    body: 'Small changes in customer demand get <strong>amplified</strong> up the chain. Try to keep <strong>inventory balanced</strong> and <strong>backlog low</strong>. Your goal: minimize total holding + backlog costs!'
+  },
+  {
+    icon: '🏆',
+    title: 'Grades & Achievements',
+    body: 'You\'re graded <strong>S → F</strong> based on cost efficiency. Keep a good streak for <strong>combo bonuses</strong>! Unlock achievements by hitting milestones. Watch the leaderboard to see how you compare.'
+  },
+  {
+    icon: '🎮',
+    title: 'Tips for Success',
+    body: '• Watch the <strong>supply chain highway</strong> to see orders and shipments in transit.<br>• Use the <strong>mini-map</strong> (bottom-left) for a quick overview.<br>• Keep an eye on the <strong>weather</strong> — storms mean trouble!<br>• Toggle <strong>SFX</strong> and <strong>BGM</strong> for the full experience!'
+  },
+];
+let _tutStep = 0;
+
+function showTutorial() {
+  _tutStep = 0;
+  const overlay = document.getElementById('tutorial-overlay');
+  if (overlay) overlay.classList.remove('hidden');
+  renderTutStep();
+}
+
+function hideTutorial() {
+  const overlay = document.getElementById('tutorial-overlay');
+  if (overlay) {
+    overlay.style.opacity = '0';
+    setTimeout(() => { overlay.classList.add('hidden'); overlay.style.opacity = ''; }, 400);
+  }
+}
+
+function renderTutStep() {
+  const step = TUT_STEPS[_tutStep];
+  if (!step) return;
+
+  document.getElementById('tut-icon').textContent = step.icon;
+  document.getElementById('tut-title').textContent = step.title;
+  document.getElementById('tut-body').innerHTML = step.body;
+
+  // Dots
+  const dots = document.getElementById('tut-dots');
+  if (dots) {
+    dots.innerHTML = TUT_STEPS.map((_, i) =>
+      `<div class="tut-dot ${i === _tutStep ? 'active' : i < _tutStep ? 'done' : ''}"></div>`
+    ).join('');
+  }
+
+  // Nav buttons
+  const prev = document.getElementById('tut-prev');
+  const next = document.getElementById('tut-next');
+  if (prev) prev.style.display = _tutStep === 0 ? 'none' : '';
+  if (next) next.textContent = _tutStep === TUT_STEPS.length - 1 ? '✓ Got it!' : 'Next →';
+}
+
+function tutPrev() {
+  if (_tutStep > 0) { _tutStep--; renderTutStep(); }
+}
+
+function tutNext() {
+  if (_tutStep < TUT_STEPS.length - 1) { _tutStep++; renderTutStep(); }
+  else hideTutorial();
+}
+
+// ── 🎵 Background music system (procedural ambient) ───────────────────────
+let _musicEnabled = false;
+let _musicNodes = [];
+let _musicInterval = null;
+
+function toggleMusic() {
+  const ctx = _getAudioCtx();
+  if (ctx && ctx.state === 'suspended') ctx.resume();
+  _musicEnabled = !_musicEnabled;
+  const btn = document.getElementById('music-btn');
+  if (btn) { btn.textContent = _musicEnabled ? '🎶 BGM' : '🎵 BGM'; btn.classList.toggle('on', _musicEnabled); }
+  if (_musicEnabled) startBGM();
+  else stopBGM();
+}
+
+function startBGM() {
+  const ctx = _getAudioCtx();
+  if (!ctx) return;
+  stopBGM();
+
+  // Ambient pad — warm chord drone
+  const chords = [
+    [130.81, 164.81, 196.00],  // C major
+    [146.83, 174.61, 220.00],  // D minor
+    [130.81, 155.56, 196.00],  // C minor
+    [146.83, 185.00, 220.00],  // D
+  ];
+
+  // Audio envelope constants
+  const PAD_ATTACK  = 1.5;   // seconds to reach peak volume
+  const PAD_SUSTAIN = 5;     // seconds at sustain level
+  const PAD_RELEASE = 8;     // total note duration
+  const PAD_PEAK    = 0.018; // peak gain
+  const PAD_HOLD    = 0.015; // sustain gain
+
+  let chordIdx = 0;
+  function playPad() {
+    if (!_musicEnabled) return;
+    const chord = chords[chordIdx % chords.length];
+    chordIdx++;
+    chord.forEach(freq => {
+      try {
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        const f = ctx.createBiquadFilter();
+        f.type = 'lowpass'; f.frequency.value = 400;
+        o.connect(f); f.connect(g); g.connect(ctx.destination);
+        o.type = 'sine';
+        o.frequency.setValueAtTime(freq, ctx.currentTime);
+        g.gain.setValueAtTime(0, ctx.currentTime);
+        g.gain.linearRampToValueAtTime(PAD_PEAK, ctx.currentTime + PAD_ATTACK);
+        g.gain.linearRampToValueAtTime(PAD_HOLD, ctx.currentTime + PAD_SUSTAIN);
+        g.gain.linearRampToValueAtTime(0, ctx.currentTime + PAD_RELEASE);
+        o.start(ctx.currentTime);
+        o.stop(ctx.currentTime + PAD_RELEASE);
+        _musicNodes.push(o);
+        o.onended = () => { const idx = _musicNodes.indexOf(o); if (idx > -1) _musicNodes.splice(idx, 1); };
+      } catch(e) { console.warn('BGM audio error:', e); }
+    });
+  }
+
+  playPad();
+  _musicInterval = setInterval(playPad, 7000);
+}
+
+function stopBGM() {
+  if (_musicInterval) { clearInterval(_musicInterval); _musicInterval = null; }
+  _musicNodes.forEach(n => { try { n.stop(); } catch(e) { console.warn('BGM stop error:', e); } });
+  _musicNodes = [];
+}
+
+// ── 🎮 Enhanced game-over screen ───────────────────────────────────────────
+const _origShowGameOver2 = showGameOver;
+showGameOver = function(msg) {
+  _origShowGameOver2(msg);
+
+  const screen = document.getElementById('gameover-screen');
+  if (!screen) return;
+
+  const own = msg.own || {};
+  const week = msg.week || MAX_WEEKS;
+  const avgCost = week > 0 ? Math.round((own.total_cost ?? 0) / week) : 0;
+  const peakBlg = own.peak_backlog ?? own.backlog ?? 0;
+
+  // Determine final grade
+  const perWk = (own.total_cost ?? 0) / Math.max(1, week);
+  const blg = own.backlog ?? 0;
+  let finalGrade = GRADE_CFG[GRADE_CFG.length - 1];
+  for (const c of GRADE_CFG) {
+    if (blg <= c.maxBlg && perWk <= c.maxCostPerWk) { finalGrade = c; break; }
+  }
+
+  // Highlight chips
+  const highlights = [];
+  if (_comboCount >= 5) highlights.push({ icon: '🔥', text: `${_comboCount}× combo streak` });
+  if (_unlockedMilestones.size > 0) highlights.push({ icon: '🏅', text: `${_unlockedMilestones.size} achievements` });
+  if (blg === 0) highlights.push({ icon: '✅', text: 'Zero backlog finish' });
+  if (finalGrade.grade === 'S') highlights.push({ icon: '👑', text: 'Legendary rank' });
+
+  screen.innerHTML = `<div class="go-card">
+    <div style="font-size:3rem;margin-bottom:.3rem;">🏁</div>
+    <div class="go-title">GAME OVER</div>
+    <div class="go-subtitle">Week ${week} / ${MAX_WEEKS} — ${MY_ROLE.charAt(0).toUpperCase() + MY_ROLE.slice(1)}</div>
+    <div class="go-final-grade ${finalGrade.cls}" style="margin:0 auto .75rem;">${finalGrade.grade}</div>
+    <div class="go-rank-text">${finalGrade.label}</div>
+    <div class="go-stats">
+      <div class="go-stat"><div class="go-stat-val" style="color:var(--accent);">$${own.total_cost ?? 0}</div><div class="go-stat-lbl">Total Cost</div></div>
+      <div class="go-stat"><div class="go-stat-val" style="color:var(--wholesaler-color);">$${avgCost}</div><div class="go-stat-lbl">Avg Cost/Week</div></div>
+      <div class="go-stat"><div class="go-stat-val" style="color:var(--success);">${own.inventory ?? 0}</div><div class="go-stat-lbl">Final Inventory</div></div>
+      <div class="go-stat"><div class="go-stat-val" style="color:var(--danger);">${peakBlg}</div><div class="go-stat-lbl">Peak Backlog</div></div>
+    </div>
+    ${highlights.length ? '<div class="go-highlight">' + highlights.map(h => `<span class="go-hl-chip">${h.icon} ${h.text}</span>`).join('') + '</div>' : ''}
+    <div style="display:flex; gap:.6rem; justify-content:center; flex-wrap:wrap;">
+      <a href="${msg.results_url || '/game/' + SESSION_ID + '/results/'}" class="btn btn-primary" style="text-decoration:none;">📊 View Full Results</a>
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('gameover-screen').classList.remove('active')">✕ Close</button>
+    </div>
+  </div>`;
+
+  screen.classList.add('active');
+};
+
+// ── 🔋 Power-up visual notifications ──────────────────────────────────────
+function showPowerUp(icon, label) {
+  const el = document.createElement('div');
+  el.className = 'powerup-notif';
+  el.innerHTML = `<div class="powerup-icon">${icon}</div><div class="powerup-label">${label}</div>`;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 2200);
+}
+
+// Show power-ups on significant events
+const _origDoConfirmReceive2 = doConfirmReceive;
+doConfirmReceive = function() {
+  _origDoConfirmReceive2();
+  if (_pendingRcvQty >= 8) showPowerUp('📦', '+' + _pendingRcvQty + ' MEGA SHIPMENT');
+};
+
+const _origDoSubmitOrder2 = doSubmitOrder;
+doSubmitOrder = function() {
+  _origDoSubmitOrder2();
+  const qty = parseInt(document.getElementById('order-qty')?.value || '0', 10);
+  if (qty >= 10) showPowerUp('📋', 'BIG ORDER: ' + qty);
+};
+
+// ── 🎯 Show tutorial on first visit ───────────────────────────────────────
+(function() {
+  const tutKey = 'beergame_tut_seen_v2';
+  try {
+    if (!localStorage.getItem(tutKey)) {
+      localStorage.setItem(tutKey, '1');
+      // Show tutorial after lobby hides
+      const _origHideLobby = hideLobby;
+      hideLobby = function(status) {
+        _origHideLobby(status);
+        if (gameStarted) setTimeout(showTutorial, 1200);
+      };
+    }
+  } catch(e) {}
+})();
 
 // ── Boot ───────────────────────────────────────────────────────────────────
 {% if session.status == 'playing' %}
