@@ -103,7 +103,7 @@
 .spec-stat-val.bad  { color:var(--danger); }
 
 /* ── Supply-chain board (spectator) ─────────────────────────────────────── */
-#spec-chain { display:flex; align-items:stretch; gap:0; min-width:680px; font-family:var(--font-mono); }
+#spec-chain { display:flex; align-items:stretch; gap:0; min-width:680px; font-family:var(--font-mono); overflow-x:auto; }
 .sc-actor {
   display:flex; flex-direction:column; flex:1; min-width:0;
   border-radius:8px; overflow:hidden;
@@ -143,6 +143,189 @@
 /* section toggle */
 #section-pregame  { }
 #section-spectate { display:none; }
+
+/* ── Road board styles (copied from play.html for spectator board) ──── */
+.road-board {
+  display:flex; align-items:stretch; overflow-x:auto; gap:0;
+  font-family:var(--font-mono);
+}
+.road-node {
+  flex:0 0 auto; min-width:88px; max-width:110px;
+  border:1.5px solid var(--border); border-radius:10px; overflow:hidden;
+  display:flex; flex-direction:column;
+}
+.road-node-hdr {
+  font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em;
+  padding:.38rem .5rem; text-align:center;
+  display:flex; align-items:center; justify-content:center; gap:.35rem;
+  white-space:nowrap;
+}
+.road-node-body {
+  flex:1; display:flex; flex-direction:column; align-items:center;
+  justify-content:flex-start; padding:6px 5px;
+  background:var(--surface); gap:4px;
+}
+.bgb-inv-box {
+  width:100%; border:1.5px solid rgba(34,197,94,.3); border-radius:8px;
+  padding:.45rem .35rem; text-align:center; position:relative; overflow:hidden;
+  background:var(--surface2);
+}
+.bgb-inv-healthbar {
+  position:absolute; bottom:0; left:0; height:3px; border-radius:0 0 6px 6px;
+  transition:width .5s, background .4s;
+}
+.bgb-inv-val {
+  font-size:1.5rem; font-weight:900; line-height:1;
+}
+.bgb-inv-val.good { color:var(--success); }
+.bgb-inv-val.warn { color:var(--accent); }
+.bgb-inv-val.bad  { color:var(--danger); }
+.bgb-backlog {
+  font-size:.55rem; color:var(--danger); margin-top:2px; font-weight:700;
+}
+.bgb-backlog.zero { color:var(--muted); font-weight:500; }
+
+/* Road segment */
+.road-seg {
+  flex:1; min-width:80px; max-width:140px; display:flex; flex-direction:column;
+}
+.road-orders-row {
+  display:flex; justify-content:space-around; align-items:center;
+  padding:5px 10px 0; min-height:36px; gap:4px;
+}
+.road-surface {
+  flex:1; min-height:58px;
+  background:
+    linear-gradient(180deg,
+      #181c28 0%, #1a1f2c 8%,
+      #151924 35%, #151924 65%,
+      #1a1f2c 92%, #181c28 100%);
+  border-top:3px solid #2a3148; border-bottom:3px solid #2a3148;
+  position:relative; overflow:hidden;
+  display:flex; align-items:center; justify-content:space-around;
+  padding:0 14px;
+}
+.road-surface::before {
+  content:''; position:absolute; inset:0; pointer-events:none;
+  background:
+    linear-gradient(180deg,
+      rgba(255,255,255,.08) 0%, rgba(255,255,255,.08) 2px,
+      transparent 2px, transparent calc(100% - 2px),
+      rgba(255,255,255,.08) calc(100% - 2px), rgba(255,255,255,.08) 100%),
+    repeating-linear-gradient(90deg,
+      rgba(255,255,255,.008) 0px, transparent 2px, transparent 6px),
+    repeating-linear-gradient(0deg,
+      rgba(255,255,255,.005) 0px, transparent 3px, transparent 8px);
+}
+.road-surface::after {
+  content:''; position:absolute; top:50%; left:-200%;
+  width:400%; height:3px;
+  background:repeating-linear-gradient(90deg,
+    transparent 0, transparent 8px,
+    rgba(245,200,66,.45) 8px, rgba(245,200,66,.45) 20px);
+  animation:road-flow .75s linear infinite; pointer-events:none;
+  filter:drop-shadow(0 0 3px rgba(245,200,66,.2));
+}
+@keyframes road-flow {
+  from { transform:translateY(-50%) translateX(0); }
+  to   { transform:translateY(-50%) translateX(28px); }
+}
+
+/* Road orders-row slots (shipments on top) */
+.road-orders-row .bgb-slot {
+  flex-shrink:0; position:relative; border-radius:4px 8px 8px 4px;
+  height:36px; min-width:48px; width:auto;
+  display:flex; align-items:center; justify-content:center;
+  transition:border-color .2s, background .2s;
+}
+.road-orders-row .bgb-slot.blue {
+  background:linear-gradient(135deg, rgba(10,26,60,.9) 0%, rgba(20,40,90,.85) 100%);
+  border:2px solid rgba(59,130,246,.65);
+  border-left:4px solid rgba(59,130,246,.85);
+  box-shadow:0 2px 8px rgba(59,130,246,.15);
+}
+.road-orders-row .bgb-slot.blue .bgb-v {
+  color:#93c5fd; font-size:.9rem; font-weight:900;
+  text-shadow:0 0 6px rgba(59,130,246,.6);
+}
+.road-orders-row .bgb-slot.arriving {
+  border-color:var(--success)!important;
+  background:rgba(10,40,20,.85)!important;
+}
+.road-orders-row .bgb-slot.arriving .bgb-v { color:#4ade80!important; }
+.road-orders-row .bgb-slot:not(.blue):not(.amber):not(.arriving) {
+  opacity:.13; border:1px dashed rgba(255,255,255,.08);
+  background:transparent; border-radius:5px;
+}
+.road-orders-row .bgb-slot:not(.blue):not(.amber):not(.arriving) .bgb-v { color:transparent; }
+
+/* Road surface slots (orders on bottom) */
+.road-surface .bgb-slot {
+  flex-shrink:0; position:relative; border-radius:5px;
+  height:30px; min-width:48px; width:auto;
+  display:flex; align-items:center; justify-content:center;
+  transition:border-color .2s, background .2s;
+}
+.road-surface .bgb-slot.amber {
+  background:linear-gradient(135deg, rgba(60,42,0,.8) 0%, rgba(80,55,0,.75) 100%);
+  border:1.5px solid rgba(245,200,66,.6);
+  border-top:3px solid rgba(245,200,66,.75);
+  box-shadow:0 2px 8px rgba(245,200,66,.12);
+}
+.road-surface .bgb-slot.amber .bgb-v {
+  color:#fde68a; font-size:.82rem; font-weight:900;
+  text-shadow:0 0 5px rgba(245,200,66,.5);
+}
+.road-surface .bgb-slot:not(.amber):not(.blue):not(.arriving) {
+  opacity:.12; border:1px dashed rgba(245,200,66,.15); background:transparent;
+}
+.road-surface .bgb-slot:not(.amber):not(.blue):not(.arriving) .bgb-v { color:transparent; }
+
+/* Labels */
+.road-seg-labels {
+  display:flex; justify-content:space-around; align-items:center;
+  padding:3px 4px; min-height:24px; gap:4px;
+}
+.road-seg-lbl {
+  font-size:.46rem; text-transform:uppercase; letter-spacing:.06em;
+  padding:.14rem .42rem; border-radius:999px; font-weight:700; white-space:nowrap;
+}
+.road-seg-lbl.blue  { color:#93c5fd; background:rgba(59,130,246,.12); border:1px solid rgba(59,130,246,.3); }
+.road-seg-lbl.amber { color:#fde68a; background:rgba(245,200,66,.1); border:1px solid rgba(245,200,66,.28); }
+
+.road-flow-dir {
+  position:absolute; top:50%; right:6px;
+  transform:translateY(-50%); display:flex; flex-direction:column; gap:2px;
+  pointer-events:none; opacity:.55;
+}
+.rfd { font-size:.52rem; font-weight:700; letter-spacing:-.02em; }
+.rfd.blue  { color:#60a5fa; }
+.rfd.amber { color:#fbbf24; }
+
+/* Base bgb-slot */
+.bgb-slot {
+  display:flex; align-items:center; justify-content:center;
+  border:1px solid var(--border); border-radius:5px;
+  background:var(--surface2); min-height:34px; width:100%;
+  transition:border-color .2s, background .2s;
+}
+.bgb-slot.amber { border-color:rgba(245,200,66,.35); background:rgba(245,200,66,.07); }
+.bgb-slot.amber .bgb-v { color:#ffd36a; font-size:.82rem; font-weight:800; }
+.bgb-slot.blue  { border-color:rgba(59,130,246,.35); background:rgba(59,130,246,.07); }
+.bgb-slot.blue  .bgb-v { color:#8ecbff; font-size:.82rem; font-weight:800; }
+.bgb-slot.arriving { border-color:var(--success)!important; background:rgba(34,197,94,.12)!important; }
+.bgb-slot.arriving .bgb-v { color:var(--success)!important; }
+.bgb-v { font-family:var(--font-mono); font-size:.9rem; font-weight:800; color:var(--muted); line-height:1; }
+
+/* Factory pipeline */
+.factory-pipeline { width:100%; }
+.fac-pipeline-header { font-size:.5rem; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; margin-bottom:4px; text-align:center; }
+.fac-pipe-row { display:flex; align-items:center; gap:4px; }
+.fac-pipe-col { flex:1; display:flex; flex-direction:column; gap:3px; }
+.fac-pipe-lbl { font-size:.42rem; text-transform:uppercase; text-align:center; font-weight:700; }
+.fac-pipe-lbl.amber { color:rgba(245,200,66,.65); }
+.fac-pipe-lbl.blue  { color:rgba(59,130,246,.65); }
+.fac-pipe-arrow { color:var(--muted); font-size:.6rem; flex-shrink:0; }
 </style>
 {% endblock %}
 
@@ -308,8 +491,8 @@
     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:.9rem;">
       <div class="card-title" style="margin:0;">Supply Chain Board</div>
       <div style="font-size:.62rem; color:var(--muted); font-family:var(--font-mono);">
-        <span style="color:rgba(245,200,66,.8);">■</span> orders &nbsp;
-        <span style="color:rgba(59,130,246,.8);">■</span> shipments
+        <span style="color:rgba(59,130,246,.8);">■</span> shipments &nbsp;
+        <span style="color:rgba(245,200,66,.8);">■</span> orders
       </div>
     </div>
     <div style="overflow-x:auto; padding:.2rem 0;">
@@ -493,7 +676,7 @@ function renderChain(players, pipeline, lastDemand) {
   if (!container) return;
 
   // Build per-role pipeline buckets
-  const PRE = { retailer:'re', wholesaler:'wh', distributor:'di', factory:'fa' };
+  const PRE = { retailer:'rt', wholesaler:'wh', distributor:'di', factory:'fa' };
   const ships = {}, orders = {};
   (pipeline || []).forEach(item => {
     const toKey   = PRE[item.to]   || item.to.slice(0,2);
@@ -507,93 +690,146 @@ function renderChain(players, pipeline, lastDemand) {
     }
   });
 
-  function slotHTML(qty, cls) {
-    const arriving = qty !== null && qty !== undefined && qty !== '·';
-    return `<div class="sc-slot ${cls}${arriving ? '' : ''}">${qty !== null && qty !== undefined ? qty : '·'}</div>`;
-  }
-
-  function buildSlots(items, cls, isArriving) {
+  function slotPair(items, cls) {
     const slots = [null, null];
-    (items || []).slice(0,2).forEach((item, i) => { slots[i] = item; });
-    return slots.map((item, i) => {
-      const dimCls = i === 1 ? ' dim' : '';
-      const arrivingCls = item && item.weeks_away === 0 ? ' arrives' : '';
-      return `<div class="sc-slot ${cls}${dimCls}${arrivingCls}" title="${item ? (item.weeks_away === 0 ? 'Arriving this week!' : `${item.weeks_away} week(s) away`) : ''}">${item ? item.qty : '·'}</div>`;
+    (items || []).slice(0,2).forEach((it, i) => { slots[i] = it; });
+    return slots.map(it => {
+      const val = it ? it.qty : '·';
+      const arCls = it && it.weeks_away === 0 ? ' arriving' : '';
+      const activeCls = it ? (' ' + cls) : '';
+      const tip = it ? (it.weeks_away === 0 ? 'Arriving this week!' : `${it.weeks_away} week(s) away`) : '';
+      return `<div class="bgb-slot${activeCls}${arCls}" data-tip="${tip}"><span class="bgb-v">${val}</span></div>`;
     }).join('');
   }
 
-  let html = '';
+  function renderProdSlots(prodSlots) {
+    if (prodSlots.length === 0) {
+      return '<div class="bgb-slot"><span class="bgb-v">·</span></div>' +
+             '<div class="bgb-slot"><span class="bgb-v">·</span></div>';
+    }
+    return prodSlots.map(s => {
+      const arCls = s.weeks_away === 0 ? ' arriving' : '';
+      return `<div class="bgb-slot blue${arCls}"><span class="bgb-v">${s.qty}</span></div>`;
+    }).join('');
+  }
 
-  // Customer node
-  const demandTxt = lastDemand !== null && lastDemand !== undefined ? lastDemand : '—';
-  html += `
-    <div style="display:flex;flex-direction:column;align-items:center;flex:0 0 72px;min-width:72px;">
-      <div style="font-size:.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;padding:.3rem .2rem .25rem;text-align:center;height:26px;display:flex;align-items:center;justify-content:center;gap:.2rem;">
-        <svg width="10" height="10" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4.5" fill="currentColor" opacity="0.9"/><path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.7"/></svg> Customer
-      </div>
-      <div style="flex:1;display:flex;align-items:center;justify-content:center;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.5rem .3rem;width:100%;text-align:center;min-height:82px;">
-        <div>
-          <div style="font-size:1.5rem;font-weight:800;line-height:1;color:var(--accent);">${demandTxt}</div>
-          <div style="font-size:.52rem;color:var(--muted);margin-top:2px;">units</div>
-        </div>
-      </div>
-    </div>`;
-
-  const ACTOR_ROLES = ['retailer', 'wholesaler', 'distributor', 'factory'];
   const playerMap = {};
   (players || []).forEach(p => { playerMap[p.role] = p; });
 
-  ACTOR_ROLES.forEach((role, idx) => {
-    const cfg = ROLE_CFG[role];
-    const p   = playerMap[role];
+  function invBox(pre, role) {
+    const p = playerMap[role];
+    if (!p) return `<div class="bgb-inv-box"><div class="bgb-inv-val good">—</div><div class="bgb-backlog zero">blg:0</div></div>`;
+    const inv = p.inventory;
+    const blg = p.backlog;
+    const cls = inv > 6 ? 'good' : inv > 0 ? 'warn' : 'bad';
+    const color = inv > 8 ? '#22c55e' : inv > 0 ? '#f5c842' : '#ef4444';
+    const pct = Math.min(100, Math.max(0, Math.round(inv / 40 * 100)));
+    const blgCls = blg > 0 ? '' : ' zero';
+    return `<div class="bgb-inv-box">
+      <div class="bgb-inv-healthbar" style="width:${pct}%;background:${color};"></div>
+      <div class="bgb-inv-val ${cls}">${inv}</div>
+      <div class="bgb-backlog${blgCls}">blg:${blg}</div>
+    </div>`;
+  }
 
-    // Arrow before each actor (including first, after customer)
-    html += `<div class="sc-arrow"><span style="font-size:.7rem;color:rgba(245,200,66,.7);">→</span><span style="font-size:.7rem;color:rgba(59,130,246,.7);">←</span></div>`;
+  const demandTxt = lastDemand !== null && lastDemand !== undefined ? lastDemand : '—';
+  const demandCls = lastDemand != null ? 'amber arriving' : 'amber';
 
-    if (!p) {
-      // Player not yet in game
-      html += `<div class="sc-actor" style="border:1.5px solid ${cfg.border};box-shadow:0 0 12px ${cfg.shadow};">
-        <div class="sc-actor-header" style="background:${cfg.hbg};color:${cfg.hclr};">${cfg.emoji} ${role.charAt(0).toUpperCase()+role.slice(1)}</div>
-        <div style="flex:1;display:flex;align-items:center;justify-content:center;background:var(--surface);padding:1rem;font-size:.7rem;color:var(--muted);">—</div>
-      </div>`;
-      return;
-    }
+  let html = `<div class="road-board" style="display:flex;align-items:stretch;overflow-x:auto;">`;
 
-    const invColor = p.inventory > 8 ? '#22c55e' : p.inventory > 0 ? '#f5c842' : '#ef4444';
-    const invBarPct = Math.min(100, Math.max(0, Math.round(p.inventory / 40 * 100)));
-    const isFactory = role === 'factory';
-    const ordLabel  = isFactory ? 'REQ' : 'ORD';
-    const shpLabel  = isFactory ? 'PROD' : 'SHP';
+  // Customer node
+  html += `<div class="road-node" style="border-color:rgba(107,114,128,.25);">
+    <div class="road-node-hdr bgb-actor-hdr" style="background:rgba(107,114,128,.12);border-bottom:2px solid rgba(107,114,128,.3);color:var(--muted);">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4.5" fill="currentColor" opacity="0.9"/><path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.7"/></svg> Customer
+    </div>
+    <div class="road-node-body" style="justify-content:center;">
+      <div style="font-size:.45rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px;">demand</div>
+      <div class="bgb-slot ${demandCls}" style="width:68px;min-height:52px;">
+        <span class="bgb-v">${demandTxt}</span>
+      </div>
+    </div>
+  </div>`;
 
-    html += `
-    <div class="sc-actor" style="border:1.5px solid ${cfg.border};box-shadow:0 0 12px ${cfg.shadow};">
-      <div class="sc-actor-header" style="background:${cfg.hbg};color:${cfg.hclr};">${cfg.emoji} ${role.charAt(0).toUpperCase()+role.slice(1)}</div>
-      <div class="sc-actor-body">
-        <!-- Orders out (amber) -->
-        <div class="sc-slot-col">
-          <div class="sc-slot-label" style="color:rgba(245,200,66,.65);">${ordLabel}</div>
-          ${buildSlots(orders[cfg.pre], 'amber', false)}
+  // Narrow connector C→R
+  html += `<div class="road-seg" style="flex:0.3;min-width:24px;">
+    <div class="road-orders-row"></div>
+    <div class="road-surface" style="padding:0;justify-content:center;">
+      <div class="road-flow-dir"><span class="rfd amber">←</span></div>
+    </div>
+    <div class="road-seg-labels"></div>
+  </div>`;
+
+  const ROLES_SEG = [
+    { role: 'retailer',    label: 'Retailer',    pre: 'rt', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M3 10l1-6h16l1 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M3 10v10a2 2 0 002 2h14a2 2 0 002-2V10" stroke="currentColor" stroke-width="2" fill="none"/></svg>',
+             hdrStyle: 'background:rgba(245,200,66,.1);border-bottom:2px solid rgba(245,200,66,.65);color:#ffd36a;text-shadow:0 0 10px rgba(245,200,66,.8);' },
+    { role: 'wholesaler',  label: 'Wholesaler',  pre: 'wh', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="2" y="6" width="20" height="14" rx="2" stroke="currentColor" stroke-width="2" fill="none"/></svg>',
+             hdrStyle: 'background:rgba(59,130,246,.1);border-bottom:2px solid rgba(59,130,246,.65);color:#8ecbff;text-shadow:0 0 10px rgba(59,130,246,.8);' },
+    { role: 'distributor', label: 'Distributor', pre: 'di', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="1" y="6" width="15" height="10" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><path d="M16 9h4l3 4v3h-7V9z" stroke="currentColor" stroke-width="2" fill="none"/></svg>',
+             hdrStyle: 'background:rgba(168,85,247,.1);border-bottom:2px solid rgba(168,85,247,.65);color:#d8a4ff;text-shadow:0 0 10px rgba(168,85,247,.8);' },
+    { role: 'factory',     label: 'Factory',     pre: 'fa', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M2 20V10l5-4v4l5-4v4l5-4v10" stroke="currentColor" stroke-width="2" fill="none"/></svg>',
+             hdrStyle: 'background:rgba(34,197,94,.1);border-bottom:2px solid rgba(34,197,94,.65);color:#4ade80;text-shadow:0 0 10px rgba(34,197,94,.8);' },
+  ];
+
+  ROLES_SEG.forEach((seg, idx) => {
+    // Actor node
+    html += `<div class="road-node">
+      <div class="road-node-hdr bgb-actor-hdr" style="${seg.hdrStyle}">${seg.icon} ${seg.label}</div>
+      <div class="road-node-body">${invBox(seg.pre, seg.role)}</div>
+    </div>`;
+
+    // Road segment after actor (except after factory)
+    if (idx < ROLES_SEG.length - 1) {
+      const nextPre = ROLES_SEG[idx + 1].pre;
+      // Shipments on top (from next role → this role), Orders on bottom (from this role → next role)
+      html += `<div class="road-seg">
+        <div class="road-orders-row">
+          ${slotPair(ships[seg.pre], 'blue')}
         </div>
-        <!-- Inventory -->
-        <div class="sc-inv">
-          <div class="sc-inv-bar" style="background:${invColor};width:${invBarPct}%;"></div>
-          <div>
-            <div style="font-size:1.4rem;font-weight:800;line-height:1;color:${invColor};">${p.inventory}</div>
-            ${p.backlog > 0
-              ? `<div style="font-size:.52rem;color:var(--danger);margin-top:2px;font-weight:700;">blg:${p.backlog}</div>`
-              : `<div style="font-size:.52rem;color:var(--muted);margin-top:2px;">blg:0</div>`}
-            <div style="font-size:.5rem;color:var(--muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60px;">${p.name || ''}</div>
+        <div class="road-surface">
+          ${slotPair(orders[seg.pre], 'amber')}
+          <div class="road-flow-dir">
+            <span class="rfd blue">←</span>
+            <span class="rfd amber">→</span>
           </div>
         </div>
-        <!-- Incoming shipments (blue) -->
-        <div class="sc-slot-col">
-          <div class="sc-slot-label" style="color:rgba(59,130,246,.65);">${shpLabel}</div>
-          ${buildSlots(ships[cfg.pre], 'blue', true)}
+        <div class="road-seg-labels">
+          <span class="road-seg-lbl blue">◂ ships</span>
+          <span class="road-seg-lbl amber">orders ▸</span>
+        </div>
+      </div>`;
+    }
+  });
+
+  // Factory production pipeline (if factory player exists)
+  const fa = playerMap['factory'];
+  if (fa) {
+    const faOrders = orders['fa'] || [];
+    const faShips  = ships['fa']  || [];
+    // Show factory's internal production pipeline: fa requests (1w) and production (2w)
+    const reqSlot = faOrders.length > 0 ? faOrders[0] : null;
+    const reqVal  = reqSlot ? reqSlot.qty : '·';
+    const reqCls  = reqSlot ? 'amber' : '';
+    const prodSlots = faShips.slice(0,2);
+
+    html += `<div style="margin-left:4px;display:flex;align-items:stretch;">
+      <div class="factory-pipeline" style="padding:4px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;">
+        <div class="fac-pipeline-header">⚙ Production Pipeline</div>
+        <div class="fac-pipe-row">
+          <div class="fac-pipe-col">
+            <div class="fac-pipe-lbl amber">Req (1w)</div>
+            <div class="bgb-slot ${reqCls}"><span class="bgb-v">${reqVal}</span></div>
+          </div>
+          <div class="fac-pipe-arrow">→</div>
+          <div class="fac-pipe-col">
+            <div class="fac-pipe-lbl blue">Prod (2w)</div>
+            ${renderProdSlots(prodSlots)}
+          </div>
         </div>
       </div>
     </div>`;
-  });
+  }
 
+  html += `</div>`;
   container.innerHTML = html;
 }
 

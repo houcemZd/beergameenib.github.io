@@ -193,8 +193,6 @@ class GameConsumer(AsyncWebsocketConsumer):
                 'demand_received': ps.pending_order_qty,
                 'new_inventory': state.get('own', {}).get('inventory', 0),
                 'new_backlog':   state.get('own', {}).get('backlog', 0),
-                'suggested_order': max(0, 16 - state.get('own', {}).get('inventory', 0)
-                                           + state.get('own', {}).get('backlog', 0)),
                 'role':          ps.role,
             }))
 
@@ -319,18 +317,12 @@ class GameConsumer(AsyncWebsocketConsumer):
         result = await database_sync_to_async(apply_ship)(ps)
         ps     = await self._get_player_session()
 
-        # Suggest order qty using a simple base-stock heuristic
-        inv        = result.get('new_inventory', 0)
-        backlog    = result.get('new_backlog', 0)
-        suggested  = max(0, 16 - inv + backlog)
-
         await self.send(text_data=json.dumps({
             'type':            'phase_order',
             'shipped':         result.get('shipped', 0),
             'demand_received': result.get('demand_received', 0),
-            'new_inventory':   inv,
-            'new_backlog':     backlog,
-            'suggested_order': suggested,
+            'new_inventory':   result.get('new_inventory', 0),
+            'new_backlog':     result.get('new_backlog', 0),
             'role':            ps.role,
         }))
 
@@ -556,15 +548,13 @@ class GameConsumer(AsyncWebsocketConsumer):
     async def _maybe_broadcast_updated_demand(self, customer_qty):
         """
         After customer submits, push updated demand_incoming to retailer
-        if retailer is still in PHASE_SHIP (so they see the real number).
+        so they see the real customer order immediately on their board.
         """
         ps_retailer = await database_sync_to_async(
             lambda: self.player_session.game_session.player_sessions
                     .filter(role='retailer').first()
         )()
-        if ps_retailer and ps_retailer.turn_phase in (
-            PlayerSession.PHASE_RECEIVE, PlayerSession.PHASE_SHIP
-        ):
+        if ps_retailer:
             await self.channel_layer.group_send(self.group_name, {
                 'type':        'broadcast_state_update',
                 'target_role': 'retailer',

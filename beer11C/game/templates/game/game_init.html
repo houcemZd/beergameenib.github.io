@@ -178,27 +178,27 @@
           <div class="pb-role" style="color:#9ca3af;">Customer</div>
         </div>
 
-        <!-- Arrow right (orders) -->
+        <!-- Arrow (shipments left, orders right) -->
         <div class="pb-arrow">
-          <div class="pb-arr-line pb-arr-right"></div>
           <div class="pb-arr-line pb-arr-left"></div>
+          <div class="pb-arr-line pb-arr-right"></div>
         </div>
 
         {% for player in session.players.all %}
         {% with role=player.role color=player.role %}
         <div class="pb-actor">
-          <!-- Orders placed top -->
+          <!-- Orders top row -->
           <div class="pb-row">
+            <div class="pb-box" style="border-color:#f5c84422;">
+              <div class="pb-box-lbl">Incoming<br>orders</div>
+              <div class="pb-box-val amber" data-field="incoming_orders">4</div>
+            </div>
             {% if role != 'factory' %}
             <div class="pb-box" style="border-color:#f5c84244;">
               <div class="pb-box-lbl">Orders<br>placed</div>
               <div class="pb-box-val amber" data-field="orders_placed">4</div>
             </div>
             {% endif %}
-            <div class="pb-box" style="border-color:#f5c84422;">
-              <div class="pb-box-lbl">Incoming<br>orders</div>
-              <div class="pb-box-val amber" data-field="incoming_orders">4</div>
-            </div>
           </div>
 
           <!-- Inventory + delay slots -->
@@ -224,8 +224,8 @@
 
         {% if not forloop.last %}
         <div class="pb-arrow">
-          <div class="pb-arr-line pb-arr-right"></div>
           <div class="pb-arr-line pb-arr-left"></div>
+          <div class="pb-arr-line pb-arr-right"></div>
         </div>
         {% endif %}
         {% endwith %}
@@ -234,8 +234,8 @@
 
       <!-- Legend -->
       <div style="display:flex; gap:1.25rem; flex-wrap:wrap; margin-top:.75rem; font-size:.7rem; color:var(--muted);">
-        <span><span style="color:#f5c842">■</span> Orders (→ upstream)</span>
         <span><span style="color:#3b82f6">■</span> Shipments in transit (← downstream)</span>
+        <span><span style="color:#f5c842">■</span> Orders (→ upstream)</span>
         <span><span style="color:#22c55e">■</span> Inventory on hand</span>
       </div>
     </div>
