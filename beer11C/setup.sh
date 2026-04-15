@@ -57,6 +57,10 @@ if [ -z "$SETTINGS_FILE" ]; then
 fi
 ok "Settings: $(basename $(dirname $SETTINGS_FILE))/settings.py"
 
+# Export DJANGO_SETTINGS_MODULE for all subsequent Python commands
+SETTINGS_MODULE="$(basename $(dirname $SETTINGS_FILE)).settings"
+export DJANGO_SETTINGS_MODULE="$SETTINGS_MODULE"
+
 sep
 
 # ── 1. Virtual environment ──────────────────────────────────────────────────────
@@ -84,7 +88,7 @@ ok "Dependencies up to date (daphne ✓)"
 sep
 ok "Source files are up to date (managed by git — run 'git pull' to update)"
 
-# ── 4. Apply migration for new PlayerSession fields ────────────────────────────
+# ── 4. Apply database migrations ───────────────────────────────────────────────
 sep
 info "Checking database migrations..."
 
@@ -92,83 +96,11 @@ MIGRATIONS_DIR="$APP_DIR/migrations"
 mkdir -p "$MIGRATIONS_DIR"
 touch "$MIGRATIONS_DIR/__init__.py" 2>/dev/null || true
 
-# Check if turn_phase column already exists
-NEED_PHASE_MIGRATION=false
-python3 - << 'PYCHECK'
-import os, sys, django
-sys.path.insert(0, os.environ.get('PROJECT_ROOT', '.'))
-# Find settings module
-import glob
-settings_files = glob.glob('*/settings.py') + glob.glob('settings.py')
-for sf in settings_files:
-    mod = sf.replace('/', '.').replace('.py', '')
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', mod)
-    break
-try:
-    django.setup()
-    from django.db import connection
-    cols = [c.name for c in connection.introspection.get_table_description(
-        connection.cursor(), 'game_playersession'
-    )]
-    if 'turn_phase' in cols:
-        sys.exit(0)   # already exists
-    else:
-        sys.exit(1)   # needs migration
-except Exception:
-    sys.exit(1)
-PYCHECK
-PHASE_CHECK=$?
-
-if [ $PHASE_CHECK -ne 0 ]; then
-  NEED_PHASE_MIGRATION=true
-  info "New PlayerSession fields detected — creating migration..."
-
-  # Find last migration number
-  LAST_NUM=$(ls "$MIGRATIONS_DIR"/[0-9]*.py 2>/dev/null | sort | tail -1 | grep -o '[0-9]\{4\}' | head -1)
-  if [ -z "$LAST_NUM" ]; then
-    NEXT_NUM="0002"
-    DEPENDS_ON="0001_initial"
-  else
-    NEXT_NUM=$(printf "%04d" $((10#$LAST_NUM + 1)))
-    DEPENDS_ON="$(ls "$MIGRATIONS_DIR"/[0-9]*.py | sort | tail -1 | xargs basename | sed 's/.py//')"
-  fi
-
-  MIGRATION_FILE="$MIGRATIONS_DIR/${NEXT_NUM}_add_playersession_phase_fields.py"
-  cat > "$MIGRATION_FILE" << MIGEOF
-from django.db import migrations, models
-
-class Migration(migrations.Migration):
-    dependencies = [('$APP_NAME', '$DEPENDS_ON')]
-    operations = [
-        migrations.AddField(
-            model_name='playersession', name='turn_phase',
-            field=models.CharField(max_length=10, default='idle'),
-        ),
-        migrations.AddField(
-            model_name='playersession', name='pending_received_qty',
-            field=models.IntegerField(default=0),
-        ),
-        migrations.AddField(
-            model_name='playersession', name='pending_order_qty',
-            field=models.IntegerField(default=0),
-        ),
-        migrations.AddField(
-            model_name='playersession', name='pending_ship_qty',
-            field=models.IntegerField(null=True, blank=True),
-        ),
-    ]
-MIGEOF
-  ok "Migration created: $NEXT_NUM"
-else
-  ok "PlayerSession fields already present — no migration needed"
-fi
-
-# Run all pending migrations
 cd "$PROJECT_ROOT"
 python manage.py migrate --run-syncdb -v 0
 ok "Database up to date"
 
-# ── 5. Detect local IP and patch settings.py ───────────────────────────────────
+# ── 5. Detect local IP and configure network access ────────────────────────────
 sep
 info "Configuring network settings..."
 
@@ -193,77 +125,12 @@ else
   LOCAL_IP="0.0.0.0"
 fi
 
-# Patch ALLOWED_HOSTS in settings.py
-if grep -q "ALLOWED_HOSTS" "$SETTINGS_FILE"; then
-  # Check if our IP is already there
-  if ! grep -q "$LOCAL_IP" "$SETTINGS_FILE"; then
-    info "Adding $LOCAL_IP to ALLOWED_HOSTS..."
-    # Replace ALLOWED_HOSTS = [...] with version including our IP
-    python3 - "$SETTINGS_FILE" "$LOCAL_IP" << 'PYEOF'
-import sys, re
+# Export env vars so settings.py picks them up at runtime
+export ALLOWED_HOSTS="$LOCAL_IP"
+export CSRF_TRUSTED_ORIGINS="http://$LOCAL_IP:8000"
+ok "ALLOWED_HOSTS and CSRF_TRUSTED_ORIGINS configured via environment"
 
-settings_path = sys.argv[1]
-local_ip      = sys.argv[2]
-
-with open(settings_path) as f:
-    content = f.read()
-
-# Find ALLOWED_HOSTS = [...] and add our IP if not present
-pattern = r"(ALLOWED_HOSTS\s*=\s*\[)([^\]]*?)(\])"
-def add_host(m):
-    existing = m.group(2)
-    if local_ip in existing:
-        return m.group(0)
-    # Strip trailing whitespace/newlines from existing entries
-    entries = [e.strip() for e in existing.split(',') if e.strip()]
-    entries.extend([f"'{local_ip}'", "'localhost'", "'127.0.0.1'"])
-    unique = list(dict.fromkeys(entries))  # deduplicate preserving order
-    return m.group(1) + '\n    ' + ',\n    '.join(unique) + '\n' + m.group(3)
-
-new_content = re.sub(pattern, add_host, content, flags=re.DOTALL)
-
-# Add CSRF_TRUSTED_ORIGINS if not present
-if 'CSRF_TRUSTED_ORIGINS' not in new_content:
-    new_content += f"\n# Added by setup.sh for cross-device access\nCSRF_TRUSTED_ORIGINS = ['http://{local_ip}:8000', 'http://localhost:8000']\n"
-elif local_ip not in new_content.split('CSRF_TRUSTED_ORIGINS')[1].split('\n')[0:5]:
-    # Add our IP to existing list
-    new_content = re.sub(
-        r"(CSRF_TRUSTED_ORIGINS\s*=\s*\[)([^\]]*?)(\])",
-        lambda m: m.group(1) + m.group(2).rstrip() + f", 'http://{local_ip}:8000'" + m.group(3),
-        new_content, flags=re.DOTALL
-    )
-
-with open(settings_path, 'w') as f:
-    f.write(new_content)
-
-print("patched")
-PYEOF
-    ok "settings.py patched for cross-device access"
-  else
-    ok "ALLOWED_HOSTS already contains $LOCAL_IP"
-  fi
-fi
-
-# Patch LOGIN_URL so @login_required redirects to our login page
-python3 - "$SETTINGS_FILE" << 'PYEOF'
-import sys, re
-
-settings_path = sys.argv[1]
-with open(settings_path) as f:
-    content = f.read()
-
-additions = ""
-if 'LOGIN_URL' not in content:
-    additions += "\n# Auth redirects — added by setup.sh\nLOGIN_URL = '/accounts/login/'\nLOGIN_REDIRECT_URL = '/'\nLOGOUT_REDIRECT_URL = '/accounts/login/'\n"
-
-if additions:
-    with open(settings_path, 'a') as f:
-        f.write(additions)
-    print("patched auth settings")
-PYEOF
-ok "Auth redirect URLs configured"
-
-# ── 6. Patch channel layer in settings.py (InMemory fallback if no Redis) ───────
+# ── 6. Channel layer info ───────────────────────────────────────────────────────
 info "Checking channel layer (Redis / InMemory)..."
 
 REDIS_OK=false
@@ -271,71 +138,12 @@ if command -v redis-cli &>/dev/null && redis-cli ping &>/dev/null 2>&1; then
   REDIS_OK=true
 fi
 
-# Check if channels_redis is installed
-python3 -c "import channels_redis" 2>/dev/null && REDIS_PKG=true || REDIS_PKG=false
-
-if $REDIS_OK && $REDIS_PKG; then
+if $REDIS_OK; then
   ok "Redis is running — full multiplayer enabled"
-  CHANNEL_LAYER='CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {"hosts": [("127.0.0.1", 6379)]},
-    }
-}'
 else
   warn "Redis not available — using InMemoryChannelLayer (single-machine only)"
   warn "For real cross-device multiplayer: docker run -p 6379:6379 redis:alpine"
   warn "Then re-run setup.sh"
-  CHANNEL_LAYER='CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer",
-    }
-}'
-fi
-
-# Write channel layer to settings if not already correct
-if ! grep -q "CHANNEL_LAYERS" "$SETTINGS_FILE"; then
-  echo "" >> "$SETTINGS_FILE"
-  echo "# Channel layer — added by setup.sh" >> "$SETTINGS_FILE"
-  echo "$CHANNEL_LAYER" >> "$SETTINGS_FILE"
-  ok "Channel layer added to settings.py"
-else
-  # Update existing
-  python3 - "$SETTINGS_FILE" "$REDIS_OK" "$REDIS_PKG" << 'PYEOF'
-import sys, re
-
-settings_path = sys.argv[1]
-redis_ok      = sys.argv[2] == 'true'
-redis_pkg     = sys.argv[3] == 'true'
-
-with open(settings_path) as f:
-    content = f.read()
-
-if redis_ok and redis_pkg:
-    layer = '''CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {"hosts": [("127.0.0.1", 6379)]},
-    }
-}'''
-else:
-    layer = '''CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer",
-    }
-}'''
-
-new_content = re.sub(
-    r'CHANNEL_LAYERS\s*=\s*\{[^}]*\{[^}]*\}[^}]*\}',
-    layer,
-    content,
-    flags=re.DOTALL
-)
-
-with open(settings_path, 'w') as f:
-    f.write(new_content)
-PYEOF
-  ok "Channel layer configured"
 fi
 
 # ── 7. Offer to clear stale sessions ───────────────────────────────────────────
@@ -343,15 +151,11 @@ sep
 SESSION_COUNT=$(python3 -c "
 import os, sys, django
 sys.path.insert(0, '.')
-import glob
-for sf in glob.glob('*/settings.py') + ['settings.py']:
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', sf.replace('/', '.').replace('.py', ''))
-    break
 try:
     django.setup()
     from game.models import GameSession
     print(GameSession.objects.count())
-except:
+except Exception:
     print(0)
 " 2>/dev/null || echo "0")
 
@@ -363,15 +167,14 @@ if [ "$SESSION_COUNT" -gt 10 ]; then
     python3 -c "
 import os, sys, django
 sys.path.insert(0, '.')
-import glob
-for sf in glob.glob('*/settings.py') + ['settings.py']:
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', sf.replace('/', '.').replace('.py', ''))
-    break
-django.setup()
-from game.models import GameSession
-n = GameSession.objects.count()
-GameSession.objects.all().delete()
-print(f'Deleted {n} sessions.')
+try:
+    django.setup()
+    from game.models import GameSession
+    n = GameSession.objects.count()
+    GameSession.objects.all().delete()
+    print(f'Deleted {n} sessions.')
+except Exception:
+    pass
 " 2>/dev/null
     ok "All sessions cleared"
   else
