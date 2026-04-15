@@ -183,6 +183,11 @@ class GameConsumer(AsyncWebsocketConsumer):
                 'backlog':            state.get('own', {}).get('backlog', 0),
                 'demand_incoming':    ps.pending_order_qty,
                 'role':               ps.role,
+                # Full state for board refresh
+                'map':               state.get('map', {}),
+                'own':               state.get('own', {}),
+                'pipeline':          state.get('pipeline', []),
+                'outgoing_orders':   state.get('outgoing_orders', []),
             }))
 
         elif phase == PlayerSession.PHASE_ORDER:
@@ -194,6 +199,11 @@ class GameConsumer(AsyncWebsocketConsumer):
                 'new_inventory': state.get('own', {}).get('inventory', 0),
                 'new_backlog':   state.get('own', {}).get('backlog', 0),
                 'role':          ps.role,
+                # Full state for board refresh
+                'map':             state.get('map', {}),
+                'own':             state.get('own', {}),
+                'pipeline':        state.get('pipeline', []),
+                'outgoing_orders': state.get('outgoing_orders', []),
             }))
 
         elif phase == PlayerSession.PHASE_DONE:
@@ -202,6 +212,11 @@ class GameConsumer(AsyncWebsocketConsumer):
                 'type':         'phase_done',
                 'role':         ps.role,
                 'order_placed': ps.pending_order or 0,
+                # Full state for board refresh
+                'map':             state.get('map', {}),
+                'own':             state.get('own', {}),
+                'pipeline':        state.get('pipeline', []),
+                'outgoing_orders': state.get('outgoing_orders', []),
             }))
             # Check if all phases done so they see the week-ready button correctly
             if await self._all_phase_done():
@@ -290,6 +305,9 @@ class GameConsumer(AsyncWebsocketConsumer):
         result = await database_sync_to_async(apply_receive)(ps)
         ps = await self._get_player_session()
 
+        # Build updated state so client can refresh the board
+        state = await self._build_state_for_role(ps.role)
+
         await self.send(text_data=json.dumps({
             'type':               'phase_ship',
             'received':           result.get('received', 0),
@@ -301,6 +319,11 @@ class GameConsumer(AsyncWebsocketConsumer):
             # For other roles: pending_order_qty = incoming order from downstream.
             'demand_incoming':    ps.pending_order_qty,
             'role':               ps.role,
+            # Full state for board refresh
+            'map':               state.get('map', {}),
+            'own':               state.get('own', {}),
+            'pipeline':          state.get('pipeline', []),
+            'outgoing_orders':   state.get('outgoing_orders', []),
         }))
 
     # ── Phase 2: Confirm Ship ─────────────────────────────────────────────────
@@ -317,6 +340,9 @@ class GameConsumer(AsyncWebsocketConsumer):
         result = await database_sync_to_async(apply_ship)(ps)
         ps     = await self._get_player_session()
 
+        # Build updated state so client can refresh the board
+        state = await self._build_state_for_role(ps.role)
+
         await self.send(text_data=json.dumps({
             'type':            'phase_order',
             'shipped':         result.get('shipped', 0),
@@ -324,6 +350,11 @@ class GameConsumer(AsyncWebsocketConsumer):
             'new_inventory':   result.get('new_inventory', 0),
             'new_backlog':     result.get('new_backlog', 0),
             'role':            ps.role,
+            # Full state for board refresh
+            'map':             state.get('map', {}),
+            'own':             state.get('own', {}),
+            'pipeline':        state.get('pipeline', []),
+            'outgoing_orders': state.get('outgoing_orders', []),
         }))
 
     # ── Phase 3: Submit Order ─────────────────────────────────────────────────
@@ -389,10 +420,18 @@ class GameConsumer(AsyncWebsocketConsumer):
         result = await database_sync_to_async(apply_order)(ps, qty)
         ps     = await self._get_player_session()
 
+        # Build updated state so client can refresh the board
+        state = await self._build_state_for_role(ps.role)
+
         await self.send(text_data=json.dumps({
             'type':         'phase_done',
             'role':         role,
             'order_placed': result.get('order_placed', 0),
+            # Full state for board refresh
+            'map':             state.get('map', {}),
+            'own':             state.get('own', {}),
+            'pipeline':        state.get('pipeline', []),
+            'outgoing_orders': state.get('outgoing_orders', []),
         }))
 
         await self._broadcast_ready_status()
