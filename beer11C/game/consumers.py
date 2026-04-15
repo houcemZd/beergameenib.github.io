@@ -317,15 +317,12 @@ class GameConsumer(AsyncWebsocketConsumer):
         result = await database_sync_to_async(apply_ship)(ps)
         ps     = await self._get_player_session()
 
-        inv        = result.get('new_inventory', 0)
-        backlog    = result.get('new_backlog', 0)
-
         await self.send(text_data=json.dumps({
             'type':            'phase_order',
             'shipped':         result.get('shipped', 0),
             'demand_received': result.get('demand_received', 0),
-            'new_inventory':   inv,
-            'new_backlog':     backlog,
+            'new_inventory':   result.get('new_inventory', 0),
+            'new_backlog':     result.get('new_backlog', 0),
             'role':            ps.role,
         }))
 

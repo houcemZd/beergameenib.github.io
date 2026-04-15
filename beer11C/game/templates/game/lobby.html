@@ -702,6 +702,17 @@ function renderChain(players, pipeline, lastDemand) {
     }).join('');
   }
 
+  function renderProdSlots(prodSlots) {
+    if (prodSlots.length === 0) {
+      return '<div class="bgb-slot"><span class="bgb-v">·</span></div>' +
+             '<div class="bgb-slot"><span class="bgb-v">·</span></div>';
+    }
+    return prodSlots.map(s => {
+      const arCls = s.weeks_away === 0 ? ' arriving' : '';
+      return `<div class="bgb-slot blue${arCls}"><span class="bgb-v">${s.qty}</span></div>`;
+    }).join('');
+  }
+
   const playerMap = {};
   (players || []).forEach(p => { playerMap[p.role] = p; });
 
@@ -811,7 +822,7 @@ function renderChain(players, pipeline, lastDemand) {
           <div class="fac-pipe-arrow">→</div>
           <div class="fac-pipe-col">
             <div class="fac-pipe-lbl blue">Prod (2w)</div>
-            ${prodSlots.length > 0 ? prodSlots.map(s => `<div class="bgb-slot blue${s.weeks_away === 0 ? ' arriving' : ''}"><span class="bgb-v">${s.qty}</span></div>`).join('') : '<div class="bgb-slot"><span class="bgb-v">·</span></div><div class="bgb-slot"><span class="bgb-v">·</span></div>'}
+            ${renderProdSlots(prodSlots)}
           </div>
         </div>
       </div>

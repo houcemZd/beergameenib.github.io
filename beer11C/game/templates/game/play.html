@@ -1407,7 +1407,7 @@ function handle(msg) {
         if (custSlot) {
           const vEl = custSlot.querySelector('.bgb-v');
           if (vEl) vEl.textContent = msg.demand_incoming ?? '—';
-          custSlot.className = 'bgb-slot amber' + (msg.demand_incoming != null ? ' arriving' : '');
+          custSlot.className = `bgb-slot amber${msg.demand_incoming != null ? ' arriving' : ''}`;
         }
       }
       break;
@@ -1595,7 +1595,7 @@ function showOrderPanel(shippedQty, newInv, newBlg, suggestedOrder) {
   if (blgEl) blgEl.textContent = newBlg ?? '—';
 
   const qEl = document.getElementById('order-qty');
-  if (qEl) qEl.value = '';
+  if (qEl) qEl.value = '0';
 }
 
 function showDonePanel(orderQty, msg) {
