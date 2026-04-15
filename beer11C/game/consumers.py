@@ -968,23 +968,24 @@ class GameConsumer(AsyncWebsocketConsumer):
             factory_pending_requests = _two_items(outgoing_orders_qs)
             factory_production_delay = _two_items(incoming_ships_qs)
             # The factory's "incoming orders" are the distributor's PipelineOrders
-            # arriving THIS week only — future orders are not visible.
+            # in transit — include all unfulfilled orders so the board pipeline is visible.
+            # Quantities for future orders (weeks_away > 0) are hidden on the client side.
             distributor_player = players.get('distributor')
             if distributor_player:
                 incoming_orders_to_me = _two_items(list(PipelineOrder.objects.filter(
                     sender=distributor_player, fulfilled=False,
-                    arrives_on_week=playing_week,
-                )))
+                ).order_by('arrives_on_week')))
             else:
                 incoming_orders_to_me = []
 
         elif role in ('wholesaler', 'distributor'):
             if downstream_player:
-                # Only show the incoming order arriving THIS week — future orders are hidden.
+                # Show all in-transit orders from downstream so the pipeline
+                # is visible on the board. Quantities for future orders
+                # (weeks_away > 0) are hidden on the client side.
                 incoming_orders_to_me = _two_items(list(PipelineOrder.objects.filter(
                     sender=downstream_player, fulfilled=False,
-                    arrives_on_week=playing_week,
-                )))
+                ).order_by('arrives_on_week')))
 
         if role in ('wholesaler', 'distributor', 'factory') and downstream_player:
             outgoing_shipments_from_me = _two_items(list(PipelineShipment.objects.filter(
@@ -1006,13 +1007,6 @@ class GameConsumer(AsyncWebsocketConsumer):
                 'pending_ship_qty':     ps.pending_ship_qty,
             }
 
-        # Leaderboard: all players' roles + total costs (for ranking UI)
-        leaderboard = [
-            {'role': p.role, 'total_cost': p.total_cost}
-            for p in players.values()
-            if p.role not in ('customer',)
-        ]
-
         return {
             'role':            role,
             'week':            session.current_week,
@@ -1025,7 +1019,6 @@ class GameConsumer(AsyncWebsocketConsumer):
             'history':         history,
             'submitted':       session.submitted_role_list,
             'ready':           session.ready_role_list,
-            'leaderboard':     leaderboard,
             **phase_data,
             'map': {
                 'demand_customer_to_retailer':  demand_customer_to_retailer,

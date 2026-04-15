@@ -108,6 +108,7 @@
 .road-board {
   display:flex; align-items:stretch; min-width:min-content;
   font-family:var(--font-mono); position:relative; gap:0;
+  contain:layout style;
 }
 
 /* ── Actor SVG icon base ───────────────────────────────────────────────── */
@@ -309,7 +310,7 @@
 /* Truck icon (SVG instead of emoji) */
 .road-surface .bgb-slot.blue::before {
   content:''; position:absolute; left:-22px; top:50%;
-  transform:translateY(-50%);
+  transform:translateY(-50%) scaleX(-1);
   width:18px; height:14px;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 18' fill='none'%3E%3Crect x='0' y='4' width='14' height='10' rx='2' fill='%233b82f6' opacity='0.85'/%3E%3Crect x='14' y='6' width='8' height='8' rx='1.5' fill='%232563eb' opacity='0.9'/%3E%3Crect x='15' y='7' width='6' height='4' rx='1' fill='%2393c5fd' opacity='0.5'/%3E%3Ccircle cx='5' cy='15.5' r='2' fill='%2364748b'/%3E%3Ccircle cx='5' cy='15.5' r='1' fill='%23334155'/%3E%3Ccircle cx='19' cy='15.5' r='2' fill='%2364748b'/%3E%3Ccircle cx='19' cy='15.5' r='1' fill='%23334155'/%3E%3C/svg%3E");
   background-size:contain; background-repeat:no-repeat;
@@ -484,6 +485,8 @@
   padding-right: .25rem;
   padding-bottom: .5rem;
 }
+/* Push player status card to bottom of action column */
+#player-status-card { margin-top: auto; }
 #game-board-col {
   overflow-y: auto;
   scrollbar-width: thin;
@@ -712,6 +715,8 @@
 .ambient-particle {
   position:absolute; border-radius:50%; opacity:0;
   animation:ambient-float var(--dur,14s) var(--delay,0s) infinite ease-in-out;
+  will-change:transform, opacity;
+  contain:strict;
 }
 @keyframes ambient-float {
   0%   { transform:translateY(105vh) translateX(0) scale(.3); opacity:0; }
@@ -773,7 +778,7 @@ body.crit-alert::after {
 /* ── Truck exhaust on road ──────────────────────────────────────────────── */
 .road-surface .bgb-slot.blue { position:relative; }
 .road-surface .bgb-slot.blue .truck-exhaust {
-  position:absolute; right:-6px; top:50%; transform:translateY(-50%);
+  position:absolute; left:-6px; top:50%; transform:translateY(-50%);
   width:10px; height:8px; pointer-events:none;
 }
 .truck-exhaust-puff {
@@ -782,7 +787,7 @@ body.crit-alert::after {
 }
 @keyframes exhaust-puff {
   0%   { transform:scale(.3); opacity:.35; }
-  100% { transform:translateX(8px) scale(1.4); opacity:0; }
+  100% { transform:translateX(-8px) scale(1.4); opacity:0; }
 }
 
 /* ── Enhanced road glow ─────────────────────────────────────────────────── */
@@ -1045,36 +1050,6 @@ body.crit-alert::after {
   0%,100%{ opacity:0; transform:scale(1); }
   50%    { opacity:.4; transform:scale(1.15); }
 }
-
-/* ── Leaderboard HUD ────────────────────────────────────────────────────── */
-#leaderboard-hud {
-  background:var(--surface); border:1px solid var(--border); border-radius:10px;
-  padding:.65rem .8rem; margin-bottom:.55rem;
-}
-.lb-title {
-  font-size:.52rem; text-transform:uppercase; letter-spacing:.1em;
-  color:var(--muted); margin-bottom:.35rem; display:flex; align-items:center; gap:.3rem;
-}
-.lb-row {
-  display:flex; align-items:center; gap:.4rem; padding:.25rem .35rem;
-  border-radius:6px; margin-bottom:.15rem; font-size:.72rem;
-  transition:background .2s, transform .2s;
-}
-.lb-row:hover { background:var(--surface2); }
-.lb-row.lb-you { background:rgba(245,200,66,.06); border:1px solid rgba(245,200,66,.15); }
-.lb-rank {
-  width:18px; height:18px; border-radius:50%; display:flex;
-  align-items:center; justify-content:center; font-size:.55rem;
-  font-weight:900; flex-shrink:0;
-}
-.lb-rank.gold   { background:rgba(245,200,66,.2); color:#ffd36a; border:1px solid rgba(245,200,66,.35); }
-.lb-rank.silver { background:rgba(200,200,200,.1); color:#c0c0c0; border:1px solid rgba(200,200,200,.2); }
-.lb-rank.bronze { background:rgba(205,127,50,.1);  color:#cd7f32; border:1px solid rgba(205,127,50,.2); }
-.lb-rank.normal { background:var(--surface2); color:var(--muted); border:1px solid var(--border); }
-.lb-name { flex:1; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.lb-cost { font-family:var(--font-mono); font-weight:700; font-size:.68rem; color:var(--accent); }
-.lb-bar { flex:0 0 50px; height:3px; background:var(--surface2); border-radius:2px; overflow:hidden; }
-.lb-bar-fill { height:100%; border-radius:2px; transition:width .5s ease; }
 
 /* ── Milestone celebration overlay ──────────────────────────────────────── */
 #milestone-overlay {
@@ -1360,6 +1335,7 @@ body.crit-alert::after {
     <div class="tut-body" id="tut-body">Loading tutorial…</div>
     <div class="tut-nav">
       <button class="btn btn-ghost btn-sm" id="tut-prev" onclick="tutPrev()">← Back</button>
+      <button class="btn btn-ghost btn-sm" id="tut-skip" onclick="hideTutorial()" style="color:var(--muted);font-size:.7rem;">Skip</button>
       <button class="btn btn-primary btn-sm" id="tut-next" onclick="tutNext()">Next →</button>
     </div>
   </div>
@@ -1449,23 +1425,6 @@ body.crit-alert::after {
     <span>{% if role == 'factory' %}Start Production{% else %}Place Order{% endif %}</span></div>
 </div>
 {% endif %}
-
-<!-- Players status -->
-<div class="card" style="padding:.75rem 1rem;">
-  <div class="card-title" style="margin-bottom:.4rem;">Players — Week Status</div>
-  <div class="ready-row" id="ready-row">
-    {% for r in roles %}<div class="ready-pill offline" id="pill-{{ r }}">○ {{ r|title }}</div>{% endfor %}
-  </div>
-  <div id="waiting-msg" style="font-size:.78rem; color:var(--muted);"></div>
-</div>
-
-<!-- Leaderboard HUD -->
-<div id="leaderboard-hud">
-  <div class="lb-title"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z" fill="currentColor" opacity="0.6"/></svg> LEADERBOARD</div>
-  <div id="lb-rows">
-    <div class="lb-row"><span class="lb-rank normal">—</span><span class="lb-name" style="color:var(--muted);">Waiting for data…</span></div>
-  </div>
-</div>
 
 <!-- ════ PHASE 1: RECEIVE GOODS / READ PRODUCTION REQUEST ════════════════════ -->
 <div class="phase-panel" id="panel-receive">
@@ -1681,6 +1640,15 @@ body.crit-alert::after {
   </div>
 </div>
 {% endif %}
+
+<!-- Players status (moved to action area bottom via CSS order) -->
+<div class="card" id="player-status-card" style="padding:.75rem 1rem;">
+  <div class="card-title" style="margin-bottom:.4rem;">Players — Week Status</div>
+  <div class="ready-row" id="ready-row">
+    {% for r in roles %}<div class="ready-pill offline" id="pill-{{ r }}">○ {{ r|title }}</div>{% endfor %}
+  </div>
+  <div id="waiting-msg" style="font-size:.78rem; color:var(--muted);"></div>
+</div>
 
 </div><!-- /#game-action-col -->
 
@@ -2892,50 +2860,53 @@ function renderBoard(msg) {
    * Their own slots + the pipeline slots directly connected to them
    *
    * Retailer:    rt-ord(own) rt-inv rt-ship
-   * Wholesaler:  wh-ord(own) wh-inv wh-ship | rt-ord(retailer orders arriving) rt-ship(what I sent)
-   * Distributor: di-ord(own) di-inv di-ship | wh-ord(wh orders arriving) wh-ship(what I sent)
+   * Wholesaler:  wh-ord(own) wh-inv wh-ship | rt-ord(retailer orders in transit) rt-ship(what I sent)
+   * Distributor: di-ord(own) di-inv di-ship | wh-ord(wh orders in transit) wh-ship(what I sent)
    *              [fa-prod/fa-req: blank — factory internal pipeline hidden from distributor]
-   * Factory:     fa-req(own,1-wk) fa-inv fa-prod(own,2-wk) | di-ord(di orders arriving) di-ship(what I sent)
+   * Factory:     fa-req(own,1-wk) fa-inv fa-prod(own,2-wk) | di-ord(di orders in transit) di-ship(what I sent)
    */
+
+  // Mask incoming order quantities for orders not yet arrived (weeks_away > 0)
+  // so the upstream player sees that orders are in transit but can't see the amount
+  function maskFutureOrders(items) {
+    if (!items || !Array.isArray(items)) return items;
+    return items.map(o => (o.weeks_away || 0) > 0
+      ? { ...o, quantity: '?' }
+      : o
+    );
+  }
 
   if (role === 'retailer') {
     setSlots('rt-ord-1','rt-ord-2',   m.outgoing_orders_from_me,    'amber');
     setInv('rt', own.inventory, own.backlog);
     setSlots('rt-ship-1','rt-ship-2', m.incoming_shipments_to_me,   'blue');
-    // Wholesaler column: show retailer's orders arriving at WH and WH's shipments toward retailer
-    // (same data — already shown on R↔W road; WH inventory stays blank per board rules)
   }
 
   else if (role === 'wholesaler') {
     setSlots('wh-ord-1','wh-ord-2',   m.outgoing_orders_from_me,    'amber');
     setInv('wh', own.inventory, own.backlog);
     setSlots('wh-ship-1','wh-ship-2', m.incoming_shipments_to_me,   'blue');
-    // Retailer slots visible to wholesaler:
-    setSlots('rt-ord-1','rt-ord-2',   m.incoming_orders_to_me,      'amber'); // retailer orders arriving at me
-    setSlots('rt-ship-1','rt-ship-2', m.outgoing_shipments_from_me, 'blue');  // what I shipped to retailer
-    // Distributor's incoming orders (= wholesaler's own outgoing orders already on wh-ord ✓)
-    // Distributor's shipping delay (= wh-ship already shown ✓)
-    // D↔F road stays blank per board rules (distributor's orders placed hidden from wholesaler)
+    // Retailer slots visible to wholesaler — mask future orders
+    setSlots('rt-ord-1','rt-ord-2',   maskFutureOrders(m.incoming_orders_to_me), 'amber');
+    setSlots('rt-ship-1','rt-ship-2', m.outgoing_shipments_from_me, 'blue');
   }
 
   else if (role === 'distributor') {
     setSlots('di-ord-1','di-ord-2',   m.outgoing_orders_from_me,    'amber');
     setInv('di', own.inventory, own.backlog);
     setSlots('di-ship-1','di-ship-2', m.incoming_shipments_to_me,   'blue');
-    // Wholesaler slots visible to distributor:
-    setSlots('wh-ord-1','wh-ord-2',   m.incoming_orders_to_me,      'amber'); // wh orders arriving at me
-    setSlots('wh-ship-1','wh-ship-2', m.outgoing_shipments_from_me, 'blue');  // what I shipped to wh
-    // Factory production delay is NOT visible to distributor (only factory sees it)
+    // Wholesaler slots visible to distributor — mask future orders
+    setSlots('wh-ord-1','wh-ord-2',   maskFutureOrders(m.incoming_orders_to_me), 'amber');
+    setSlots('wh-ship-1','wh-ship-2', m.outgoing_shipments_from_me, 'blue');
   }
 
   else if (role === 'factory') {
     setSlot('fa-req-1', (m.factory_pending_requests||[])[0], 'amber'); // own prod request (1-wk delay)
     setInv('fa', own.inventory, own.backlog);
     setSlots('fa-prod-1','fa-prod-2', m.factory_production_delay,   'blue');
-    // Distributor slots visible to factory:
-    setSlots('di-ord-1','di-ord-2',   m.incoming_orders_to_me,      'amber'); // di orders arriving at factory
-    setSlots('di-ship-1','di-ship-2', m.outgoing_shipments_from_me, 'blue');  // what I shipped to di
-    // wh-*, rt-* → stay blanked per board rules
+    // Distributor slots visible to factory — mask future orders
+    setSlots('di-ord-1','di-ord-2',   maskFutureOrders(m.incoming_orders_to_me), 'amber');
+    setSlots('di-ship-1','di-ship-2', m.outgoing_shipments_from_me, 'blue');
   }
 }
 
@@ -3249,7 +3220,7 @@ function spawnFloatNum(delta, x, y, color) {
 function spawnParticles() {
   const cx = window.innerWidth / 2, cy = window.innerHeight / 2;
   const colors = ['#f5c842','#3b82f6','#a855f7','#22c55e','#ef4444','#ffffff'];
-  for (let i = 0; i < 32; i++) {
+  for (let i = 0; i < 16; i++) {
     const el = document.createElement('div');
     el.className = 'particle';
     const angle = Math.random() * Math.PI * 2;
@@ -3287,7 +3258,7 @@ function achieveToast(msg) {
   // Respect reduced motion preference
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const COLORS = ['rgba(245,200,66,.12)','rgba(59,130,246,.08)','rgba(168,85,247,.08)','rgba(34,197,94,.06)','rgba(255,255,255,.05)'];
-  const COUNT = navigator.hardwareConcurrency > 4 ? 12 : 8;
+  const COUNT = navigator.hardwareConcurrency > 4 ? 6 : 4;
   for (let i = 0; i < COUNT; i++) {
     const p = document.createElement('div');
     p.className = 'ambient-particle';
@@ -3328,7 +3299,7 @@ function spawnSpeedLines() {
   const container = document.getElementById('speed-lines');
   if (!container) return;
   container.classList.add('active');
-  for (let i = 0; i < 8; i++) {
+  for (let i = 0; i < 4; i++) {
     setTimeout(() => {
       const line = document.createElement('div');
       line.className = 'speed-line';
@@ -3346,7 +3317,7 @@ function spawnSpeedLines() {
 function spawnConfetti() {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const COLORS = ['#f5c842','#3b82f6','#a855f7','#22c55e','#ef4444','#ec4899','#f97316','#ffffff'];
-  const TOTAL = 40;
+  const TOTAL = 20;
   let i = 0;
   function batch() {
     const end = Math.min(i + 8, TOTAL);
@@ -3545,9 +3516,6 @@ function updateMiniMap(msg) {
       nEl.classList.add(inv > 8 ? 'mm-good' : inv > 0 ? 'mm-warn' : 'mm-bad');
     }
   }
-
-  // Update leaderboard from map data if available
-  if (msg.leaderboard) updateLeaderboard(msg.leaderboard);
 }
 
 // Enhance updateHUD to also update mini-map
@@ -3559,64 +3527,10 @@ updateHUD = function(msg) {
   checkMilestones(msg);
 };
 
-// ── 🏆 Leaderboard ────────────────────────────────────────────────────────
-let _leaderboardData = [];
-
-function updateLeaderboard(data) {
-  if (!data || !Array.isArray(data)) return;
-  _leaderboardData = data;
-  renderLeaderboard();
-}
-
-function renderLeaderboard() {
-  const container = document.getElementById('lb-rows');
-  if (!container || !_leaderboardData.length) return;
-
-  // Sort by total cost ascending (lower is better)
-  const sorted = [..._leaderboardData].sort((a, b) => (a.total_cost ?? Infinity) - (b.total_cost ?? Infinity));
-
-  container.innerHTML = sorted.map((entry, i) => {
-    const rankCls = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : 'normal';
-    const isYou = entry.role === MY_ROLE;
-    const color = COLORS[entry.role] || 'var(--muted)';
-    const cost = entry.total_cost ?? 0;
-    const maxCost = Math.max(...sorted.map(e => e.total_cost ?? 1), 1);
-    const barPct = Math.max(5, Math.round((cost / maxCost) * 100));
-
-    return `<div class="lb-row ${isYou ? 'lb-you' : ''}">
-      <span class="lb-rank ${rankCls}">${i + 1}</span>
-      <span class="lb-name" style="color:${color};">${isYou ? '★ ' : ''}${entry.role ? entry.role.charAt(0).toUpperCase() + entry.role.slice(1) : '?'}</span>
-      <div class="lb-bar"><div class="lb-bar-fill" style="width:${barPct}%;background:${color};"></div></div>
-      <span class="lb-cost">$${cost}</span>
-    </div>`;
-  }).join('');
-}
-
-// Build leaderboard from own data even without server leaderboard array
-function buildLocalLeaderboard(msg) {
-  if (msg.leaderboard) {
-    updateLeaderboard(msg.leaderboard);
-    return;
-  }
-  // If no leaderboard data from server, build from own data
-  const own = msg.own;
-  if (!own) return;
-  let found = false;
-  for (const entry of _leaderboardData) {
-    if (entry.role === MY_ROLE) { entry.total_cost = own.total_cost ?? 0; found = true; break; }
-  }
-  if (!found) {
-    _leaderboardData.push({ role: MY_ROLE, total_cost: own.total_cost ?? 0 });
-  }
-  renderLeaderboard();
-}
-
-// Hook into updateHUD for leaderboard
-const _origUpdateHUD_lb = updateHUD;
-updateHUD = function(msg) {
-  _origUpdateHUD_lb(msg);
-  buildLocalLeaderboard(msg);
-};
+// ── 🏆 Leaderboard (removed) ──────────────────────────────────────────────
+function updateLeaderboard() {}
+function renderLeaderboard() {}
+function buildLocalLeaderboard() {}
 
 // ── 🌦️ Dynamic environment effects ────────────────────────────────────────
 let _envState = 'neutral';
@@ -3645,7 +3559,7 @@ function updateEnvironment(backlog, inventory) {
     overlay.className = 'env-prosperity';
   } else if (newState === 'storm' || newState === 'storm-light') {
     overlay.className = 'env-storm';
-    if (!reduced) spawnRain(newState === 'storm' ? 20 : 8);
+    if (!reduced) spawnRain(newState === 'storm' ? 10 : 4);
     if (!reduced && newState === 'storm') {
       setTimeout(() => {
         const flash = document.createElement('div');
@@ -3741,7 +3655,7 @@ const TUT_STEPS = [
   {
     icon: '🏆',
     title: 'Grades & Achievements',
-    body: 'You\'re graded <strong>S → F</strong> based on cost efficiency. Keep a good streak for <strong>combo bonuses</strong>! Unlock achievements by hitting milestones. Watch the leaderboard to see how you compare.'
+    body: 'You\'re graded <strong>S → F</strong> based on cost efficiency. Keep a good streak for <strong>combo bonuses</strong>! Unlock achievements by hitting milestones.'
   },
   {
     icon: '🎮',
