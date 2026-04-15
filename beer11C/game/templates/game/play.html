@@ -1381,16 +1381,16 @@ body.crit-alert::after {
 <div id="gameover-screen"></div>
 
 <!-- ── Week Summary Modal ── -->
-<div id="wsm-overlay">
+<div id="wsm-overlay" role="dialog" aria-modal="true" aria-labelledby="wsm-dialog-title">
   <div class="wsm-card">
-    <div class="wsm-header">
+    <div class="wsm-header" id="wsm-dialog-title">
       <span id="wsm-icon" aria-label="Week status">📅</span>
       <span>Week <span id="wsm-week-num">—</span> Complete</span>
     </div>
     <div class="wsm-cost-row">
       <span>Cost this week</span>
       <span class="wsm-cost-badge">$<span id="wsm-cost-this-week">—</span></span>
-      <span id="wsm-cost-breakdown" style="font-size:.68rem;color:var(--muted);"></span>
+      <span id="wsm-cost-breakdown" style="font-size:.68rem;color:var(--muted);margin-left:.35rem;" title="Approximate breakdown based on default holding/backlog cost rates"></span>
     </div>
     <div class="wsm-grid">
       <div class="wsm-stat">
@@ -4000,9 +4000,13 @@ document.getElementById('lobby-overlay').classList.add('hidden');
 let _aiSuggestedQty = 0;
 
 // ── Named constants ────────────────────────────────────────────────────────
-// Base-stock policy target inventory level (units)
+// Base-stock policy target inventory level (units).
+// Beer game steady-state demand is 4 units/week; with a 2-week shipping delay
+// the pipeline stock needed is 4 × 2 = 8, plus a safety buffer → 16 units.
 const AI_TARGET_INV      = 16;
-// Week summary cost breakdown rates (match server-side Player model defaults)
+// Week summary cost breakdown rates (match server-side Player model defaults).
+// NOTE: These are approximations; the server may use different per-player rates.
+// Exact breakdowns should be retrieved from the server for full accuracy.
 const HOLDING_COST_RATE  = 0.5;   // $ per unit per week held in inventory
 const BACKLOG_COST_RATE  = 1.0;   // $ per unit per week in backlog
 
@@ -4122,6 +4126,11 @@ function closeWeekSummary() {
   const overlay = document.getElementById('wsm-overlay');
   if (overlay) overlay.classList.remove('active');
 }
+
+// Close week summary modal on Escape key (standard modal UX)
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeWeekSummary();
+});
 
 connect();
 </script>
