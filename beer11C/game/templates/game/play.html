@@ -701,12 +701,340 @@
 /* ── HUD rank glow on grade S ─────────────────────────────────────────── */
 .hud-card.hud-s { box-shadow: 0 0 24px rgba(168,85,247,.4); border-color: rgba(168,85,247,.5); }
 
+/* ╔══════════════════════════════════════════════════════════════════════════╗
+   ║  🎮  FULL VIDEO-GAME OVERHAUL — CINEMATIC LAYER                        ║
+   ╚══════════════════════════════════════════════════════════════════════════╝ */
+
+/* ── Ambient floating particles ─────────────────────────────────────────── */
+.ambient-particles {
+  position:fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden;
+}
+.ambient-particle {
+  position:absolute; border-radius:50%; opacity:0;
+  animation:ambient-float var(--dur,14s) var(--delay,0s) infinite ease-in-out;
+}
+@keyframes ambient-float {
+  0%   { transform:translateY(105vh) translateX(0) scale(.3); opacity:0; }
+  8%   { opacity:var(--op,.25); }
+  50%  { transform:translateY(50vh) translateX(var(--drift,20px)) scale(.7); opacity:var(--op,.25); }
+  92%  { opacity:var(--op,.15); }
+  100% { transform:translateY(-5vh) translateX(calc(var(--drift,20px)*-1)) scale(.4); opacity:0; }
+}
+
+/* ── Screen shake ───────────────────────────────────────────────────────── */
+@keyframes screen-shake {
+  0%,100%{ transform:translate(0); }
+  10% { transform:translate(-5px,3px) rotate(-.3deg); }
+  20% { transform:translate(4px,-4px) rotate(.2deg); }
+  30% { transform:translate(-3px,2px) rotate(-.15deg); }
+  40% { transform:translate(3px,-2px) rotate(.1deg); }
+  50% { transform:translate(-2px,3px); }
+  60% { transform:translate(3px,-1px); }
+  70% { transform:translate(-1px,2px); }
+  80% { transform:translate(2px,-2px); }
+  90% { transform:translate(-2px,1px); }
+}
+body.shaking #game-screen { animation:screen-shake .45s ease; }
+@keyframes screen-shake-light {
+  0%,100%{ transform:translate(0); }
+  25% { transform:translate(-2px,1px); }
+  50% { transform:translate(2px,-1px); }
+  75% { transform:translate(-1px,1px); }
+}
+body.shake-light #game-screen { animation:screen-shake-light .25s ease; }
+
+/* ── Critical backlog red vignette ──────────────────────────────────────── */
+body.crit-alert::after {
+  background:
+    radial-gradient(ellipse 120% 60% at 20% 0%, rgba(245,200,66,.04) 0%, transparent 55%),
+    radial-gradient(ellipse at center, transparent 35%, rgba(239,68,68,.18) 100%) !important;
+  animation:crit-vignette 1.8s ease infinite !important;
+}
+@keyframes crit-vignette {
+  0%,100%{ opacity:.6; }
+  50%    { opacity:1; }
+}
+
+/* ── Factory smoke plumes ───────────────────────────────────────────────── */
+.factory-smoke-wrap {
+  position:absolute; top:-2px; right:6px; width:30px; height:30px;
+  pointer-events:none; overflow:visible;
+}
+.smoke-puff {
+  position:absolute; border-radius:50%; background:rgba(200,200,200,.12);
+  filter:blur(3px); animation:smoke-rise var(--dur,3s) var(--delay,0s) ease-in-out infinite;
+}
+@keyframes smoke-rise {
+  0%   { transform:translate(0,0) scale(.3); opacity:.35; }
+  40%  { transform:translate(-4px,-14px) scale(.9); opacity:.2; }
+  100% { transform:translate(-8px,-30px) scale(1.6); opacity:0; }
+}
+
+/* ── Truck exhaust on road ──────────────────────────────────────────────── */
+.road-surface .bgb-slot.blue { position:relative; }
+.road-surface .bgb-slot.blue .truck-exhaust {
+  position:absolute; right:-6px; top:50%; transform:translateY(-50%);
+  width:10px; height:8px; pointer-events:none;
+}
+.truck-exhaust-puff {
+  position:absolute; border-radius:50%; background:rgba(180,180,180,.2);
+  filter:blur(2px); animation:exhaust-puff .9s ease infinite;
+}
+@keyframes exhaust-puff {
+  0%   { transform:scale(.3); opacity:.35; }
+  100% { transform:translateX(8px) scale(1.4); opacity:0; }
+}
+
+/* ── Enhanced road glow ─────────────────────────────────────────────────── */
+.road-surface {
+  box-shadow:inset 0 0 24px rgba(0,0,0,.35), 0 0 12px rgba(0,0,0,.4);
+}
+
+/* ── Board node hover lift ──────────────────────────────────────────────── */
+.road-node {
+  transition:border-color .25s, box-shadow .25s, transform .3s cubic-bezier(.22,1,.36,1) !important;
+}
+.road-node:hover { transform:translateY(-3px); }
+.road-node.you:hover { transform:translateY(-4px); }
+
+/* ── Inventory box 3D depth ─────────────────────────────────────────────── */
+.bgb-inv-box {
+  box-shadow:inset 0 -4px 8px rgba(0,0,0,.25), 0 3px 10px rgba(0,0,0,.35);
+}
+
+/* ── Warehouse window lights (tiny glowing dots) ────────────────────────── */
+.bgb-inv-box::after {
+  content:''; position:absolute; bottom:8px; left:50%; transform:translateX(-50%);
+  width:32px; height:8px;
+  background:
+    radial-gradient(circle 2px at 25% 50%, currentColor 0%, transparent 100%),
+    radial-gradient(circle 2px at 75% 50%, currentColor 0%, transparent 100%);
+  opacity:.12;
+  animation:window-twinkle 3s ease infinite;
+  pointer-events:none;
+}
+@keyframes window-twinkle {
+  0%,100%{ opacity:.08; }
+  50%    { opacity:.2; }
+}
+
+/* ── Neon board card pulse ──────────────────────────────────────────────── */
+@keyframes board-neon-pulse {
+  0%,100%{ box-shadow:0 0 0 1px rgba(245,200,66,.08), 0 0 30px rgba(245,200,66,.05); }
+  50%    { box-shadow:0 0 0 1px rgba(245,200,66,.18), 0 0 55px rgba(245,200,66,.1); }
+}
+#bgb-board-card { animation:board-neon-pulse 5s ease infinite; }
+
+/* ── Cinematic week flash ───────────────────────────────────────────────── */
+#week-flash { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; z-index:9990; pointer-events:none; }
+#week-flash .cine-bar { position:absolute; left:0; right:0; height:0; background:#000; transition:height .35s cubic-bezier(.4,0,.2,1); pointer-events:none; }
+#week-flash .cine-bar.top { top:0; }
+#week-flash .cine-bar.bot { bottom:0; }
+#week-flash.flashing .cine-bar { height:11vh; }
+
+#week-flash-inner.active {
+  animation:week-slam 2s cubic-bezier(.22,1,.36,1) forwards;
+}
+@keyframes week-slam {
+  0%   { opacity:0; transform:scale(3) rotate(-3deg); filter:blur(16px); }
+  12%  { opacity:1; transform:scale(.92) rotate(.5deg); filter:blur(0); }
+  22%  { transform:scale(1.08) rotate(-.3deg); }
+  32%  { transform:scale(1); }
+  70%  { opacity:1; transform:scale(1); }
+  100% { opacity:0; transform:scale(.8) translateY(-30px); filter:blur(6px); }
+}
+
+/* ── Level-up / grade-up flash ──────────────────────────────────────────── */
+.vfx-flash {
+  position:fixed; inset:0; z-index:9996; pointer-events:none;
+  animation:vfx-flash-anim .55s ease forwards;
+}
+@keyframes vfx-flash-anim {
+  0%   { opacity:1; }
+  100% { opacity:0; }
+}
+
+/* ── Grade S legendary pulse ────────────────────────────────────────────── */
+.grade-S { animation:grade-s-legendary 2.5s ease infinite; }
+@keyframes grade-s-legendary {
+  0%,100%{ box-shadow:0 0 22px rgba(168,85,247,.55); transform:scale(1); }
+  50%    { box-shadow:0 0 40px rgba(168,85,247,.85); transform:scale(1.08); }
+}
+
+/* ── Lobby character-select entrance ────────────────────────────────────── */
+.lobby-box {
+  animation:lobby-float 4s ease-in-out infinite, lobby-entrance .75s cubic-bezier(.22,1,.36,1) !important;
+}
+@keyframes lobby-entrance {
+  0%   { opacity:0; transform:translateY(50px) scale(.88); filter:blur(6px); }
+  100% { opacity:1; transform:translateY(0) scale(1); filter:blur(0); }
+}
+.lobby-player-row {
+  transition:border-color .3s, box-shadow .3s, transform .25s !important;
+}
+.lobby-player-row:hover { transform:translateX(5px); }
+.lobby-player-row.ready-state {
+  animation:ready-bob 2.5s ease infinite;
+}
+@keyframes ready-bob {
+  0%,100%{ transform:translateY(0); }
+  50%    { transform:translateY(-2px); }
+}
+
+/* ── Button ripple ──────────────────────────────────────────────────────── */
+.btn-ripple {
+  position:absolute; border-radius:50%; background:rgba(255,255,255,.25);
+  transform:scale(0); animation:ripple-out .55s ease forwards; pointer-events:none;
+}
+@keyframes ripple-out {
+  0%  { transform:scale(0); opacity:1; }
+  100%{ transform:scale(4); opacity:0; }
+}
+
+/* ── Order input mega glow ──────────────────────────────────────────────── */
+.order-input-big:focus {
+  box-shadow:0 0 0 3px var(--accent-dim), 0 0 24px rgba(245,200,66,.18) !important;
+  animation:input-mega-glow 2.5s ease infinite;
+}
+@keyframes input-mega-glow {
+  0%,100%{ box-shadow:0 0 0 3px var(--accent-dim), 0 0 24px rgba(245,200,66,.18); }
+  50%    { box-shadow:0 0 0 5px var(--accent-dim), 0 0 38px rgba(245,200,66,.28); }
+}
+
+/* ── Enhanced toast entrance ────────────────────────────────────────────── */
+.toast { animation:toast-slam .28s cubic-bezier(.22,1,.36,1), fadeOut .3s ease 3.5s forwards !important; }
+@keyframes toast-slam {
+  0%   { transform:translateX(140%) scale(.7); opacity:0; }
+  100% { transform:none; opacity:1; }
+}
+@property --toast-angle {
+  syntax: "<angle>"; initial-value: 0deg; inherits: false;
+}
+.toast.achieve {
+  position:relative; overflow:hidden;
+}
+.toast.achieve::before {
+  content:''; position:absolute; inset:-2px;
+  background:conic-gradient(from var(--toast-angle,0deg), #a855f7, #f5c842, #22c55e, #3b82f6, #a855f7);
+  border-radius:inherit; z-index:-1;
+  animation:toast-sparkle 2s linear infinite;
+  filter:blur(3px);
+}
+@keyframes toast-sparkle {
+  from { --toast-angle:0deg; }
+  to   { --toast-angle:360deg; }
+}
+
+/* ── Accessibility: respect prefers-reduced-motion ──────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .ambient-particle,
+  .smoke-puff,
+  .truck-exhaust-puff,
+  .confetti-piece,
+  .speed-line,
+  .particle,
+  .float-num,
+  .board-scanner,
+  .grade-S,
+  .lobby-box,
+  .lobby-player-row.ready-state,
+  #week-flash-inner.active { animation:none !important; }
+  body.shaking #game-screen,
+  body.shake-light #game-screen { animation:none !important; }
+  body.crit-alert::after { animation:none !important; }
+  .road-surface::after { animation:none !important; }
+  .road-node:hover,
+  .road-node.you:hover { transform:none !important; }
+  .hud-card::after { animation:none !important; }
+  #bgb-board-card { animation:none !important; }
+  #week-flash.flashing .cine-bar { height:0 !important; }
+  .vfx-flash { animation:none !important; display:none !important; }
+}
+
+/* ── Phase panel glass morphism ─────────────────────────────────────────── */
+.phase-panel {
+  backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+}
+
+/* ── Animated border for active phase panel ─────────────────────────────── */
+#panel-receive.active { animation:panel-in .32s cubic-bezier(.22,1,.36,1), panel-glow-purple 3s ease infinite; }
+#panel-ship.active    { animation:panel-in .32s cubic-bezier(.22,1,.36,1), panel-glow-blue 3s ease infinite; }
+@keyframes panel-glow-purple {
+  0%,100%{ box-shadow:0 0 0 rgba(168,85,247,0); }
+  50%    { box-shadow:0 0 24px rgba(168,85,247,.15); }
+}
+@keyframes panel-glow-blue {
+  0%,100%{ box-shadow:0 0 0 rgba(59,130,246,0); }
+  50%    { box-shadow:0 0 24px rgba(59,130,246,.15); }
+}
+
+/* ── HUD card shimmer on hover ──────────────────────────────────────────── */
+.hud-card { position:relative; overflow:hidden; }
+.hud-card::after {
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(105deg, transparent 40%, rgba(255,255,255,.04) 45%, rgba(255,255,255,.06) 50%, rgba(255,255,255,.04) 55%, transparent 60%);
+  transform:translateX(-100%); transition:none; pointer-events:none;
+}
+.hud-card:hover::after {
+  animation:hud-shimmer .7s ease forwards;
+}
+@keyframes hud-shimmer {
+  from { transform:translateX(-100%); }
+  to   { transform:translateX(100%); }
+}
+
+/* ── Animated scanner line speed boost ──────────────────────────────────── */
+.board-scanner {
+  animation:scanner-run 4.5s ease-in-out infinite !important;
+  height:2px !important;
+  background:linear-gradient(90deg, transparent 5%, rgba(245,200,66,.7) 40%, rgba(245,200,66,.9) 50%, rgba(245,200,66,.7) 60%, transparent 95%) !important;
+  filter:blur(.5px) drop-shadow(0 0 6px rgba(245,200,66,.5)) !important;
+}
+
+/* ── Inventory health bar enhanced ──────────────────────────────────────── */
+.bgb-inv-healthbar {
+  height:4px !important;
+  box-shadow:0 0 6px currentColor;
+}
+
+/* ── Confetti (CSS confetti pieces) ──────────────────────────────────────── */
+.confetti-piece {
+  position:fixed; pointer-events:none; z-index:9989;
+  width:8px; height:12px; border-radius:2px;
+  animation:confetti-fall var(--dur,3s) var(--delay,0s) ease-in forwards;
+}
+@keyframes confetti-fall {
+  0%   { transform:translateY(-20vh) rotate(0deg) scale(1); opacity:1; }
+  25%  { transform:translateY(25vh) rotate(180deg) translateX(var(--drift,30px)) scale(.9); }
+  50%  { transform:translateY(50vh) rotate(360deg) translateX(calc(var(--drift,30px)*-0.5)) scale(.8); }
+  75%  { transform:translateY(75vh) rotate(540deg) translateX(var(--drift,30px)) scale(.7); opacity:.8; }
+  100% { transform:translateY(105vh) rotate(720deg) scale(.5); opacity:0; }
+}
+
+/* ── Speed lines during ship phase ──────────────────────────────────────── */
+.speed-lines {
+  position:fixed; inset:0; pointer-events:none; z-index:9;
+  overflow:hidden; opacity:0; transition:opacity .3s;
+}
+.speed-lines.active { opacity:1; }
+.speed-line {
+  position:absolute; height:1px; background:linear-gradient(90deg, transparent, rgba(59,130,246,.3), transparent);
+  animation:speed-streak .4s linear forwards;
+}
+@keyframes speed-streak {
+  0%   { transform:translateX(-100vw); opacity:0; }
+  20%  { opacity:1; }
+  100% { transform:translateX(100vw); opacity:0; }
+}
+
 </style>
 {% endblock %}
 
 {% block content %}
 <div id="toast-container"></div>
-<div id="week-flash"><div id="week-flash-inner"></div></div>
+<div class="ambient-particles" id="ambient-particles"></div>
+<div class="speed-lines" id="speed-lines"></div>
+<div id="week-flash"><div class="cine-bar top"></div><div class="cine-bar bot"></div><div id="week-flash-inner"></div></div>
 <div id="combo-strip"><span style="font-size:.52rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);">STREAK</span><span id="combo-count">×0</span><span style="font-size:.52rem;color:var(--muted);" id="combo-label">good weeks</span></div>
 
 <!-- ═══════════════ LOBBY OVERLAY ════════════════════════════════════════ -->
@@ -1153,7 +1481,13 @@
 
       <!-- ── FACTORY ────────────────────────────────────────────────────── -->
       <div class="road-node" id="col-factory">
-        <div class="road-node-hdr bgb-actor-hdr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 20V10l5-4v4l5-4v4l5-4v10" stroke="currentColor" stroke-width="2" fill="none"/><rect x="2" y="16" width="20" height="6" rx="1" fill="currentColor" opacity="0.3"/><rect x="18" y="8" width="4" height="12" rx="1" fill="currentColor" opacity="0.5"/><rect x="19" y="4" width="2" height="4" rx=".5" fill="currentColor" opacity="0.6"/><circle cx="20" cy="3.5" r="1.5" fill="currentColor" opacity="0.25"/><rect x="5" y="17" width="3" height="3" rx=".5" fill="currentColor" opacity="0.4"/><rect x="10" y="17" width="3" height="3" rx=".5" fill="currentColor" opacity="0.4"/></svg> Factory</div>
+        <div class="road-node-hdr bgb-actor-hdr" style="position:relative;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 20V10l5-4v4l5-4v4l5-4v10" stroke="currentColor" stroke-width="2" fill="none"/><rect x="2" y="16" width="20" height="6" rx="1" fill="currentColor" opacity="0.3"/><rect x="18" y="8" width="4" height="12" rx="1" fill="currentColor" opacity="0.5"/><rect x="19" y="4" width="2" height="4" rx=".5" fill="currentColor" opacity="0.6"/><circle cx="20" cy="3.5" r="1.5" fill="currentColor" opacity="0.25"/><rect x="5" y="17" width="3" height="3" rx=".5" fill="currentColor" opacity="0.4"/><rect x="10" y="17" width="3" height="3" rx=".5" fill="currentColor" opacity="0.4"/></svg> Factory
+          <div class="factory-smoke-wrap">
+            <div class="smoke-puff" style="width:8px;height:8px;left:2px;top:0;--dur:2.8s;--delay:0s;"></div>
+            <div class="smoke-puff" style="width:6px;height:6px;left:10px;top:2px;--dur:3.2s;--delay:.8s;"></div>
+            <div class="smoke-puff" style="width:10px;height:10px;left:5px;top:-2px;--dur:3.6s;--delay:1.6s;"></div>
+          </div>
+        </div>
         <div class="road-node-body">
           <div class="bgb-inv-box" id="fa-inv-box">
             <div class="bgb-inv-healthbar" id="fa-health" style="width:50%;background:#22c55e;"></div>
@@ -2603,6 +2937,242 @@ function achieveToast(msg) {
   c.appendChild(d);
   setTimeout(() => d.remove(), 4200);
 }
+
+// ╔══════════════════════════════════════════════════════════════════════════╗
+// ║  🎮  VIDEO GAME VFX ENGINE                                              ║
+// ╚══════════════════════════════════════════════════════════════════════════╝
+
+// ── Ambient floating particles ─────────────────────────────────────────────
+(function initAmbientParticles() {
+  const container = document.getElementById('ambient-particles');
+  if (!container) return;
+  // Respect reduced motion preference
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const COLORS = ['rgba(245,200,66,.12)','rgba(59,130,246,.08)','rgba(168,85,247,.08)','rgba(34,197,94,.06)','rgba(255,255,255,.05)'];
+  const COUNT = navigator.hardwareConcurrency > 4 ? 12 : 8;
+  for (let i = 0; i < COUNT; i++) {
+    const p = document.createElement('div');
+    p.className = 'ambient-particle';
+    const size = 2 + Math.random() * 5;
+    p.style.width  = size + 'px';
+    p.style.height = size + 'px';
+    p.style.left   = Math.random() * 100 + '%';
+    p.style.background = COLORS[Math.floor(Math.random() * COLORS.length)];
+    p.style.setProperty('--dur', (10 + Math.random() * 18) + 's');
+    p.style.setProperty('--delay', (Math.random() * 15) + 's');
+    p.style.setProperty('--op', (.1 + Math.random() * .2).toFixed(2));
+    p.style.setProperty('--drift', (Math.random() * 60 - 30) + 'px');
+    p.style.boxShadow = `0 0 ${size * 2}px currentColor`;
+    container.appendChild(p);
+  }
+})();
+
+// ── Screen shake utility ───────────────────────────────────────────────────
+function screenShake(heavy) {
+  const cls = heavy ? 'shaking' : 'shake-light';
+  document.body.classList.remove('shaking', 'shake-light');
+  void document.body.offsetWidth;
+  document.body.classList.add(cls);
+  document.body.addEventListener('animationend', () => document.body.classList.remove(cls), {once:true});
+}
+
+// ── VFX flash (full-screen color burst) ────────────────────────────────────
+function vfxFlash(color) {
+  const el = document.createElement('div');
+  el.className = 'vfx-flash';
+  el.style.background = `radial-gradient(circle at center, ${color} 0%, transparent 70%)`;
+  document.body.appendChild(el);
+  el.addEventListener('animationend', () => el.remove(), {once:true});
+}
+
+// ── Speed lines (for ship phase) ───────────────────────────────────────────
+function spawnSpeedLines() {
+  const container = document.getElementById('speed-lines');
+  if (!container) return;
+  container.classList.add('active');
+  for (let i = 0; i < 8; i++) {
+    setTimeout(() => {
+      const line = document.createElement('div');
+      line.className = 'speed-line';
+      line.style.top    = (10 + Math.random() * 80) + '%';
+      line.style.width  = (30 + Math.random() * 40) + '%';
+      line.style.animationDuration = (.25 + Math.random() * .25) + 's';
+      container.appendChild(line);
+      line.addEventListener('animationend', () => line.remove(), {once:true});
+    }, i * 50);
+  }
+  setTimeout(() => container.classList.remove('active'), 600);
+}
+
+// ── Confetti burst (game over) ─────────────────────────────────────────────
+function spawnConfetti() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const COLORS = ['#f5c842','#3b82f6','#a855f7','#22c55e','#ef4444','#ec4899','#f97316','#ffffff'];
+  const TOTAL = 40;
+  let i = 0;
+  function batch() {
+    const end = Math.min(i + 8, TOTAL);
+    for (; i < end; i++) {
+      const piece = document.createElement('div');
+      piece.className = 'confetti-piece';
+      piece.style.left    = Math.random() * 100 + 'vw';
+      piece.style.background = COLORS[Math.floor(Math.random() * COLORS.length)];
+      piece.style.setProperty('--dur', (2 + Math.random() * 2.5) + 's');
+      piece.style.setProperty('--delay', (Math.random() * 1.2) + 's');
+      piece.style.setProperty('--drift', (Math.random() * 80 - 40) + 'px');
+      piece.style.width  = (5 + Math.random() * 6) + 'px';
+      piece.style.height = (8 + Math.random() * 10) + 'px';
+      piece.style.borderRadius = Math.random() > .5 ? '2px' : '50%';
+      document.body.appendChild(piece);
+      piece.addEventListener('animationend', () => piece.remove(), {once:true});
+    }
+    if (i < TOTAL) requestAnimationFrame(batch);
+  }
+  requestAnimationFrame(batch);
+}
+
+// ── Button ripple effect ───────────────────────────────────────────────────
+document.addEventListener('click', function(e) {
+  const btn = e.target.closest('.btn-primary');
+  if (!btn) return;
+  const rect = btn.getBoundingClientRect();
+  const ripple = document.createElement('span');
+  ripple.className = 'btn-ripple';
+  const size = Math.max(rect.width, rect.height) * 2;
+  ripple.style.width = ripple.style.height = size + 'px';
+  ripple.style.left  = (e.clientX - rect.left - size / 2) + 'px';
+  ripple.style.top   = (e.clientY - rect.top - size / 2) + 'px';
+  btn.appendChild(ripple);
+  ripple.addEventListener('animationend', () => ripple.remove(), {once:true});
+});
+
+// ── Enhanced sound engine (richer synth voices) ────────────────────────────
+function _chord(freqs, dur, type, vol) {
+  if (!soundEnabled) return;
+  const ctx = _getAudioCtx(); if (!ctx) return;
+  try {
+    freqs.forEach((f, i) => {
+      setTimeout(() => {
+        const o = ctx.createOscillator(), g = ctx.createGain();
+        o.connect(g); g.connect(ctx.destination);
+        o.type = type || 'sine';
+        o.frequency.setValueAtTime(f, ctx.currentTime);
+        g.gain.setValueAtTime(vol || .08, ctx.currentTime);
+        g.gain.exponentialRampToValueAtTime(.0001, ctx.currentTime + dur);
+        o.start(); o.stop(ctx.currentTime + dur);
+      }, i * 40);
+    });
+  } catch(e){}
+}
+function _noise(dur, vol) {
+  if (!soundEnabled) return;
+  const ctx = _getAudioCtx(); if (!ctx) return;
+  try {
+    const buf = ctx.createBuffer(1, ctx.sampleRate * dur, ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * .15;
+    const src = ctx.createBufferSource(), g = ctx.createGain();
+    src.buffer = buf; src.connect(g); g.connect(ctx.destination);
+    g.gain.setValueAtTime(vol || .03, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(.0001, ctx.currentTime + dur);
+    src.start(); src.stop(ctx.currentTime + dur);
+  } catch(e){}
+}
+
+// Override sound functions with richer versions
+const _origSndReceive = sndReceive;
+sndReceive = function() {
+  _chord([523, 659, 784], .12, 'sine', .08);
+  setTimeout(() => _chord([784, 988, 1175], .15, 'sine', .06), 140);
+};
+const _origSndShip = sndShip;
+sndShip = function() {
+  _chord([392, 494], .08, 'square', .04);
+  setTimeout(() => _chord([330, 415], .08, 'square', .03), 100);
+  setTimeout(() => _noise(.08, .02), 50);
+};
+const _origSndOrder = sndOrder;
+sndOrder = function() {
+  _chord([880, 1046, 1318], .07, 'sine', .06);
+  setTimeout(() => _chord([1046, 1318, 1568], .1, 'sine', .05), 90);
+};
+const _origSndWeek = sndWeek;
+sndWeek = function() {
+  _chord([523, 659, 784], .1, 'sine', .07);
+  setTimeout(() => _chord([659, 784, 988], .1, 'sine', .06), 120);
+  setTimeout(() => _chord([784, 988, 1175], .12, 'sine', .06), 250);
+  setTimeout(() => _chord([988, 1175, 1480], .18, 'sine', .05), 400);
+  setTimeout(() => _chord([1175, 1480, 1760], .25, 'triangle', .04), 560);
+  setTimeout(() => _noise(.15, .015), 300);
+};
+function sndLevelUp() {
+  _chord([523, 659, 784, 1046], .12, 'sine', .08);
+  setTimeout(() => _chord([659, 784, 988, 1318], .12, 'sine', .07), 130);
+  setTimeout(() => _chord([784, 988, 1175, 1568], .18, 'triangle', .06), 270);
+  setTimeout(() => _chord([988, 1175, 1480, 1760], .25, 'sine', .05), 430);
+}
+function sndGameOver() {
+  _chord([523, 659, 784], .15, 'sine', .1);
+  setTimeout(() => _chord([784, 988, 1175], .15, 'sine', .09), 200);
+  setTimeout(() => _chord([1046, 1318, 1568], .2, 'triangle', .08), 420);
+  setTimeout(() => _chord([1568, 1976, 2349], .35, 'sine', .07), 660);
+  setTimeout(() => _noise(.2, .02), 500);
+}
+
+// ── Integrate VFX into existing game flow ──────────────────────────────────
+
+// Enhance doConfirmShip with speed lines + light shake
+const _origDoConfirmShip = doConfirmShip;
+doConfirmShip = function() {
+  _origDoConfirmShip();
+  spawnSpeedLines();
+  screenShake(false);
+};
+
+// Enhance checkCritical with heavy screen shake
+const _origCheckCritical = checkCritical;
+checkCritical = function(blg) {
+  const wasCrit = _critActive;
+  _origCheckCritical(blg);
+  if (blg >= 10 && !wasCrit) {
+    screenShake(true);
+    vfxFlash('rgba(239,68,68,.2)');
+  }
+};
+
+// Enhance showGameOver with confetti + sound
+const _origShowGameOver = showGameOver;
+showGameOver = function(msg) {
+  _origShowGameOver(msg);
+  sndGameOver();
+  setTimeout(spawnConfetti, 300);
+  setTimeout(spawnConfetti, 1200);
+  vfxFlash('rgba(245,200,66,.15)');
+};
+
+// Enhance updateGrade with level-up flash
+const _origUpdateGrade = updateGrade;
+updateGrade = function(inv, blg, cost) {
+  const prevGrade = _lastGrade;
+  _origUpdateGrade(inv, blg, cost);
+  if (prevGrade && prevGrade !== _lastGrade) {
+    const prevIdx = GRADE_CFG.findIndex(c => c.grade === prevGrade);
+    const curIdx  = GRADE_CFG.findIndex(c => c.grade === _lastGrade);
+    if (curIdx < prevIdx) {
+      // Grade improved!
+      sndLevelUp();
+      vfxFlash('rgba(168,85,247,.2)');
+      screenShake(false);
+    }
+  }
+};
+
+// Enhance flashWeek with cinematic slam + particle boost
+const _origFlashWeek = flashWeek;
+flashWeek = function(w) {
+  _origFlashWeek(w);
+  screenShake(false);
+};
 
 // ── Boot ───────────────────────────────────────────────────────────────────
 {% if session.status == 'playing' %}

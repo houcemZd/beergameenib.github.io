@@ -70,9 +70,17 @@
       content: '';
       position: fixed; inset: 0; z-index: 0; pointer-events: none;
       background-image:
+        /* Faint grid */
         linear-gradient(rgba(245,200,66,.022) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(245,200,66,.022) 1px, transparent 1px);
-      background-size: 48px 48px;
+        linear-gradient(90deg, rgba(245,200,66,.022) 1px, transparent 1px),
+        /* Subtle stars/dots */
+        radial-gradient(circle 1px at 15% 25%, rgba(255,255,255,.06) 0%, transparent 100%),
+        radial-gradient(circle 1px at 45% 65%, rgba(245,200,66,.05) 0%, transparent 100%),
+        radial-gradient(circle 1px at 75% 15%, rgba(59,130,246,.04) 0%, transparent 100%),
+        radial-gradient(circle 1px at 85% 75%, rgba(168,85,247,.04) 0%, transparent 100%),
+        radial-gradient(circle 1px at 25% 85%, rgba(34,197,94,.04) 0%, transparent 100%),
+        radial-gradient(circle 1px at 55% 35%, rgba(255,255,255,.04) 0%, transparent 100%);
+      background-size: 48px 48px, 48px 48px, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
       animation: grid-pan 32s linear infinite;
     }
     @keyframes grid-pan {
