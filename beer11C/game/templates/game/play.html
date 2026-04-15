@@ -3621,11 +3621,12 @@ updateHUD = function(msg) {
 // ── 🌦️ Dynamic environment effects ────────────────────────────────────────
 let _envState = 'neutral';
 let _rainDrops = [];
+const _reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 
 function updateEnvironment(backlog, inventory) {
   const overlay = document.getElementById('env-overlay');
   if (!overlay) return;
-  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const reduced = _reducedMotionQuery.matches;
 
   let newState = 'neutral';
   if (backlog >= 15) newState = 'storm';
@@ -3761,7 +3762,7 @@ function hideTutorial() {
   const overlay = document.getElementById('tutorial-overlay');
   if (overlay) {
     overlay.style.opacity = '0';
-    setTimeout(() => { overlay.classList.add('hidden'); overlay.style.opacity = ''; }, 300);
+    setTimeout(() => { overlay.classList.add('hidden'); overlay.style.opacity = ''; }, 400);
   }
 }
 
@@ -3825,6 +3826,13 @@ function startBGM() {
     [146.83, 185.00, 220.00],  // D
   ];
 
+  // Audio envelope constants
+  const PAD_ATTACK  = 1.5;   // seconds to reach peak volume
+  const PAD_SUSTAIN = 5;     // seconds at sustain level
+  const PAD_RELEASE = 8;     // total note duration
+  const PAD_PEAK    = 0.018; // peak gain
+  const PAD_HOLD    = 0.015; // sustain gain
+
   let chordIdx = 0;
   function playPad() {
     if (!_musicEnabled) return;
@@ -3840,14 +3848,14 @@ function startBGM() {
         o.type = 'sine';
         o.frequency.setValueAtTime(freq, ctx.currentTime);
         g.gain.setValueAtTime(0, ctx.currentTime);
-        g.gain.linearRampToValueAtTime(0.018, ctx.currentTime + 1.5);
-        g.gain.linearRampToValueAtTime(0.015, ctx.currentTime + 5);
-        g.gain.linearRampToValueAtTime(0, ctx.currentTime + 8);
+        g.gain.linearRampToValueAtTime(PAD_PEAK, ctx.currentTime + PAD_ATTACK);
+        g.gain.linearRampToValueAtTime(PAD_HOLD, ctx.currentTime + PAD_SUSTAIN);
+        g.gain.linearRampToValueAtTime(0, ctx.currentTime + PAD_RELEASE);
         o.start(ctx.currentTime);
-        o.stop(ctx.currentTime + 8);
+        o.stop(ctx.currentTime + PAD_RELEASE);
         _musicNodes.push(o);
         o.onended = () => { const idx = _musicNodes.indexOf(o); if (idx > -1) _musicNodes.splice(idx, 1); };
-      } catch(e) {}
+      } catch(e) { console.warn('BGM audio error:', e); }
     });
   }
 
@@ -3857,7 +3865,7 @@ function startBGM() {
 
 function stopBGM() {
   if (_musicInterval) { clearInterval(_musicInterval); _musicInterval = null; }
-  _musicNodes.forEach(n => { try { n.stop(); } catch(e) {} });
+  _musicNodes.forEach(n => { try { n.stop(); } catch(e) { console.warn('BGM stop error:', e); } });
   _musicNodes = [];
 }
 
@@ -3899,7 +3907,7 @@ showGameOver = function(msg) {
       <div class="go-stat"><div class="go-stat-val" style="color:var(--accent);">$${own.total_cost ?? 0}</div><div class="go-stat-lbl">Total Cost</div></div>
       <div class="go-stat"><div class="go-stat-val" style="color:var(--wholesaler-color);">$${avgCost}</div><div class="go-stat-lbl">Avg Cost/Week</div></div>
       <div class="go-stat"><div class="go-stat-val" style="color:var(--success);">${own.inventory ?? 0}</div><div class="go-stat-lbl">Final Inventory</div></div>
-      <div class="go-stat"><div class="go-stat-val" style="color:var(--danger);">${peakBlg}</div><div class="go-stat-lbl">Final Backlog</div></div>
+      <div class="go-stat"><div class="go-stat-val" style="color:var(--danger);">${peakBlg}</div><div class="go-stat-lbl">Peak Backlog</div></div>
     </div>
     ${highlights.length ? '<div class="go-highlight">' + highlights.map(h => `<span class="go-hl-chip">${h.icon} ${h.text}</span>`).join('') + '</div>' : ''}
     <div style="display:flex; gap:.6rem; justify-content:center; flex-wrap:wrap;">
