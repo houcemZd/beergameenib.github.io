@@ -309,9 +309,9 @@
 }
 /* Truck icon (SVG instead of emoji) */
 .road-surface .bgb-slot.blue::before {
-  content:''; position:absolute; left:-22px; top:50%;
+  content:''; position:absolute; left:-30px; top:50%;
   transform:translateY(-50%) scaleX(-1);
-  width:18px; height:14px;
+  width:26px; height:20px;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 18' fill='none'%3E%3Crect x='0' y='4' width='14' height='10' rx='2' fill='%233b82f6' opacity='0.85'/%3E%3Crect x='14' y='6' width='8' height='8' rx='1.5' fill='%232563eb' opacity='0.9'/%3E%3Crect x='15' y='7' width='6' height='4' rx='1' fill='%2393c5fd' opacity='0.5'/%3E%3Ccircle cx='5' cy='15.5' r='2' fill='%2364748b'/%3E%3Ccircle cx='5' cy='15.5' r='1' fill='%23334155'/%3E%3Ccircle cx='19' cy='15.5' r='2' fill='%2364748b'/%3E%3Ccircle cx='19' cy='15.5' r='1' fill='%23334155'/%3E%3C/svg%3E");
   background-size:contain; background-repeat:no-repeat;
   filter:drop-shadow(0 0 4px rgba(59,130,246,.6));
@@ -1022,6 +1022,12 @@ body.crit-alert::after {
   border-radius:4px; transition:color .2s;
 }
 #mini-map-toggle:hover { color:var(--accent); }
+#board-toggle {
+  cursor:pointer; font-size:.6rem; color:var(--muted); background:none; border:1px solid var(--border);
+  text-transform:uppercase; letter-spacing:.08em; padding:.2rem .45rem; border-radius:6px; transition:color .2s, border-color .2s;
+}
+#board-toggle:hover { color:var(--accent); border-color:var(--accent); }
+#bgb-board-card.collapsed .road-board-wrap { display:none; }
 .mm-title {
   font-size:.5rem; text-transform:uppercase; letter-spacing:.1em;
   color:var(--muted); margin-bottom:.4rem;
@@ -1310,8 +1316,8 @@ body.crit-alert::after {
 <div id="gameover-screen"></div>
 
 <!-- ── Mini-map ── -->
-<div id="mini-map">
-  <button id="mini-map-toggle" onclick="toggleMiniMap()">▼ hide</button>
+<div id="mini-map" class="collapsed">
+  <button id="mini-map-toggle" onclick="toggleMiniMap()">▲ show</button>
   <div class="mm-title">⛓ Supply Chain</div>
   <div class="mm-chain">
     <div class="mm-node" id="mm-cust"><div class="mm-node-val" style="font-size:.6rem;">👤</div><div class="mm-node-lbl">CUST</div></div>
@@ -1656,13 +1662,14 @@ body.crit-alert::after {
 <div id="game-board-col">
 
 <!-- ═══════════════ SUPPLY CHAIN ROAD BOARD ══════════════════════════════ -->
-<div class="card" id="bgb-board-card" style="padding:1rem 1.1rem;">
+<div class="card collapsed" id="bgb-board-card" style="padding:1rem 1.1rem;">
   <div class="board-scanner-clip"><div class="board-scanner"></div></div>
   <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:.7rem;">
     <div class="card-title" style="margin:0;display:inline-flex;align-items:center;gap:.35rem;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M4 4v16" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity="0.5"/><path d="M20 4v16" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity="0.5"/><path d="M12 4v3M12 10v3M12 16v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="3 3" opacity="0.7"/></svg> Supply Chain Highway</div>
     <div style="font-size:.6rem; color:var(--muted); font-family:var(--font-mono); display:flex; align-items:center; gap:.6rem;">
       <span style="display:inline-flex;align-items:center;gap:.2rem;"><svg width="12" height="10" viewBox="0 0 24 18" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="4" width="14" height="10" rx="2" fill="#3b82f6" opacity="0.85"/><rect x="14" y="6" width="8" height="8" rx="1.5" fill="#2563eb" opacity="0.9"/><circle cx="5" cy="15.5" r="2" fill="#64748b"/><circle cx="19" cy="15.5" r="2" fill="#64748b"/></svg> shipments</span>
       <span style="display:inline-flex;align-items:center;gap:.2rem;"><svg width="10" height="12" viewBox="0 0 14 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 0h7l5 5v11a2 2 0 01-2 2H2a2 2 0 01-2-2V2a2 2 0 012-2z" fill="#f5c842" opacity="0.85"/><path d="M9 0l5 5h-3a2 2 0 01-2-2V0z" fill="#fde68a" opacity="0.6"/></svg> orders</span>
+      <button id="board-toggle" type="button" onclick="toggleSupplyBoard()">▲ show</button>
     </div>
   </div>
   <div class="road-board-wrap">
@@ -3488,13 +3495,21 @@ flashWeek = function(w) {
 // ╚══════════════════════════════════════════════════════════════════════════╝
 
 // ── 🗺️ Mini-map (real-time supply chain overview) ──────────────────────────
-let _mmCollapsed = false;
+let _mmCollapsed = true;
 function toggleMiniMap() {
   _mmCollapsed = !_mmCollapsed;
   const mm = document.getElementById('mini-map');
   const btn = document.getElementById('mini-map-toggle');
   if (mm) mm.classList.toggle('collapsed', _mmCollapsed);
   if (btn) btn.textContent = _mmCollapsed ? '▲ show' : '▼ hide';
+}
+let _boardCollapsed = true;
+function toggleSupplyBoard() {
+  _boardCollapsed = !_boardCollapsed;
+  const boardCard = document.getElementById('bgb-board-card');
+  const btn = document.getElementById('board-toggle');
+  if (boardCard) boardCard.classList.toggle('collapsed', _boardCollapsed);
+  if (btn) btn.textContent = _boardCollapsed ? '▲ show' : '▼ hide';
 }
 
 function updateMiniMap(msg) {
