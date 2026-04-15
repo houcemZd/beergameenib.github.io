@@ -19,7 +19,11 @@ SECRET_KEY = os.environ.get(
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
 _extra_hosts = [h.strip() for h in os.environ.get('ALLOWED_HOSTS', '').split(',') if h.strip()]
-ALLOWED_HOSTS = ['localhost', '127.0.0.1'] + _extra_hosts
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0'] + _extra_hosts
+
+# CSRF trusted origins — set via env for cross-device access
+_extra_origins = [o.strip() for o in os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',') if o.strip()]
+CSRF_TRUSTED_ORIGINS = ['http://localhost:8000'] + _extra_origins
 
 INSTALLED_APPS = [
     'django.contrib.admin',
