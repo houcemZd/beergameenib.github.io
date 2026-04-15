@@ -922,10 +922,6 @@
         <div style="font-size:.62rem; color:var(--muted); text-transform:uppercase; letter-spacing:.07em; margin-bottom:2px;">Backlog</div>
         <div style="font-family:var(--font-mono); font-size:1.3rem; font-weight:800; color:var(--danger);" id="order-blg-display">—</div>
       </div>
-      <div style="flex:1; min-width:100px; background:var(--surface2); border-radius:8px; padding:.6rem .85rem; text-align:center;">
-        <div style="font-size:.62rem; color:var(--muted); text-transform:uppercase; letter-spacing:.07em; margin-bottom:2px;">Suggested</div>
-        <div style="font-family:var(--font-mono); font-size:1.3rem; font-weight:800; color:var(--accent);" id="order-sug-display">—</div>
-      </div>
     </div>
 
     {% if role == 'factory' %}
@@ -1307,7 +1303,7 @@ function handle(msg) {
 
     // After confirm ship — show phase 3
     case 'phase_order':
-      showOrderPanel(msg.shipped, msg.new_inventory, msg.new_backlog, msg.suggested_order);
+      showOrderPanel(msg.shipped, msg.new_inventory, msg.new_backlog);
       setPhaseIndicator(3);
       updateMiniHUD(msg.new_inventory, msg.new_backlog);
       // Animate board only if we didn't already do it optimistically on button click
@@ -1595,13 +1591,11 @@ function showOrderPanel(shippedQty, newInv, newBlg, suggestedOrder) {
 
   const invEl = document.getElementById('order-inv-display');
   const blgEl = document.getElementById('order-blg-display');
-  const sugEl = document.getElementById('order-sug-display');
   if (invEl) invEl.textContent = newInv ?? '—';
   if (blgEl) blgEl.textContent = newBlg ?? '—';
-  if (sugEl) sugEl.textContent = suggestedOrder ?? '—';
 
   const qEl = document.getElementById('order-qty');
-  if (qEl && suggestedOrder != null) qEl.value = suggestedOrder;
+  if (qEl) qEl.value = '';
 }
 
 function showDonePanel(orderQty, msg) {

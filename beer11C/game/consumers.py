@@ -193,8 +193,6 @@ class GameConsumer(AsyncWebsocketConsumer):
                 'demand_received': ps.pending_order_qty,
                 'new_inventory': state.get('own', {}).get('inventory', 0),
                 'new_backlog':   state.get('own', {}).get('backlog', 0),
-                'suggested_order': max(0, 16 - state.get('own', {}).get('inventory', 0)
-                                           + state.get('own', {}).get('backlog', 0)),
                 'role':          ps.role,
             }))
 
@@ -319,10 +317,8 @@ class GameConsumer(AsyncWebsocketConsumer):
         result = await database_sync_to_async(apply_ship)(ps)
         ps     = await self._get_player_session()
 
-        # Suggest order qty using a simple base-stock heuristic
         inv        = result.get('new_inventory', 0)
         backlog    = result.get('new_backlog', 0)
-        suggested  = max(0, 16 - inv + backlog)
 
         await self.send(text_data=json.dumps({
             'type':            'phase_order',
@@ -330,7 +326,6 @@ class GameConsumer(AsyncWebsocketConsumer):
             'demand_received': result.get('demand_received', 0),
             'new_inventory':   inv,
             'new_backlog':     backlog,
-            'suggested_order': suggested,
             'role':            ps.role,
         }))
 
