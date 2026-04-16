@@ -1007,12 +1007,6 @@ class GameConsumer(AsyncWebsocketConsumer):
                 'pending_ship_qty':     ps.pending_ship_qty,
             }
 
-        # Cross-player leaderboard: all non-customer players sorted by cost (lowest = best)
-        leaderboard = sorted(
-            [{'role': r, 'total_cost': p.total_cost} for r, p in players.items() if r != 'customer'],
-            key=lambda x: x['total_cost']
-        )
-
         return {
             'role':            role,
             'week':            session.current_week,
@@ -1025,7 +1019,6 @@ class GameConsumer(AsyncWebsocketConsumer):
             'history':         history,
             'submitted':       session.submitted_role_list,
             'ready':           session.ready_role_list,
-            'leaderboard':     leaderboard,
             **phase_data,
             'map': {
                 'demand_customer_to_retailer':  demand_customer_to_retailer,

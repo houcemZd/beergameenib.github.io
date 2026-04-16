@@ -1306,57 +1306,6 @@ body.crit-alert::after {
   .wsm-card { animation:none !important; }
 }
 
-/* ── Leaderboard widget ──────────────────────────────────────────────── */
-.lb-row {
-  display:flex; align-items:center; gap:.5rem;
-  padding:.4rem .6rem; border-radius:8px; margin-bottom:.28rem;
-  background:var(--surface2); border:1px solid var(--border);
-  transition:border-color .25s;
-}
-.lb-row.lb-me { border-color:rgba(245,200,66,.45); background:rgba(245,200,66,.06); }
-.lb-rank {
-  font-family:var(--font-mono); font-size:.75rem; font-weight:700;
-  width:18px; text-align:center; color:var(--muted); flex-shrink:0;
-}
-.lb-rank.gold   { color:#ffd700; }
-.lb-rank.silver { color:#c0c0c0; }
-.lb-rank.bronze { color:#cd7f32; }
-.lb-role-name {
-  flex:1; font-size:.78rem; font-weight:600; color:var(--text);
-  display:flex; align-items:center; gap:.3rem;
-}
-.lb-cost {
-  font-family:var(--font-mono); font-size:.82rem; font-weight:800;
-  color:var(--accent);
-}
-.lb-bar-wrap { width:60px; height:4px; background:var(--border); border-radius:2px; overflow:hidden; }
-.lb-bar-fill { height:100%; border-radius:2px; transition:width .55s ease; }
-
-/* ── AI Order Suggestion chip ────────────────────────────────────────── */
-.ai-suggest-chip {
-  display:flex; align-items:center; gap:.55rem;
-  background:rgba(59,130,246,.07); border:1px solid rgba(59,130,246,.3);
-  border-radius:10px; padding:.55rem .9rem; margin-bottom:.7rem;
-  font-size:.8rem; color:var(--text); cursor:pointer;
-  width:100%; text-align:left; font-family:inherit;
-  transition:border-color .2s, background .2s;
-}
-.ai-suggest-chip:hover {
-  border-color:rgba(59,130,246,.6); background:rgba(59,130,246,.12);
-}
-.ai-suggest-chip .ai-icon { font-size:1.1rem; }
-.ai-suggest-chip .ai-label { color:var(--muted); font-size:.72rem; }
-.ai-suggest-chip .ai-qty {
-  font-family:var(--font-mono); font-size:1rem; font-weight:800;
-  color:#60a5fa; margin-left:auto; flex-shrink:0;
-}
-.ai-suggest-chip .ai-use-btn {
-  font-size:.65rem; background:rgba(59,130,246,.2); border:1px solid rgba(59,130,246,.4);
-  border-radius:5px; padding:.15rem .4rem; color:#93c5fd; white-space:nowrap;
-  transition:background .15s;
-}
-.ai-suggest-chip:hover .ai-use-btn { background:rgba(59,130,246,.35); }
-
 /* ── HUD delta badges ────────────────────────────────────────────────── */
 .hud-delta {
   display:inline-block; font-size:.6rem; font-family:var(--font-mono); font-weight:700;
@@ -1646,15 +1595,6 @@ body.crit-alert::after {
     </div>
     {% endif %}
 
-    <!-- AI order suggestion -->
-    <button class="ai-suggest-chip" id="ai-suggest-chip" style="display:none;" onclick="useAiSuggestion()"
-            type="button" aria-label="Apply AI order suggestion">
-      <span class="ai-icon" aria-hidden="true">💡</span>
-      <span><span class="ai-label">Suggested order</span><br><strong id="ai-suggest-reason" style="font-size:.7rem;color:var(--muted);font-weight:400;"></strong></span>
-      <span class="ai-qty" id="ai-suggest-qty" aria-live="polite">—</span>
-      <span class="ai-use-btn" aria-hidden="true">Use ↗</span>
-    </button>
-
     <input type="number" class="order-input-big" id="order-qty" min="0" placeholder="0" value="4" />
 
     <div style="font-size:.76rem; color:var(--muted); margin-bottom:.85rem; text-align:center;">
@@ -1941,14 +1881,6 @@ body.crit-alert::after {
 </div>
 
 <!-- Chart -->
-<div class="card" id="leaderboard-card" style="padding:.85rem 1rem;">
-  <div class="card-title" style="margin-bottom:.5rem;">🏆 Cost Leaderboard <span style="font-size:.65rem;color:var(--muted);font-weight:400;">(lower is better)</span></div>
-  <div id="leaderboard-list">
-    <div style="color:var(--muted);font-size:.78rem;">Waiting for first week…</div>
-  </div>
-</div>
-
-<!-- Chart -->
 <div class="card" style="padding:.85rem 1rem;">
   <div class="card-title" style="margin-bottom:.4rem;">Inventory History</div>
   <div class="chart-wrap"><canvas id="myChart"></canvas></div>
@@ -2054,7 +1986,7 @@ function handle(msg) {
 
     // After confirm ship — show phase 3
     case 'phase_order':
-      showOrderPanel(msg.shipped, msg.new_inventory, msg.new_backlog, msg.demand_received, msg.pipeline || []);
+      showOrderPanel(msg.shipped, msg.new_inventory, msg.new_backlog);
       setPhaseIndicator(3);
       updateMiniHUD(msg.new_inventory, msg.new_backlog);
       // Refresh the full board with updated state from server
@@ -2341,7 +2273,7 @@ function showShipPanel(demandQty, justReceived, currentInv, currentBlg) {
   if (btn) { btn.disabled = false; btn.textContent = '✓ Confirm — Send Shipment'; }
 }
 
-function showOrderPanel(shippedQty, newInv, newBlg, demandReceived, pipeline) {
+function showOrderPanel(shippedQty, newInv, newBlg) {
   hideAllPanels();
   const panel = document.getElementById('panel-order');
   if (!panel) return;
@@ -2359,30 +2291,6 @@ function showOrderPanel(shippedQty, newInv, newBlg, demandReceived, pipeline) {
 
   const qEl = document.getElementById('order-qty');
   if (qEl) qEl.value = '0';
-
-  // ── AI order suggestion ──────────────────────────────────────────────────
-  const chip = document.getElementById('ai-suggest-chip');
-  const qtyEl = document.getElementById('ai-suggest-qty');
-  const reasonEl = document.getElementById('ai-suggest-reason');
-  if (chip && MY_ROLE !== 'customer') {
-    // Base-stock policy: position = inventory - backlog + in_transit
-    const inTransit = (Array.isArray(pipeline) ? pipeline : []).reduce((s, p) => s + (p.quantity || 0), 0);
-    const inv = newInv ?? 0;
-    const blg = newBlg ?? 0;
-    const demand = demandReceived || 4;
-    const TARGET = AI_TARGET_INV;
-    const stockPos = inv - blg + inTransit;
-    const suggested = Math.max(0, Math.round(demand + (TARGET - stockPos)));
-    _aiSuggestedQty = suggested;
-    if (qtyEl) qtyEl.textContent = suggested;
-    if (reasonEl) {
-      const posStr = stockPos >= 0 ? '+' + stockPos : String(stockPos);
-      reasonEl.textContent = `position ${posStr} · demand ${demand} · target ${TARGET}`;
-    }
-    chip.style.display = 'flex';
-  } else if (chip) {
-    chip.style.display = 'none';
-  }
 }
 
 function showDonePanel(orderQty, msg) {
@@ -2853,7 +2761,6 @@ function updateHUD(msg) {
   checkCritical(blg);
   updateGrade(inv, blg, cost);
   updateHUDDelta(inv, blg);
-  if (msg.leaderboard) renderLeaderboard(msg.leaderboard);
 }
 
 function updateMiniHUD(inv, blg) {
@@ -3996,66 +3903,6 @@ gameStarted = true;
 document.getElementById('lobby-overlay').classList.add('hidden');
 {% endif %}
 
-// ── AI suggestion state ────────────────────────────────────────────────────
-let _aiSuggestedQty = 0;
-
-// ── Named constants ────────────────────────────────────────────────────────
-// Base-stock policy target inventory level (units).
-// Beer game steady-state demand is 4 units/week; with a 2-week shipping delay
-// the pipeline stock needed is 4 × 2 = 8, plus a safety buffer → 16 units.
-const AI_TARGET_INV      = 16;
-// Week summary cost breakdown rates (match server-side Player model defaults).
-// NOTE: These are approximations; the server may use different per-player rates.
-// Exact breakdowns should be retrieved from the server for full accuracy.
-const HOLDING_COST_RATE  = 0.5;   // $ per unit per week held in inventory
-const BACKLOG_COST_RATE  = 1.0;   // $ per unit per week in backlog
-
-function useAiSuggestion() {
-  const qEl = document.getElementById('order-qty');
-  if (qEl && _aiSuggestedQty >= 0) {
-    qEl.value = _aiSuggestedQty;
-    qEl.focus();
-    // Brief pulse animation on the input to confirm the fill
-    qEl.style.transition = 'box-shadow .15s';
-    qEl.style.boxShadow = '0 0 0 3px rgba(59,130,246,.4), 0 0 18px rgba(59,130,246,.25)';
-    setTimeout(() => { qEl.style.boxShadow = ''; }, 500);
-    toast(`💡 Order set to ${_aiSuggestedQty} (AI suggestion)`, 'success');
-  }
-}
-
-// ── Leaderboard rendering ──────────────────────────────────────────────────
-const LB_ROLE_COLORS = { retailer:'#f5c842', wholesaler:'#3b82f6', distributor:'#a855f7', factory:'#22c55e' };
-const LB_ROLE_ICONS  = { retailer:'🛒', wholesaler:'🏪', distributor:'🚚', factory:'🏭' };
-const LB_RANK_CLS    = ['gold','silver','bronze',''];
-
-function renderLeaderboard(leaderboard) {
-  const el = document.getElementById('leaderboard-list');
-  if (!el || !leaderboard || !leaderboard.length) return;
-
-  const maxCost = Math.max(1, ...leaderboard.map(r => r.total_cost || 0));
-  el.innerHTML = leaderboard.map((entry, i) => {
-    const isMe  = entry.role === MY_ROLE;
-    const color = LB_ROLE_COLORS[entry.role] || '#9ca3af';
-    const icon  = LB_ROLE_ICONS[entry.role] || '●';
-    const pct   = Math.max(4, Math.round(((entry.total_cost || 0) / maxCost) * 100));
-    const rankCls = LB_RANK_CLS[i] || '';
-    const rank    = i === 0 ? '<span aria-label="1st place">🥇</span>'
-                  : i === 1 ? '<span aria-label="2nd place">🥈</span>'
-                  : i === 2 ? '<span aria-label="3rd place">🥉</span>'
-                  : (i + 1) + '.';
-    return `<div class="lb-row ${isMe ? 'lb-me' : ''}">
-      <div class="lb-rank ${rankCls}">${rank}</div>
-      <div class="lb-role-name">
-        <span style="color:${color};">${icon}</span>
-        <span>${entry.role.charAt(0).toUpperCase() + entry.role.slice(1)}</span>
-        ${isMe ? '<span style="font-size:.6rem;color:var(--accent);font-weight:700;padding:.05rem .3rem;background:rgba(245,200,66,.12);border-radius:4px;">YOU</span>' : ''}
-      </div>
-      <div class="lb-bar-wrap"><div class="lb-bar-fill" style="width:${pct}%;background:${color};"></div></div>
-      <div class="lb-cost">$${entry.total_cost ?? 0}</div>
-    </div>`;
-  }).join('');
-}
-
 // ── Week Summary Modal ─────────────────────────────────────────────────────
 let _wsmAutoClose = null;
 
@@ -4077,8 +3924,8 @@ function showWeekSummary(summary, week) {
   if (weekNum) weekNum.textContent = week ?? '—';
   if (costEl)  costEl.textContent  = summary.cost_this_week ?? 0;
   if (brkEl) {
-    const holdCost = (summary.inventory ?? 0) * HOLDING_COST_RATE;
-    const blgCost  = (summary.backlog   ?? 0) * BACKLOG_COST_RATE;
+    const holdCost = (summary.inventory ?? 0) * 0.5;
+    const blgCost  = (summary.backlog   ?? 0) * 1.0;
     brkEl.textContent = `(≈ $${holdCost.toFixed(1)} holding + $${blgCost.toFixed(1)} backlog)`;
   }
   if (invEl) {
