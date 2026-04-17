@@ -1972,7 +1972,7 @@ const LITE_MODE  = (() => {
     const saved = localStorage.getItem('beergame_lite_mode');
     if (saved === '0' || saved === '1') return saved === '1';
   } catch (e) {}
-  return true; // safer default for slower devices
+  return true; // default to lite mode to reduce startup/render load on weaker devices
 })();
 
 const ROLES  = ['customer','retailer','wholesaler','distributor','factory'];
@@ -3997,7 +3997,7 @@ showGameOver = function(msg) {
   if (_comboCount >= 5) highlights.push({ icon: '🔥', text: `${_comboCount}× combo streak` });
   if (_unlockedMilestones.size > 0) highlights.push({ icon: '🏅', text: `${_unlockedMilestones.size} achievements` });
   if (blg === 0) highlights.push({ icon: '✅', text: 'Zero backlog finish' });
-  if (finalGrade.grade === 'S') highlights.push({ icon: '👑', text: 'S rank' });
+  if (finalGrade.grade === 'S') highlights.push({ icon: '👑', text: 'S-RANK' });
 
   screen.innerHTML = `<div class="go-card">
     <div style="font-size:3rem;margin-bottom:.3rem;">🏁</div>
@@ -4045,7 +4045,7 @@ doSubmitOrder = function() {
   if (qty >= 10) showPowerUp('📋', 'BIG ORDER: ' + qty);
 };
 
-// Tutorial no longer auto-opens on first visit (performance + UX).
+// Tutorial no longer auto-opens on first visit to keep startup lighter and less noisy.
 
 // ── Boot ───────────────────────────────────────────────────────────────────
 if (LITE_MODE) document.body.classList.add('lite-mode');
