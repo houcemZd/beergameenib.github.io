@@ -3207,6 +3207,10 @@ function flashDepart(slotId) {
  * wholesaler  → rt-ord-2  (retailer's order arriving now)
  * distributor → wh-ord-2  (wholesaler's order arriving now)
  * factory     → di-ord-2  (distributor's order arriving now)
+ *
+ * retailer is intentionally absent: its incoming demand comes from the customer
+ * and lands in cust-ord-1 (a fixed display slot, not a pipeline order badge),
+ * so there is no amber pipeline slot to animate for the retailer.
  */
 function getIncomingOrderSlot(role) {
   const map = {
