@@ -268,6 +268,18 @@ class LobbyStartGameAuthorizationTest(TestCase):
         self.session.refresh_from_db()
         self.assertEqual(self.session.status, GameSession.STATUS_PLAYING)
 
+    def test_anonymous_user_with_ownerless_session_gets_403(self):
+        """Any non-staff user must not be able to start a session whose creator was deleted."""
+        ownerless = _make_session(user=None, status=GameSession.STATUS_LOBBY)
+        _make_player_session(ownerless, 'retailer', user=self.owner)
+        PlayerSession.objects.filter(game_session=ownerless, role='retailer').update(name='Owner')
+        _make_player_session(ownerless, 'wholesaler', user=self.other)
+        PlayerSession.objects.filter(game_session=ownerless, role='wholesaler').update(name='Other')
+        # Even a player-member of the session cannot start it
+        self.client.login(username='other', password='securepass99')
+        r = self.client.post(reverse('lobby_start_game', args=[ownerless.id]))
+        self.assertEqual(r.status_code, 403)
+
 
 class ChartDataAPIAuthorizationTest(TestCase):
     def setUp(self):

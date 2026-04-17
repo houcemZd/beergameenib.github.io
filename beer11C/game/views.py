@@ -27,15 +27,15 @@ ALL_ROLES    = ['customer', 'retailer', 'wholesaler', 'distributor', 'factory']
 # ── Authorization helpers ─────────────────────────────────────────────────────
 
 def _is_session_creator(request, session):
-    """Return True if the logged-in user created this session.
+    """Return True if the logged-in user created this session or is staff.
 
-    If created_by is None (legacy sessions without an owner) we allow access so
-    existing games are not inadvertently locked out.
+    Sessions without a creator (deleted owner account) can only be managed
+    by staff; regular users must be the explicit creator.
     """
     if request.user.is_staff:
         return True
     if session.created_by is None:
-        return True
+        return False
     return session.created_by_id == request.user.pk
 
 
@@ -253,7 +253,7 @@ def lobby(request, session_id):
         'pipeline_delay':    2,
     }
 
-    is_host = (session.created_by == request.user)
+    is_host = _is_session_creator(request, session)
 
     return render(request, 'game/lobby.html', {
         'session':         session,
@@ -285,7 +285,7 @@ def lobby_status(request, session_id):
     ready_roles = session.ready_role_list
 
     # Host info
-    is_host = (session.created_by == request.user)
+    is_host = _is_session_creator(request, session)
 
     # Include live player board data so the lobby can act as a spectator view
     players_data = []
