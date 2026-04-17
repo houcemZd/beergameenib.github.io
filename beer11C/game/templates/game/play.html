@@ -1804,8 +1804,8 @@ body.crit-alert::after {
       <!-- ── ROAD R↔W ───────────────────────────────────────────────────── -->
       <div class="road-seg">
         <div class="road-orders-row">
-          <div class="bgb-slot" id="rt-ord-1" data-tip="Order to Wholesaler — arriving next week (placed last week)"><span class="bgb-v">·</span></div>
-          <div class="bgb-slot" id="rt-ord-2" data-tip="Order to Wholesaler — arriving now (placed 2 weeks ago)"><span class="bgb-v">·</span></div>
+          <div class="bgb-slot" id="rt-ord-1" data-tip="Order to Wholesaler — arriving now (placed 2 weeks ago)"><span class="bgb-v">·</span></div>
+          <div class="bgb-slot" id="rt-ord-2" data-tip="Order to Wholesaler — arriving next week (placed last week)"><span class="bgb-v">·</span></div>
         </div>
         <div class="road-surface">
           <div class="bgb-slot" id="rt-ship-1" data-tip="Shipment from Wholesaler — arriving now (shipped 2 weeks ago)"><span class="bgb-v">·</span></div>
@@ -1836,8 +1836,8 @@ body.crit-alert::after {
       <!-- ── ROAD W↔D ───────────────────────────────────────────────────── -->
       <div class="road-seg">
         <div class="road-orders-row">
-          <div class="bgb-slot" id="wh-ord-1" data-tip="Order to Distributor — arriving next week (placed last week)"><span class="bgb-v">·</span></div>
-          <div class="bgb-slot" id="wh-ord-2" data-tip="Order to Distributor — arriving now (placed 2 weeks ago)"><span class="bgb-v">·</span></div>
+          <div class="bgb-slot" id="wh-ord-1" data-tip="Order to Distributor — arriving now (placed 2 weeks ago)"><span class="bgb-v">·</span></div>
+          <div class="bgb-slot" id="wh-ord-2" data-tip="Order to Distributor — arriving next week (placed last week)"><span class="bgb-v">·</span></div>
         </div>
         <div class="road-surface">
           <div class="bgb-slot" id="wh-ship-1" data-tip="Shipment from Distributor — arriving now (shipped 2 weeks ago)"><span class="bgb-v">·</span></div>
@@ -1868,8 +1868,8 @@ body.crit-alert::after {
       <!-- ── ROAD D↔F ───────────────────────────────────────────────────── -->
       <div class="road-seg">
         <div class="road-orders-row">
-          <div class="bgb-slot" id="di-ord-1" data-tip="Order to Factory — arriving next week (placed last week)"><span class="bgb-v">·</span></div>
-          <div class="bgb-slot" id="di-ord-2" data-tip="Order to Factory — arriving now (placed 2 weeks ago)"><span class="bgb-v">·</span></div>
+          <div class="bgb-slot" id="di-ord-1" data-tip="Order to Factory — arriving now (placed 2 weeks ago)"><span class="bgb-v">·</span></div>
+          <div class="bgb-slot" id="di-ord-2" data-tip="Order to Factory — arriving next week (placed last week)"><span class="bgb-v">·</span></div>
         </div>
         <div class="road-surface">
           <div class="bgb-slot" id="di-ship-1" data-tip="Shipment from Factory — arriving now (shipped 2 weeks ago)"><span class="bgb-v">·</span></div>
@@ -2946,16 +2946,15 @@ function setSlot(id, item, cls) {
 function setSlots(id1, id2, items, cls) {
   const arr = Array.isArray(items) ? items : [];
   if (cls === 'amber') {
-    // Orders go → (right): slot2 (RIGHT) = arriving this week, slot1 (LEFT) = arriving later
-    const thisWeek = arr.find(i => (i.weeks_away || 0) === 0) || null;
-    const nextWeek = arr.find(i => (i.weeks_away || 0) > 0)  || null;
-    setSlot(id1, nextWeek, cls);
-    setSlot(id2, thisWeek, cls);
+    // Orders go → (right): slot1 (LEFT) = nearest arrival, slot2 (RIGHT) = farther future
+    const sorted = [...arr].sort((a,b) => (a.weeks_away || 0) - (b.weeks_away || 0));
+    setSlot(id1, sorted[0] || null, cls);
+    setSlot(id2, sorted[1] || null, cls);
   } else {
     // Shipments go ← (left): slot1 (LEFT) = arriving this week, slot2 (RIGHT) = arriving later
-    const sorted = [...arr].sort((a,b) => a.weeks_away - b.weeks_away);
-    setSlot(id1, sorted[0], cls);
-    setSlot(id2, sorted[1], cls);
+    const sorted = [...arr].sort((a,b) => (a.weeks_away || 0) - (b.weeks_away || 0));
+    setSlot(id1, sorted[0] || null, cls);
+    setSlot(id2, sorted[1] || null, cls);
   }
 }
 
@@ -3282,10 +3281,10 @@ function flashDepart(slotId) {
 
 /**
  * Returns the slot id of the order arriving THIS WEEK from downstream.
- * For amber slots, slot 2 (RIGHT) always holds the arriving-this-week order.
- * wholesaler  → rt-ord-2  (retailer's order arriving now)
- * distributor → wh-ord-2  (wholesaler's order arriving now)
- * factory     → di-ord-2  (distributor's order arriving now)
+ * For amber slots, slot 1 (LEFT) holds the nearest-arrival order.
+ * wholesaler  → rt-ord-1  (retailer's order arriving now)
+ * distributor → wh-ord-1  (wholesaler's order arriving now)
+ * factory     → di-ord-1  (distributor's order arriving now)
  *
  * retailer is intentionally absent: its incoming demand comes from the customer
  * and lands in cust-ord-1 (a fixed display slot, not a pipeline order badge),
@@ -3293,9 +3292,9 @@ function flashDepart(slotId) {
  */
 function getIncomingOrderSlot(role) {
   const map = {
-    wholesaler:  'rt-ord-2',
-    distributor: 'wh-ord-2',
-    factory:     'di-ord-2',
+    wholesaler:  'rt-ord-1',
+    distributor: 'wh-ord-1',
+    factory:     'di-ord-1',
   };
   return map[role] || null;
 }
@@ -3307,7 +3306,7 @@ function getIncomingOrderSlot(role) {
 function flashOrderConsume(slotId) {
   const box = document.getElementById(slotId);
   if (!box) return;
-  if (!box.classList.contains('amber')) return;  // nothing to animate
+  if (!box.classList.contains('amber') || !box.classList.contains('arriving')) return;  // nothing arriving to consume
   box.classList.add('anim-order-consume');
   box.addEventListener('animationend', () => {
     box.classList.remove('anim-order-consume', 'amber', 'arriving');
@@ -3832,6 +3831,28 @@ const TUT_STEPS = [
   },
 ];
 let _tutStep = 0;
+const TUT_SEEN_KEY = 'beergame_tut_seen_v2';
+
+function _tutorialSeenByCookie() {
+  return document.cookie.split(';').some(c => c.trim().startsWith(`${TUT_SEEN_KEY}=1`));
+}
+
+function hasSeenTutorial() {
+  try {
+    if (localStorage.getItem(TUT_SEEN_KEY) === '1') return true;
+  } catch(e) {}
+  try {
+    if (sessionStorage.getItem(TUT_SEEN_KEY) === '1') return true;
+  } catch(e) {}
+  return _tutorialSeenByCookie();
+}
+
+function markTutorialSeen() {
+  try { localStorage.setItem(TUT_SEEN_KEY, '1'); } catch(e) {}
+  try { sessionStorage.setItem(TUT_SEEN_KEY, '1'); } catch(e) {}
+  const secure = window.location.protocol === 'https:' ? '; Secure' : '';
+  document.cookie = `${TUT_SEEN_KEY}=1; Max-Age=31536000; Path=/; SameSite=Lax${secure}`;
+}
 
 function showTutorial() {
   _tutStep = 0;
@@ -3841,6 +3862,7 @@ function showTutorial() {
 }
 
 function hideTutorial() {
+  markTutorialSeen();
   const overlay = document.getElementById('tutorial-overlay');
   if (overlay) {
     overlay.style.opacity = '0';
@@ -4026,18 +4048,15 @@ doSubmitOrder = function() {
 
 // ── 🎯 Show tutorial on first visit ───────────────────────────────────────
 (function() {
-  const tutKey = 'beergame_tut_seen_v2';
-  try {
-    if (!localStorage.getItem(tutKey)) {
-      localStorage.setItem(tutKey, '1');
-      // Show tutorial after lobby hides
-      const _origHideLobby = hideLobby;
-      hideLobby = function(status) {
-        _origHideLobby(status);
-        if (gameStarted) setTimeout(showTutorial, 1200);
-      };
-    }
-  } catch(e) {}
+  if (hasSeenTutorial()) return;
+  let prompted = false;
+  const _origHideLobby = hideLobby;
+  hideLobby = function(status) {
+    _origHideLobby(status);
+    if (!gameStarted || prompted || hasSeenTutorial()) return;
+    prompted = true;
+    setTimeout(showTutorial, 1200);
+  };
 })();
 
 // ── Boot ───────────────────────────────────────────────────────────────────
