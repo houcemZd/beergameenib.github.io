@@ -434,11 +434,12 @@
 }
 /* Order consumed on receive — slides toward upstream (right) and fades */
 @keyframes order-consume {
-  0%   { transform:translateX(0) scale(1);   opacity:1; }
+  0%   { transform:translateX(0) scale(1);      opacity:1; }
   30%  { transform:translateX(8px) scale(1.07); opacity:1;
-          border-color:rgba(34,197,94,.7); box-shadow:0 0 12px rgba(34,197,94,.4); }
+         border-color:rgba(34,197,94,.7);
+         box-shadow:0 0 12px rgba(34,197,94,.4); }
   85%  { transform:translateX(26px) scale(.85); opacity:0; }
-  100% { transform:translateX(0) scale(1);   opacity:0; }
+  100% { transform:translateX(0) scale(1);      opacity:0; }
 }
 
 .anim-arrive         { animation:slot-arrive    .7s ease forwards; }
@@ -3221,7 +3222,7 @@ function flashOrderConsume(slotId) {
     box.style.opacity = '';
     const vEl = box.querySelector('.bgb-v');
     if (vEl) vEl.textContent = '·';
-  }, {once: true});
+  }, {once:true});
 }
 
 function getDownstreamShipSlot(role) {
