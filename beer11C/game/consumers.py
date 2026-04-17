@@ -326,6 +326,10 @@ class GameConsumer(AsyncWebsocketConsumer):
             'outgoing_orders':   state.get('outgoing_orders', []),
         }))
 
+        # Sync all other players' boards and phase pills
+        await self._broadcast_board_to_others(ps.role)
+        await self._broadcast_ready_status()
+
     # ── Phase 2: Confirm Ship ─────────────────────────────────────────────────
 
     async def _handle_confirm_ship(self):
@@ -356,6 +360,10 @@ class GameConsumer(AsyncWebsocketConsumer):
             'pipeline':        state.get('pipeline', []),
             'outgoing_orders': state.get('outgoing_orders', []),
         }))
+
+        # Sync all other players' boards and phase pills
+        await self._broadcast_board_to_others(ps.role)
+        await self._broadcast_ready_status()
 
     # ── Phase 3: Submit Order ─────────────────────────────────────────────────
 
@@ -434,6 +442,8 @@ class GameConsumer(AsyncWebsocketConsumer):
             'outgoing_orders': state.get('outgoing_orders', []),
         }))
 
+        # Sync all other players' boards so they see the newly placed order
+        await self._broadcast_board_to_others(ps.role)
         await self._broadcast_ready_status()
 
         # When all phases done, notify everyone to show "week ready" button
@@ -455,6 +465,26 @@ class GameConsumer(AsyncWebsocketConsumer):
 
         if await self._all_week_ready():
             await self._do_close_week()
+
+    async def _broadcast_board_to_others(self, acting_role):
+        """
+        After any phase action, push a fresh board_update to every other role
+        so all clients stay in sync throughout the week turn.
+        Each role receives a state view built from their own perspective,
+        respecting the MIT beer game information-hiding rules.
+        """
+        for role in ALL_ROLES:
+            if role == acting_role:
+                continue
+            state = await self._build_state_for_role(role)
+            await self.channel_layer.group_send(self.group_name, {
+                'type':        'broadcast_state_update',
+                'target_role': role,
+                'payload': {
+                    'type': 'board_update',
+                    **state,
+                },
+            })
 
     async def _broadcast_all_phases_done(self):
         """Notify all players that everyone has completed their phases."""

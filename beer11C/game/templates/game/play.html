@@ -2096,6 +2096,15 @@ function handle(msg) {
       }
       break;
 
+    // Another player took a phase action — update board without touching own panel
+    case 'board_update':
+      renderBoard(msg);
+      updatePipeline(msg.pipeline || [], msg.outgoing_orders || []);
+      // Phase pills are updated separately via ready_status broadcast;
+      // if phases arrive here too, update them as well.
+      if (msg.phases || msg.submitted || msg.connected) updateReadyPills(msg);
+      break;
+
     // Customer: retailer demand updated (late customer submit)
     case 'demand_update':
       const dEl = document.getElementById('ship-demand-qty');
