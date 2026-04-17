@@ -136,6 +136,17 @@ info "Checking channel layer (Redis / InMemory)..."
 REDIS_OK=false
 if command -v redis-cli &>/dev/null && redis-cli ping &>/dev/null 2>&1; then
   REDIS_OK=true
+elif python3 - <<'PY' >/dev/null 2>&1
+import socket
+try:
+    s = socket.create_connection(("127.0.0.1", 6379), timeout=1)
+    s.close()
+    print("ok")
+except OSError:
+    raise SystemExit(1)
+PY
+then
+  REDIS_OK=true
 fi
 
 if $REDIS_OK; then

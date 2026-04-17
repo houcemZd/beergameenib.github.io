@@ -204,9 +204,9 @@
 #section-spectate { display:none; }
 
 /* ── Road board styles (spectator board) ────────────────────────────────── */
-.road-board { display:flex; align-items:stretch; overflow-x:auto; gap:0; font-family:var(--font-mono); }
+.road-board { display:flex; align-items:stretch; overflow-x:auto; gap:.45rem; padding:.15rem .1rem .35rem; font-family:var(--font-mono); }
 .road-node {
-  flex:0 0 auto; min-width:88px; max-width:110px;
+  flex:0 0 auto; min-width:96px; max-width:122px;
   border:1.5px solid var(--border); border-radius:10px; overflow:hidden;
   display:flex; flex-direction:column;
 }
@@ -233,7 +233,7 @@
 .bgb-backlog.zero { color:var(--muted); font-weight:500; }
 
 /* Road segment */
-.road-seg { flex:1; min-width:80px; max-width:140px; display:flex; flex-direction:column; }
+.road-seg { flex:1; min-width:96px; max-width:152px; display:flex; flex-direction:column; }
 .road-orders-row {
   display:flex; justify-content:space-around; align-items:center;
   padding:5px 10px 0; min-height:36px; gap:4px;
@@ -863,8 +863,9 @@ function playJoinSound() {
 
 function renderSpecCards(players) {
   var container = document.getElementById('spec-cards');
-  if (!container || !players.length) return;
+  if (!container) return;
   container.innerHTML = '';
+  if (!players.length) return;
   players.forEach(function(p) {
     var invClass = p.inventory > 6 ? 'inv-good' : p.inventory > 0 ? 'inv-warn' : 'inv-bad';
     var invVal   = p.inventory > 6 ? 'good'     : p.inventory > 0 ? 'warn'     : 'bad';
@@ -883,6 +884,10 @@ function renderSpecCards(players) {
 function renderChain(players, pipeline, lastDemand) {
   var container = document.getElementById('spec-chain');
   if (!container) return;
+  if (!players || !players.length) {
+    container.innerHTML = '<div style="font-size:.75rem;color:var(--muted);padding:.4rem 0;">Waiting for players to populate the board...</div>';
+    return;
+  }
   var PRE = { retailer:'rt', wholesaler:'wh', distributor:'di', factory:'fa' };
   var ships = {}, orders = {};
   (pipeline || []).forEach(function(item) {
@@ -898,8 +903,10 @@ function renderChain(players, pipeline, lastDemand) {
   });
 
   function slotPair(items, cls) {
-    var slots = [null, null];
-    (items || []).slice(0,2).forEach(function(it, i) { slots[i] = it; });
+    var sorted = (items || []).slice().sort(function(a, b) {
+      return (a.weeks_away || 0) - (b.weeks_away || 0);
+    });
+    var slots = [sorted[0] || null, sorted[1] || null];
     return slots.map(function(it) {
       var val = it ? it.qty : '\u00B7';
       var arCls = it && it.weeks_away === 0 ? ' arriving' : '';
