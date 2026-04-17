@@ -1972,7 +1972,7 @@ const LITE_MODE  = (() => {
     const saved = localStorage.getItem('beergame_lite_mode');
     if (saved === '0' || saved === '1') return saved === '1';
   } catch (e) {}
-  return true; // default to lite mode to reduce startup/render load on weaker devices
+  return true; // default to lite mode to reduce start-up/render load on weaker devices
 })();
 
 const ROLES  = ['customer','retailer','wholesaler','distributor','factory'];
@@ -4045,7 +4045,7 @@ doSubmitOrder = function() {
   if (qty >= 10) showPowerUp('📋', 'BIG ORDER: ' + qty);
 };
 
-// Tutorial no longer auto-opens on first visit to keep startup lighter and less noisy.
+// Tutorial no longer auto-opens on first visit to keep start-up lighter and less noisy.
 
 // ── Boot ───────────────────────────────────────────────────────────────────
 if (LITE_MODE) document.body.classList.add('lite-mode');
