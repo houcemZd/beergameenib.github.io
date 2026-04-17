@@ -102,6 +102,7 @@
   <div style="display:flex; gap:.6rem; flex-shrink:0; align-items:flex-start; flex-wrap:wrap;">
     <a href="{% url 'dashboard' session.id %}" class="btn btn-ghost btn-sm">← Dashboard</a>
     <a href="{% url 'home' %}" class="btn btn-ghost btn-sm">Sessions</a>
+    <a href="{% url 'export_csv' session.id %}" class="btn btn-ghost btn-sm">⬇ CSV Export</a>
     <a href="{% url 'new_game' %}" class="btn btn-primary btn-sm">Play Again</a>
   </div>
 </div>

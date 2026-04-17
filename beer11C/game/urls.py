@@ -29,4 +29,11 @@ urlpatterns = [
     path('game/<int:session_id>/results/',          views.results,          name='results'),
     path('game/<int:session_id>/api/chart/',        views.chart_data_api,   name='chart_data_api'),
     path('game/<int:session_id>/view/<str:role>/',  views.client_view,      name='client_view'),
+
+    # ── Instructor tools ──────────────────────────────────────────────────────
+    path('game/<int:session_id>/instructor/',       views.instructor_view,  name='instructor_view'),
+    path('game/<int:session_id>/export/csv/',       views.export_csv,       name='export_csv'),
+    path('game/<int:session_id>/ai-replace/<str:role>/',
+                                                    views.ai_replace_role,  name='ai_replace_role'),
 ]
+

@@ -551,6 +551,7 @@
     </div>
     <div style="display:flex; gap:.5rem; flex-wrap:wrap;">
       <a href="{% url 'results' session.id %}" class="btn btn-ghost btn-sm" id="btn-results" style="display:none;">&#128202; Results</a>
+      {% if is_host %}<a href="{% url 'instructor_view' session.id %}" class="btn btn-ghost btn-sm" id="btn-instructor">🎓 Instructor View</a>{% endif %}
     </div>
   </div>
 

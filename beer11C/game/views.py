@@ -1,6 +1,7 @@
+import csv
 import json
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse, HttpResponseForbidden
+from django.http import JsonResponse, HttpResponseForbidden, HttpResponse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
@@ -10,7 +11,10 @@ from .models import (
     PlayerSession, PipelineShipment, PipelineOrder,
     LobbyMessage,
 )
-from .services import initialise_session, process_week, get_chart_data, get_bullwhip_data, _ai_order
+from .services import (
+    initialise_session, process_week, get_chart_data, get_bullwhip_data,
+    _ai_order, ai_complete_role, get_scheduled_demand,
+)
 
 CHAIN_ORDER  = {'retailer': 1, 'wholesaler': 2, 'distributor': 3, 'factory': 4}
 ROLE_EMOJIS  = {
@@ -184,12 +188,30 @@ def game_init(request, session_id):
         holding_cost       = float(request.POST.get('holding_cost', 0.5))
         backlog_cost       = float(request.POST.get('backlog_cost', 1.0))
 
+        # --- Demand schedule ---
+        demand_mode = request.POST.get('demand_mode', 'manual')
+        if demand_mode == 'classic':
+            demand_schedule = 'classic'
+        elif demand_mode == 'custom':
+            raw = request.POST.get('demand_custom_values', '').strip()
+            try:
+                values = [max(0, int(v.strip())) for v in raw.split(',') if v.strip()]
+                demand_schedule = values if values else 'classic'
+            except ValueError:
+                demand_schedule = 'classic'
+        else:
+            demand_schedule = None  # manual — customer player submits demand each week
+
         # Apply inventory + costs to all players
         for player in session.players.all():
             player.inventory    = init_inventory
             player.holding_cost = holding_cost
             player.backlog_cost = backlog_cost
             player.save()
+
+        # Save demand schedule on session
+        session.demand_schedule = demand_schedule
+        session.save(update_fields=['demand_schedule'])
 
         # Call initialise_session with custom pipeline values
         initialise_session(
@@ -341,6 +363,15 @@ def lobby_status(request, session_id):
         'pipeline':      pipeline_data,
         'is_host':       is_host,
         'chat':          chat_messages,
+        # Phase status for each role (used by instructor view)
+        'phases': {
+            ps.role: ps.turn_phase
+            for ps in session.player_sessions.all()
+        },
+        # AI-managed roles
+        'ai_roles': [
+            ps.role for ps in session.player_sessions.all() if ps.is_ai
+        ],
     })
 
 
@@ -682,4 +713,148 @@ def chart_data_api(request, session_id):
     return JsonResponse(get_chart_data(session))
 
 
+# ── CSV Export ────────────────────────────────────────────────────────────────
+@login_required
+def export_csv(request, session_id):
+    """
+    Download all WeeklyState rows for a session as a CSV file.
+    Columns: week, role, inventory, backlog, order_placed, order_received,
+             shipment_sent, shipment_received, cost_this_week, cumulative_cost,
+             customer_demand.
+    """
+    session = get_object_or_404(GameSession, id=session_id)
+    denied  = _require_member(request, session)
+    if denied:
+        return denied
 
+    demand_by_week = {
+        d.week: d.quantity
+        for d in CustomerDemand.objects.filter(session=session)
+    }
+
+    response = HttpResponse(content_type='text/csv')
+    filename = f"beergame_{session.id}_w{session.current_week}.csv"
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+
+    writer = csv.writer(response)
+    writer.writerow([
+        'week', 'role', 'inventory', 'backlog',
+        'order_placed', 'order_received',
+        'shipment_sent', 'shipment_received',
+        'cost_this_week', 'cumulative_cost',
+        'customer_demand',
+    ])
+
+    for player in _sorted_players(session.players.prefetch_related('history').all()):
+        for state in player.history.order_by('week'):
+            writer.writerow([
+                state.week,
+                player.role,
+                state.inventory,
+                state.backlog,
+                state.order_placed,
+                state.order_received,
+                state.shipment_sent,
+                state.shipment_received,
+                round(state.cost_this_week, 2),
+                round(state.cumulative_cost, 2),
+                demand_by_week.get(state.week, ''),
+            ])
+
+    return response
+
+
+# ── Instructor Live Overview ───────────────────────────────────────────────────
+@login_required
+def instructor_view(request, session_id):
+    """
+    Read-only live overview of all roles for the instructor / session creator.
+    The page auto-refreshes via JavaScript polling of lobby_status.
+    """
+    session = get_object_or_404(GameSession, id=session_id)
+    denied  = _require_creator(request, session)
+    if denied:
+        return denied
+
+    players   = _sorted_players(session.players.all())
+    bullwhip  = get_bullwhip_data(session)
+    bullwhip_max = max(max(bullwhip.values(), default=1), 5) if bullwhip else 5
+
+    # Build per-role AI status map
+    ai_roles = {
+        ps.role: ps.is_ai
+        for ps in session.player_sessions.all()
+    }
+
+    return render(request, 'game/instructor.html', {
+        'session':       session,
+        'players':       players,
+        'bullwhip':      bullwhip,
+        'bullwhip_max':  bullwhip_max,
+        'ai_roles':      ai_roles,
+        'supply_roles':  SUPPLY_ROLES,
+        'role_emojis':   ROLE_EMOJIS,
+    })
+
+
+# ── AI Replace Role ───────────────────────────────────────────────────────────
+@require_POST
+@login_required
+def ai_replace_role(request, session_id, role):
+    """
+    Host replaces a stuck supply-chain role with the AI base-stock policy.
+    Marks the PlayerSession as is_ai=True and auto-completes any pending phases
+    for the current week.  After completing, broadcasts updated status to all
+    connected players via the channel layer.
+    """
+    session = get_object_or_404(GameSession, id=session_id)
+    if session.created_by != request.user:
+        return JsonResponse({'error': 'Only the host can replace a role with AI.'}, status=403)
+    if session.status != GameSession.STATUS_PLAYING:
+        return JsonResponse({'error': 'Game is not in progress.'}, status=400)
+    if role not in SUPPLY_ROLES:
+        return JsonResponse({'error': 'Invalid role.'}, status=400)
+
+    ps = get_object_or_404(PlayerSession, game_session=session, role=role)
+    ps.is_ai = True
+    ps.save(update_fields=['is_ai'])
+
+    # Auto-complete current week's phases using AI policy
+    ai_complete_role(session, role)
+
+    # Broadcast updated status via channel layer
+    from channels.layers import get_channel_layer
+    from asgiref.sync import async_to_sync
+
+    channel_layer = get_channel_layer()
+    group_name    = f"game_{session_id}"
+
+    all_ps        = list(session.player_sessions.all())
+    required_roles = {p.role for p in all_ps}
+    done_roles     = {p.role for p in all_ps if p.turn_phase == PlayerSession.PHASE_DONE}
+    week_ready_roles = {p.role for p in all_ps if p.pending_order == -1}
+    connected      = [p.role for p in all_ps if p.is_connected]
+    phases         = {p.role: p.turn_phase for p in all_ps}
+
+    async_to_sync(channel_layer.group_send)(group_name, {
+        'type':      'broadcast_ready_status',
+        'submitted': session.submitted_role_list,
+        'connected': connected,
+        'ready':     session.ready_role_list,
+        'status':    session.status,
+        'total':     5,
+        'phases':    phases,
+    })
+
+    if required_roles <= done_roles:
+        async_to_sync(channel_layer.group_send)(group_name, {
+            'type': 'broadcast_all_done',
+        })
+
+    # If all week_ready flags are set, ask consumers to check and close the week.
+    if required_roles <= done_roles and required_roles <= week_ready_roles:
+        async_to_sync(channel_layer.group_send)(group_name, {
+            'type': 'trigger_week_advance',
+        })
+
+    return JsonResponse({'ok': True, 'role': role, 'is_ai': True})

@@ -26,6 +26,11 @@ class GameSession(models.Model):
     ready_roles             = models.TextField(default='')
     pending_customer_demand = models.IntegerField(null=True, blank=True)
 
+    # Demand schedule: None = manual (customer role enters demand each week);
+    # "classic" = MIT step pattern (4 units weeks 1-4, then 8);
+    # list of ints = custom per-week schedule (index 0 = week 1).
+    demand_schedule = models.JSONField(null=True, blank=True)
+
     ALL_ROLES = ['customer', 'retailer', 'wholesaler', 'distributor', 'factory']
 
     def __str__(self):
@@ -219,6 +224,8 @@ class PlayerSession(models.Model):
     pending_order_qty    = models.IntegerField(default=0)
     pending_ship_qty     = models.IntegerField(null=True, blank=True)
     pending_order        = models.IntegerField(null=True, blank=True)
+    # When True the server auto-completes all phases each week using the AI policy.
+    is_ai                = models.BooleanField(default=False)
 
     class Meta:
         unique_together = ('game_session', 'role')

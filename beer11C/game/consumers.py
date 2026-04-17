@@ -24,7 +24,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from django.utils import timezone
 from .models import GameSession, PlayerSession
-from .services import open_week, apply_receive, apply_ship, apply_order, close_week
+from .services import open_week, apply_receive, apply_ship, apply_order, close_week, ai_complete_role
 
 ALL_ROLES          = ['customer', 'retailer', 'wholesaler', 'distributor', 'factory']
 NON_CUSTOMER_ROLES = ['retailer', 'wholesaler', 'distributor', 'factory']
@@ -598,7 +598,14 @@ class GameConsumer(AsyncWebsocketConsumer):
             await self._get_session()
         )
 
+        # Auto-complete all phases for AI-managed roles immediately after staging.
+        ai_roles = await self._get_ai_roles()
+        for role in ai_roles:
+            await self._ai_complete_role_async(role)
+
         for role in NON_CUSTOMER_ROLES:
+            if role in ai_roles:
+                continue  # AI already handled — no need to send phase_receive
             s     = staging.get(role, {})
             state = await self._build_state_for_role(role)
             await self.channel_layer.group_send(self.group_name, {
@@ -629,11 +636,22 @@ class GameConsumer(AsyncWebsocketConsumer):
             'payload': {'type': 'week_open', **cust_state},
         })
 
+        # If all roles (including newly AI-completed ones) are done and week_ready,
+        # trigger an immediate week advance so human players aren't stuck waiting.
+        if ai_roles:
+            if await self._all_phase_done():
+                await self._broadcast_all_phases_done()
+            if await self._all_week_ready():
+                await self._do_close_week()
+
     # ── Close week ────────────────────────────────────────────────────────────
 
     async def _do_close_week(self):
         session = await self._get_session()
         summary = await database_sync_to_async(close_week)(session)
+        if not summary:
+            # Already closed by another consumer (idempotency guard triggered).
+            return
         session = await self._get_session()
 
         # ── Store each player's summary in DB for reconnecting players ────────
@@ -790,7 +808,14 @@ class GameConsumer(AsyncWebsocketConsumer):
             'results_url': f"/game/{event['session_id']}/results/",
         }))
 
-    # ── DB helpers ────────────────────────────────────────────────────────────
+    async def trigger_week_advance(self, event):
+        """
+        Sent by the HTTP ai_replace_role view when all phases + week_ready flags
+        are set.  Each consumer receiving this checks whether the week can be
+        closed; close_week's select_for_update guard ensures only one succeeds.
+        """
+        if await self._all_week_ready():
+            await self._do_close_week()
 
     @database_sync_to_async
     def _get_factory_distributor_order(self):
@@ -815,6 +840,21 @@ class GameConsumer(AsyncWebsocketConsumer):
                 sender=distributor, arrives_on_week=week, fulfilled=False
             )
         )
+
+    @database_sync_to_async
+    def _get_ai_roles(self):
+        """Return a list of non-customer roles marked as is_ai=True."""
+        return list(
+            PlayerSession.objects.filter(
+                game_session_id=self.session_id, is_ai=True
+            ).exclude(role='customer').values_list('role', flat=True)
+        )
+
+    @database_sync_to_async
+    def _ai_complete_role_async(self, role):
+        """Complete all phases for an AI-managed role (database_sync_to_async wrapper)."""
+        session = GameSession.objects.get(id=self.session_id)
+        ai_complete_role(session, role)
 
     @database_sync_to_async
     def _get_player_session(self):
@@ -1080,6 +1120,8 @@ class GameConsumer(AsyncWebsocketConsumer):
                 'this_week': session.pending_customer_demand,
                 'last_week': last_demand,
             }
+        # Demand information is intentionally omitted for non-retailer roles
+        # to preserve the MIT Beer Game information-hiding rule.
 
         incoming_orders_to_me       = None
         outgoing_shipments_from_me  = None

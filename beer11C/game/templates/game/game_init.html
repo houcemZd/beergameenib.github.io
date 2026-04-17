@@ -164,6 +164,62 @@
       </div>
     </div>
 
+    <!-- ── Demand Schedule ── -->
+    <div class="card" style="margin-bottom:1.25rem;">
+      <div class="card-title">Customer Demand Mode</div>
+      <p style="font-size:.75rem; color:var(--muted); margin-bottom:.85rem;">
+        Choose how customer demand is generated each week. Pre-seeded schedules remove the need for a live customer player.
+      </p>
+
+      <div style="display:flex; flex-direction:column; gap:.7rem;">
+        <label style="display:flex; align-items:flex-start; gap:.65rem; cursor:pointer;">
+          <input type="radio" name="demand_mode" value="manual" checked
+                 onchange="toggleDemandCustom()" style="margin-top:3px;" />
+          <span>
+            <strong style="color:var(--text);">Manual</strong> —
+            <span style="color:var(--muted); font-size:.8rem;">
+              A live customer player submits demand every week. Game pauses until demand is entered.
+            </span>
+          </span>
+        </label>
+
+        <label style="display:flex; align-items:flex-start; gap:.65rem; cursor:pointer;">
+          <input type="radio" name="demand_mode" value="classic"
+                 onchange="toggleDemandCustom()" style="margin-top:3px;" />
+          <span>
+            <strong style="color:var(--text);">Classic MIT (4 → 8)</strong> —
+            <span style="color:var(--muted); font-size:.8rem;">
+              4 units/week for weeks 1–4, then 8 units/week. The standard teaching scenario.
+              A customer player is not required.
+            </span>
+          </span>
+        </label>
+
+        <label style="display:flex; align-items:flex-start; gap:.65rem; cursor:pointer;">
+          <input type="radio" name="demand_mode" value="custom"
+                 onchange="toggleDemandCustom()" style="margin-top:3px;" />
+          <span>
+            <strong style="color:var(--text);">Custom schedule</strong> —
+            <span style="color:var(--muted); font-size:.8rem;">
+              Enter a comma-separated list of weekly demand values. The last value repeats if the
+              game lasts longer than the list. A customer player is not required.
+            </span>
+          </span>
+        </label>
+
+        <div id="demand-custom-row" style="display:none; margin-left:1.8rem;">
+          <label style="font-size:.78rem; color:var(--muted); display:block; margin-bottom:.3rem;">
+            Demand per week (comma-separated, e.g. <code style="color:var(--accent);">4,4,4,4,8,8,8,16</code>)
+          </label>
+          <input type="text" name="demand_custom_values" id="demand_custom_values"
+                 placeholder="4,4,4,4,8,8,8,8"
+                 style="width:100%; font-family:var(--font-mono); font-size:.9rem;
+                        background:var(--surface2); border:1px solid var(--border);
+                        border-radius:8px; color:var(--text); padding:.45rem .75rem; outline:none;" />
+        </div>
+      </div>
+    </div>
+
     <!-- ── Live board preview ── -->
     <div class="card" style="margin-bottom:1.5rem;">
       <div class="card-title">Preview — Board at Week 0</div>
@@ -269,6 +325,11 @@
 </div>
 
 <script>
+function toggleDemandCustom() {
+  const mode = document.querySelector('input[name="demand_mode"]:checked').value;
+  document.getElementById('demand-custom-row').style.display = (mode === 'custom') ? 'block' : 'none';
+}
+
 function adj(id, delta) {
   const el = document.getElementById(id);
   const v = Math.max(0, parseInt(el.value || 0) + delta);

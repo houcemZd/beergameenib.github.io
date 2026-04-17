@@ -42,6 +42,32 @@ NON_CUSTOMER_ROLES = ['retailer', 'wholesaler', 'distributor', 'factory']
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Demand schedule helpers
+# ─────────────────────────────────────────────────────────────────────────────
+
+def get_scheduled_demand(session, week):
+    """
+    Return the pre-seeded demand for *week* based on session.demand_schedule.
+
+    Returns:
+      - int  if the schedule supplies a value for this week.
+      - None if the session is in manual mode (demand_schedule is None).
+    """
+    schedule = session.demand_schedule
+    if schedule is None:
+        return None  # manual — customer player must enter demand
+    if schedule == 'classic':
+        # MIT classic step-function: 4 units per week for weeks 1-4, then 8.
+        return 4 if week <= 4 else 8
+    if isinstance(schedule, list):
+        if len(schedule) >= week:
+            return int(schedule[week - 1])
+        if schedule:
+            return int(schedule[-1])  # repeat last value if week exceeds list
+    return 4  # safe fallback
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Initialisation
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -104,12 +130,22 @@ def open_week(session):
     Sets every non-customer PlayerSession to PHASE_RECEIVE.
     Customer stays PHASE_IDLE (will submit demand separately).
 
+    If session.demand_schedule is not None, the customer demand for this week
+    is taken from the schedule automatically (no human customer input needed).
+
     IMPORTANT: Does NOT mutate Player.inventory or Player.backlog yet.
     Returns a dict of {role: {received, order_qty}} for broadcasting.
     """
     week    = session.current_week + 1
     players = {p.role: p for p in session.players.all()}
     staging = {}
+
+    # --- Auto-populate demand from schedule if not already set manually ---
+    if session.pending_customer_demand is None and session.demand_schedule is not None:
+        scheduled = get_scheduled_demand(session, week)
+        if scheduled is not None:
+            session.pending_customer_demand = scheduled
+            session.save(update_fields=['pending_customer_demand'])
 
     # --- Compute arriving shipments (production completing / goods arriving) ---
     for role, player in players.items():
@@ -420,9 +456,19 @@ def close_week(session):
     """
     Called after all PlayerSessions reach PHASE_DONE.
     Calculates costs, saves WeeklyState snapshots, advances session.current_week.
-    Returns summary dict.
+    Returns summary dict, or {} if the week was already closed (idempotency guard).
     """
-    week    = session.current_week + 1
+    with transaction.atomic():
+        # Lock the session row; bail if another consumer already closed this week.
+        session_locked = GameSession.objects.select_for_update().get(pk=session.pk)
+        if session_locked.current_week != session.current_week:
+            return {}  # already advanced by a concurrent call
+        week    = session_locked.current_week + 1
+        return _close_week_inner(session_locked, week)
+
+
+def _close_week_inner(session, week):
+    """Inner implementation of close_week (already inside a select_for_update block)."""
     summary = {}
     players = {p.role: p for p in session.players.all()}
 
@@ -481,7 +527,7 @@ def close_week(session):
     session.reset_submissions()  # clears submitted_roles + pending_customer_demand
     session.save(update_fields=['current_week', 'is_active', 'status'])
 
-    # Reset all PlayerSession phases to IDLE
+    # Reset all PlayerSession phases to IDLE (keep is_ai flag)
     session.player_sessions.update(
         turn_phase=PlayerSession.PHASE_IDLE,
         pending_received_qty=0,
@@ -491,6 +537,51 @@ def close_week(session):
     )
 
     return summary
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# AI auto-complete (used when a role is marked is_ai=True)
+# ─────────────────────────────────────────────────────────────────────────────
+
+def ai_complete_role(session, role):
+    """
+    Complete all three weekly phases (receive → ship → order) for an AI-managed
+    role using the base-stock AI policy.  Also sets the week_ready sentinel
+    (pending_order = -1) so the week can advance without a human click.
+
+    Safe to call from both the HTTP view (sync) and the consumer (via
+    database_sync_to_async).
+
+    Returns True if phases were completed, False if the role is not in a
+    phase that needs completing.
+    """
+    ps = PlayerSession.objects.select_related('game_session').get(
+        game_session=session, role=role
+    )
+    player = session.players.filter(role=role).first()
+    if not player:
+        return False
+
+    changed = False
+    if ps.turn_phase == PlayerSession.PHASE_RECEIVE:
+        apply_receive(ps)
+        ps.refresh_from_db()
+        changed = True
+    if ps.turn_phase == PlayerSession.PHASE_SHIP:
+        apply_ship(ps)
+        ps.refresh_from_db()
+        changed = True
+    if ps.turn_phase == PlayerSession.PHASE_ORDER:
+        player.refresh_from_db()
+        apply_order(ps, _ai_order(player))
+        ps.refresh_from_db()
+        changed = True
+
+    # Mark week_ready sentinel so the week can advance without a human click.
+    if ps.turn_phase == PlayerSession.PHASE_DONE:
+        PlayerSession.objects.filter(id=ps.id).update(pending_order=-1)
+
+    return changed
 
 
 # ─────────────────────────────────────────────────────────────────────────────
