@@ -1606,6 +1606,55 @@ body.crit-alert::after {
     </div>
     {% endif %}
 
+    <!-- ── Decision hint (collapsible) ── -->
+    <details style="margin-bottom:.75rem;">
+      <summary style="cursor:pointer; font-size:.72rem; color:var(--muted); padding:.3rem .1rem; user-select:none;">
+        💡 Decision hint
+      </summary>
+      <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:.7rem .9rem; margin-top:.4rem; font-size:.76rem; color:var(--muted); line-height:1.6;">
+        {% if role == 'retailer' %}
+          <strong style="color:var(--text); display:block; margin-bottom:.3rem;">Retailer — Ordering from Wholesaler</strong>
+          You are closest to real demand. Your upstream order takes <strong style="color:var(--text);">2 weeks</strong> to arrive,
+          so you need to think 2 weeks ahead. Ask yourself:
+          <ul style="margin:.4rem 0 .4rem 1rem; padding:0;">
+            <li>What is my current demand trend?</li>
+            <li>How much is already in transit (pipeline)?</li>
+            <li>Do I have a backlog that needs covering?</li>
+          </ul>
+          A good starting heuristic: order = demand + backlog − goods already in transit.
+        {% elif role == 'wholesaler' %}
+          <strong style="color:var(--text); display:block; margin-bottom:.3rem;">Wholesaler — Ordering from Distributor</strong>
+          You see the Retailer's orders, not real customer demand. Those orders may already be inflated.
+          Be careful not to over-react to a single large order.
+          <ul style="margin:.4rem 0 .4rem 1rem; padding:0;">
+            <li>Is the spike from the Retailer a real demand change or panic-ordering?</li>
+            <li>Check how much is already in your pipeline before adding more.</li>
+            <li>Smoothing your orders reduces bullwhip amplification upstream.</li>
+          </ul>
+          Tip: if you have goods in transit that cover next week's expected demand, you can order less.
+        {% elif role == 'distributor' %}
+          <strong style="color:var(--text); display:block; margin-bottom:.3rem;">Distributor — Ordering from Factory</strong>
+          You are two links from real demand. Variability reaching you is already amplified.
+          Your goal is to buffer and absorb, not to amplify further.
+          <ul style="margin:.4rem 0 .4rem 1rem; padding:0;">
+            <li>Resist large swings — smooth your orders toward recent averages.</li>
+            <li>Count in-transit units before deciding how much to order.</li>
+            <li>Factory has a 3-week lag — plan ahead, but don't panic-order.</li>
+          </ul>
+        {% elif role == 'factory' %}
+          <strong style="color:var(--text); display:block; margin-bottom:.3rem;">Factory — Starting Production</strong>
+          Your production pipeline is the longest in the chain (3 weeks total).
+          Overproducing is costly; underproducing causes chain-wide backlog.
+          <ul style="margin:.4rem 0 .4rem 1rem; padding:0;">
+            <li>Check how much is already in the 2-week production pipeline.</li>
+            <li>Only start what you actually need, accounting for in-progress production.</li>
+            <li>The AI policy uses: order = max(0, 16 − inventory − in_transit + backlog).</li>
+          </ul>
+          Base-stock formula: <strong style="color:var(--text);">target − inventory − in-transit + backlog</strong>.
+        {% endif %}
+      </div>
+    </details>
+
     <input type="number" class="order-input-big" id="order-qty" min="0" placeholder="0" value="4" />
 
     <div style="font-size:.76rem; color:var(--muted); margin-bottom:.85rem; text-align:center;">

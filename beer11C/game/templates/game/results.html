@@ -1,4 +1,5 @@
 {% extends "game/base.html" %}
+{% load game_extras %}
 {% block title %}Results — {{ session.name }}{% endblock %}
 
 {% block extra_head %}
@@ -57,6 +58,33 @@
 .bullwhip-bar-fill  { height: 100%; border-radius: 6px; transition: width 1.2s cubic-bezier(.4,0,.2,1); }
 .bullwhip-bar-marker { position: absolute; top: 0; bottom: 0; width: 2px; background: rgba(255,255,255,.25); }
 .bullwhip-bar-val   { width: 50px; font-family: var(--font-mono); font-size: .8rem; color: var(--text); flex-shrink: 0; }
+
+/* ── Analytics table ──────────────────────────────────────────────────────── */
+.analytics-table { width: 100%; border-collapse: collapse; font-size: .78rem; }
+.analytics-table th, .analytics-table td { padding: .55rem .75rem; text-align: right; border-bottom: 1px solid var(--border); }
+.analytics-table th { font-size: .65rem; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); font-weight: 700; text-align: right; }
+.analytics-table th:first-child, .analytics-table td:first-child { text-align: left; }
+.analytics-table tr:last-child td { border-bottom: none; }
+.analytics-table tr:hover td { background: var(--surface2); }
+.srv-bar { display: inline-flex; align-items: center; gap: .45rem; }
+.srv-bar-track { width: 60px; height: 8px; background: var(--surface2); border-radius: 4px; overflow: hidden; border: 1px solid var(--border); }
+.srv-bar-fill { height: 100%; border-radius: 4px; }
+
+/* ── Cost decomposition bars ─────────────────────────────────────────────── */
+.cost-decomp-row { display: flex; align-items: center; gap: .85rem; margin-bottom: .75rem; }
+.cost-decomp-label { width: 92px; font-size: .78rem; text-align: right; color: var(--muted); flex-shrink: 0; }
+.cost-decomp-track { flex: 1; height: 22px; background: var(--surface2); border-radius: 6px; overflow: hidden; display: flex; border: 1px solid var(--border); }
+.cost-decomp-hold { background: rgba(59,130,246,.7); height: 100%; transition: width .9s ease; }
+.cost-decomp-bl   { background: rgba(239,68,68,.7);  height: 100%; transition: width .9s ease; }
+.cost-decomp-vals { display: flex; gap: .35rem; font-family: var(--font-mono); font-size: .72rem; flex-shrink: 0; }
+.cost-decomp-hold-val { color: #60a5fa; }
+.cost-decomp-bl-val   { color: #f87171; }
+
+/* ── Diagnosis card ──────────────────────────────────────────────────────── */
+.diag-card { background: rgba(245,200,66,.05); border: 1px solid rgba(245,200,66,.2); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; }
+.diag-item { display: flex; gap: .75rem; align-items: flex-start; margin-bottom: .75rem; font-size: .83rem; line-height: 1.55; color: var(--text); }
+.diag-item:last-child { margin-bottom: 0; }
+.diag-icon { flex-shrink: 0; margin-top: .1rem; }
 
 /* ── Page header ──────────────────────────────────────────────────────────── */
 .results-header {
@@ -229,6 +257,153 @@
   <div class="card-title"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;"><line x1="12" y1="1" x2="12" y2="23" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg> Cumulative Cost Comparison</div>
   <div class="chart-wrap"><canvas id="costChart"></canvas></div>
 </div>
+
+<!-- ── Debrief: Guided Bullwhip Interpretation ─────────────────────────── -->
+{% if analytics.bullwhip_diagnosis %}
+<div class="diag-card">
+  <div style="font-family:var(--font-mono); font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--accent); margin-bottom:1rem;">
+    💡 Debrief — What happened in this run?
+  </div>
+  {% for line in analytics.bullwhip_diagnosis %}
+  <div class="diag-item">
+    <span class="diag-icon" style="color:var(--accent);">›</span>
+    <span>{{ line }}</span>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- ── Service Level & Cost Decomposition ────────────────────────────────── -->
+{% if analytics.roles %}
+<div class="charts-grid-2" style="margin-bottom:1.5rem;">
+
+  <!-- Service Level -->
+  <div class="result-card" style="margin-bottom:0;">
+    <div class="card-title">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;">
+        <path d="M22 11.08V12a10 10 0 11-5.93-9.14" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <polyline points="22 4 12 14.01 9 11.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+      Service Level — % Weeks Without Stockout
+    </div>
+    <p style="color:var(--muted); font-size:.78rem; margin-bottom:1rem; line-height:1.5;">
+      Weeks where backlog = 0. 100% means perfect fill rate; lower values indicate missed demand.
+    </p>
+    {% for player in players %}
+    {% with rd=analytics.roles|get_item:player.role %}
+    {% if rd %}
+    <div class="cost-decomp-row">
+      <div class="cost-decomp-label"><span class="role-badge role-{{ player.role }}">{{ player.role }}</span></div>
+      <div class="cost-decomp-track">
+        <div class="cost-decomp-hold"
+             style="width:{{ rd.service_level }}%; background:{% if rd.service_level >= 90 %}var(--success){% elif rd.service_level >= 70 %}#f59e0b{% else %}var(--danger){% endif %};">
+        </div>
+      </div>
+      <div style="font-family:var(--font-mono); font-size:.78rem; width:46px; flex-shrink:0;">
+        {{ rd.service_level }}%
+      </div>
+    </div>
+    {% endif %}
+    {% endwith %}
+    {% endfor %}
+    <div style="font-size:.68rem; color:var(--muted); margin-top:.5rem;">
+      Chain average: <strong style="color:var(--text);">{{ analytics.chain_service_level }}%</strong>
+    </div>
+  </div>
+
+  <!-- Cost Decomposition -->
+  <div class="result-card" style="margin-bottom:0;">
+    <div class="card-title">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;">
+        <path d="M12 2v20M2 12h20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      Cost Decomposition — Holding vs. Backlog
+    </div>
+    <p style="color:var(--muted); font-size:.78rem; margin-bottom:1rem; line-height:1.5;">
+      <span style="color:#60a5fa;">■ Holding</span> &nbsp; <span style="color:#f87171;">■ Backlog/stockout</span>
+    </p>
+    {% for player in players %}
+    {% with rd=analytics.roles|get_item:player.role %}
+    {% if rd %}
+    <div class="cost-decomp-row">
+      <div class="cost-decomp-label"><span class="role-badge role-{{ player.role }}">{{ player.role }}</span></div>
+      {% with total=rd.holding_cost_total|add:rd.backlog_cost_total %}
+      <div class="cost-decomp-track">
+        {% if total > 0 %}
+        <div class="cost-decomp-hold"
+             style="width:{% widthratio rd.holding_cost_total total 100 %}%;"></div>
+        <div class="cost-decomp-bl"
+             style="width:{% widthratio rd.backlog_cost_total total 100 %}%;"></div>
+        {% endif %}
+      </div>
+      {% endwith %}
+      <div class="cost-decomp-vals">
+        <span class="cost-decomp-hold-val">${{ rd.holding_cost_total|floatformat:0 }}</span>
+        <span style="color:var(--muted);">/</span>
+        <span class="cost-decomp-bl-val">${{ rd.backlog_cost_total|floatformat:0 }}</span>
+      </div>
+    </div>
+    {% endif %}
+    {% endwith %}
+    {% endfor %}
+    <div style="font-size:.68rem; color:var(--muted); margin-top:.5rem;">
+      Chain holding: <strong style="color:#60a5fa;">${{ analytics.total_holding_cost|floatformat:0 }}</strong> &nbsp;
+      Chain backlog: <strong style="color:#f87171;">${{ analytics.total_backlog_cost|floatformat:0 }}</strong>
+    </div>
+  </div>
+</div>
+
+<!-- ── Per-Role Analytics Table ──────────────────────────────────────────── -->
+<div class="result-card" style="margin-bottom:1.5rem; overflow-x:auto;">
+  <div class="card-title">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;">
+      <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2" fill="none"/>
+      <path d="M3 9h18M3 15h18M9 3v18" stroke="currentColor" stroke-width="2"/>
+    </svg>
+    Advanced Analytics — Per Role
+  </div>
+  <table class="analytics-table">
+    <thead>
+      <tr>
+        <th>Role</th>
+        <th>Avg. Order</th>
+        <th>Order Variance</th>
+        <th>Avg. Inventory</th>
+        <th>Peak Backlog</th>
+        <th>Backlog Weeks</th>
+        <th>Demand Match</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for player in players %}
+      {% with rd=analytics.roles|get_item:player.role %}
+      {% if rd %}
+      <tr>
+        <td><span class="role-badge role-{{ player.role }}">{{ player.role }}</span></td>
+        <td>{{ rd.avg_order }}</td>
+        <td>{{ rd.order_variance }}</td>
+        <td>{{ rd.avg_inventory }}</td>
+        <td style="color:{% if rd.max_backlog > 0 %}#f87171{% else %}var(--text){% endif %};">
+          {{ rd.max_backlog }}
+        </td>
+        <td>{{ rd.weeks_with_backlog }}</td>
+        <td style="color:{% if rd.demand_match > 1.2 or rd.demand_match < 0.8 %}#f59e0b{% else %}var(--success){% endif %};">
+          {{ rd.demand_match }}×
+        </td>
+      </tr>
+      {% endif %}
+      {% endwith %}
+      {% endfor %}
+    </tbody>
+  </table>
+  <div style="font-size:.68rem; color:var(--muted); margin-top:.75rem; line-height:1.6;">
+    <strong>Demand Match</strong>: avg order / avg customer demand (1.0 = perfectly matched averages).
+    <strong>Order Variance</strong>: higher values = more erratic ordering = bullwhip amplification.
+    Demand avg: <strong style="color:var(--text);">{{ analytics.demand_avg }}</strong> units/week
+    {% if analytics.demand_std > 0 %} · Demand σ: <strong style="color:var(--text);">{{ analytics.demand_std }}</strong>{% endif %}.
+  </div>
+</div>
+{% endif %}
 
 <!-- Bottom actions -->
 <div style="display:flex; gap:1rem; justify-content:center; margin:2rem 0 3rem;">

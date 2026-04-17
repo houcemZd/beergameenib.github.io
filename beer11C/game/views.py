@@ -13,7 +13,7 @@ from .models import (
 )
 from .services import (
     initialise_session, process_week, get_chart_data, get_bullwhip_data,
-    _ai_order, ai_complete_role, get_scheduled_demand,
+    get_advanced_analytics, _ai_order, ai_complete_role, get_scheduled_demand,
 )
 
 CHAIN_ORDER  = {'retailer': 1, 'wholesaler': 2, 'distributor': 3, 'factory': 4}
@@ -688,6 +688,7 @@ def results(request, session_id):
     players    = _sorted_players(session.players.prefetch_related('history').all())
     chart_data = json.dumps(get_chart_data(session))
     bullwhip   = get_bullwhip_data(session)
+    analytics  = get_advanced_analytics(session)
     total_cost = sum(p.total_cost for p in players)
     demand_history = list(CustomerDemand.objects.filter(session=session).order_by('week'))
     winner_role = min(players, key=lambda p: p.total_cost).role if players else None
@@ -700,6 +701,7 @@ def results(request, session_id):
         'total_cost': total_cost, 'demand_history': demand_history,
         'winner_role': winner_role,
         'bullwhip_max': bullwhip_max,
+        'analytics': analytics,
     })
 
 

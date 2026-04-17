@@ -783,6 +783,174 @@ def get_bullwhip_data(session):
     return result
 
 
+def get_advanced_analytics(session):
+    """
+    Returns richer post-game analytics for instructor debrief:
+
+    Per-role keys:
+      service_level       — % of weeks with zero backlog (higher is better)
+      weeks_with_backlog  — how many weeks the role had unmet demand
+      avg_backlog         — average backlog across all weeks
+      max_backlog         — peak backlog experienced
+      max_inventory       — peak inventory held
+      avg_inventory       — average inventory held
+      holding_cost_total  — portion of total_cost from holding
+      backlog_cost_total  — portion of total_cost from stockouts
+      order_variance      — variance of order quantities (higher → more erratic)
+      inventory_variance  — variance of inventory levels
+      avg_order           — average weekly order placed
+      demand_match        — avg_order / avg_demand (1.0 = perfect average matching)
+
+    Top-level keys:
+      total_holding_cost  — chain-wide holding cost
+      total_backlog_cost  — chain-wide backlog/stockout cost
+      chain_service_level — average service level across all supply roles
+      demand_avg          — average customer demand
+      demand_std          — std-dev of customer demand (0 if <2 data points)
+      bullwhip_diagnosis  — list of human-readable interpretation strings
+    """
+    demand_vals = list(
+        CustomerDemand.objects.filter(session=session)
+        .order_by('week').values_list('quantity', flat=True)
+    )
+    n_weeks    = len(demand_vals)
+    avg_demand = _stats.mean(demand_vals) if demand_vals else 4.0
+    demand_std = _stats.stdev(demand_vals) if len(demand_vals) >= 2 else 0.0
+
+    roles_data = {}
+    total_holding = 0.0
+    total_backlog = 0.0
+    service_levels = []
+
+    for player in session.players.all():
+        history = list(player.history.order_by('week'))
+        if not history:
+            continue
+
+        orders      = [h.order_placed for h in history]
+        inventories = [h.inventory    for h in history]
+        backlogs    = [h.backlog      for h in history]
+
+        weeks_no_bl = sum(1 for b in backlogs if b == 0)
+        srv_level   = (weeks_no_bl / len(backlogs) * 100) if backlogs else 100.0
+
+        holding_total  = round(sum(h.inventory * player.holding_cost for h in history), 2)
+        backlog_total  = round(sum(h.backlog   * player.backlog_cost  for h in history), 2)
+        total_holding += holding_total
+        total_backlog += backlog_total
+
+        avg_order = _stats.mean(orders) if orders else 0.0
+
+        roles_data[player.role] = {
+            'service_level':      round(srv_level, 1),
+            'weeks_with_backlog': len(backlogs) - weeks_no_bl,
+            'avg_backlog':        round(_stats.mean(backlogs), 1) if backlogs else 0.0,
+            'max_backlog':        max(backlogs, default=0),
+            'max_inventory':      max(inventories, default=0),
+            'avg_inventory':      round(_stats.mean(inventories), 1) if inventories else 0.0,
+            'holding_cost_total': holding_total,
+            'backlog_cost_total': backlog_total,
+            'order_variance':     round(_stats.variance(orders), 2) if len(orders) >= 2 else 0.0,
+            'inventory_variance': round(_stats.variance(inventories), 2) if len(inventories) >= 2 else 0.0,
+            'avg_order':          round(avg_order, 1),
+            'demand_match':       round(avg_order / avg_demand, 2) if avg_demand > 0 else 1.0,
+        }
+        if player.role != 'customer':
+            service_levels.append(srv_level)
+
+    # Build guided interpretation strings
+    bullwhip_data   = get_bullwhip_data(session)
+    diagnosis_lines = _bullwhip_diagnosis(bullwhip_data, roles_data, demand_std)
+
+    return {
+        'roles':               roles_data,
+        'total_holding_cost':  round(total_holding, 2),
+        'total_backlog_cost':  round(total_backlog, 2),
+        'chain_service_level': round(_stats.mean(service_levels), 1) if service_levels else 100.0,
+        'demand_avg':          round(avg_demand, 1),
+        'demand_std':          round(demand_std, 2),
+        'bullwhip_diagnosis':  diagnosis_lines,
+    }
+
+
+def _bullwhip_diagnosis(bullwhip, roles_data, demand_std):
+    """
+    Return a list of plain-English sentences explaining what the data shows.
+    These surface in the results debrief to help students understand causes.
+    """
+    lines = []
+
+    if not bullwhip:
+        lines.append(
+            "Not enough order history to calculate bullwhip ratios — "
+            "play at least 2 weeks to see amplification metrics."
+        )
+        return lines
+
+    # Identify worst and best roles
+    ordered = sorted(bullwhip.items(), key=lambda kv: kv[1], reverse=True)
+    worst_role, worst_ratio = ordered[0]
+    best_role,  best_ratio  = ordered[-1]
+
+    if worst_ratio > 3.0:
+        lines.append(
+            f"Severe bullwhip: {worst_role.title()} amplified demand variability "
+            f"{worst_ratio:.1f}× — far above the ideal of 1.0. "
+            "This is a textbook symptom of panic ordering or over-reaction to stock-outs."
+        )
+    elif worst_ratio > 1.5:
+        lines.append(
+            f"Moderate bullwhip: {worst_role.title()} shows a {worst_ratio:.1f}× amplification ratio. "
+            "Ordering policies that do not account for pipeline inventory typically cause this."
+        )
+    else:
+        lines.append(
+            f"Minimal bullwhip: all roles stayed close to a 1.0 ratio — excellent pipeline awareness."
+        )
+
+    # Check if amplification increases upstream (classic bullwhip pattern)
+    chain = [r for r in ['retailer', 'wholesaler', 'distributor', 'factory'] if r in bullwhip]
+    if len(chain) >= 2:
+        ratios = [bullwhip[r] for r in chain]
+        if all(ratios[i] <= ratios[i + 1] for i in range(len(ratios) - 1)):
+            lines.append(
+                "Classic upstream amplification detected: each tier placed more erratic orders than "
+                "the one below it — exactly the bullwhip pattern described by Lee et al. (1997). "
+                "Information delays and batching are the main drivers."
+            )
+        elif all(ratios[i] >= ratios[i + 1] for i in range(len(ratios) - 1)):
+            lines.append(
+                "Unusually, the upstream roles were more stable than downstream — "
+                "the upstream players may have used smoother ordering policies."
+            )
+
+    # Service level hints
+    stockout_roles = [
+        role for role, d in roles_data.items()
+        if d.get('weeks_with_backlog', 0) > 0 and role != 'customer'
+    ]
+    if stockout_roles:
+        lines.append(
+            f"Stock-outs occurred at: {', '.join(r.title() for r in stockout_roles)}. "
+            "Backlog cost doubles holding cost per unit — keeping a modest safety stock "
+            "usually reduces total chain cost."
+        )
+    else:
+        lines.append(
+            "No stock-outs across the chain — excellent service level. "
+            "Check whether excess inventory held too long pushed up holding costs."
+        )
+
+    # Demand-variability context
+    if demand_std < 0.5:
+        lines.append(
+            "Customer demand was nearly constant — all variability in orders was self-generated "
+            "by the supply chain, not caused by real demand swings."
+        )
+
+    return lines
+
+
 def get_chart_data(session):
     data = {}
     for player in session.players.all():

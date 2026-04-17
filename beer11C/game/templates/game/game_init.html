@@ -298,7 +298,7 @@
 
     <!-- ── Presets ── -->
     <div class="card" style="margin-bottom:1.5rem;">
-      <div class="card-title">Quick Presets</div>
+      <div class="card-title">Quick Presets — Initial State</div>
       <div style="display:flex; gap:.5rem; flex-wrap:wrap;">
         <button type="button" class="btn btn-ghost btn-sm" onclick="applyPreset(12,4,4)">
           📖 Classic MIT (12 · 4 · 4)
@@ -312,6 +312,114 @@
         <button type="button" class="btn btn-ghost btn-sm" onclick="applyPreset(0,0,0)">
           🧪 Zero start (0 · 0 · 0)
         </button>
+      </div>
+    </div>
+
+    <!-- ── Scenario Packs ── -->
+    <div class="card" style="margin-bottom:1.5rem;">
+      <div class="card-title">🎓 Scenario Packs</div>
+      <p style="font-size:.75rem; color:var(--muted); margin-bottom:1rem; line-height:1.55;">
+        One-click teaching scenarios — fills in the demand schedule and initial state automatically.
+        Each scenario is designed to highlight a specific supply-chain concept.
+      </p>
+      <div style="display:flex; flex-direction:column; gap:.6rem;">
+
+        <div style="border:1px solid var(--border); border-radius:10px; padding:.75rem 1rem;">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:.75rem; flex-wrap:wrap;">
+            <div>
+              <div style="font-size:.85rem; font-weight:700; margin-bottom:.2rem;">📖 Classic MIT Step</div>
+              <div style="font-size:.73rem; color:var(--muted); line-height:1.45;">
+                Demand: 4 units/week for weeks 1–4, then 8 forever.
+                The original Beer Game setup — demonstrates bullwhip from a single demand step.
+              </div>
+            </div>
+            <button type="button" class="btn btn-ghost btn-sm" style="flex-shrink:0;"
+                    onclick="applyScenario(12,4,4,'classic','')">
+              Apply
+            </button>
+          </div>
+        </div>
+
+        <div style="border:1px solid var(--border); border-radius:10px; padding:.75rem 1rem;">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:.75rem; flex-wrap:wrap;">
+            <div>
+              <div style="font-size:.85rem; font-weight:700; margin-bottom:.2rem;">📈 Demand Spike</div>
+              <div style="font-size:.73rem; color:var(--muted); line-height:1.45;">
+                Demand: 4,4,4,4,20,8,8,8,8,8 then 8 repeating.
+                An extreme one-off surge — explores panic ordering and over-correction.
+              </div>
+            </div>
+            <button type="button" class="btn btn-ghost btn-sm" style="flex-shrink:0;"
+                    onclick="applyScenario(12,4,4,'custom','4,4,4,4,20,8,8,8,8,8')">
+              Apply
+            </button>
+          </div>
+        </div>
+
+        <div style="border:1px solid var(--border); border-radius:10px; padding:.75rem 1rem;">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:.75rem; flex-wrap:wrap;">
+            <div>
+              <div style="font-size:.85rem; font-weight:700; margin-bottom:.2rem;">🌊 Seasonal Demand</div>
+              <div style="font-size:.73rem; color:var(--muted); line-height:1.45;">
+                Demand: 4,4,8,8,4,4,8,8 repeating (every 4 weeks).
+                Shows how predictable seasonality is still amplified by the bullwhip.
+              </div>
+            </div>
+            <button type="button" class="btn btn-ghost btn-sm" style="flex-shrink:0;"
+                    onclick="applyScenario(12,4,4,'custom','4,4,8,8,4,4,8,8,4,4,8,8,4,4,8,8,4,4,8,8,4,4,8,8')">
+              Apply
+            </button>
+          </div>
+        </div>
+
+        <div style="border:1px solid var(--border); border-radius:10px; padding:.75rem 1rem;">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:.75rem; flex-wrap:wrap;">
+            <div>
+              <div style="font-size:.85rem; font-weight:700; margin-bottom:.2rem;">🛑 Supply Disruption</div>
+              <div style="font-size:.73rem; color:var(--muted); line-height:1.45;">
+                Demand: 4,4,4,4,0,0,0,8,8,8 then 8 repeating.
+                A sudden demand collapse followed by a rebound — stresses backlog and over-ordering.
+              </div>
+            </div>
+            <button type="button" class="btn btn-ghost btn-sm" style="flex-shrink:0;"
+                    onclick="applyScenario(12,4,4,'custom','4,4,4,4,0,0,0,8,8,8')">
+              Apply
+            </button>
+          </div>
+        </div>
+
+        <div style="border:1px solid var(--border); border-radius:10px; padding:.75rem 1rem;">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:.75rem; flex-wrap:wrap;">
+            <div>
+              <div style="font-size:.85rem; font-weight:700; margin-bottom:.2rem;">📉 Gradual Growth</div>
+              <div style="font-size:.73rem; color:var(--muted); line-height:1.45;">
+                Demand: 2,3,4,5,6,7,8,9,10 then 10 repeating.
+                Slow linear growth — tests whether pipeline awareness prevents runaway backlog.
+              </div>
+            </div>
+            <button type="button" class="btn btn-ghost btn-sm" style="flex-shrink:0;"
+                    onclick="applyScenario(8,2,2,'custom','2,3,4,5,6,7,8,9,10')">
+              Apply
+            </button>
+          </div>
+        </div>
+
+        <div style="border:1px solid var(--border); border-radius:10px; padding:.75rem 1rem;">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:.75rem; flex-wrap:wrap;">
+            <div>
+              <div style="font-size:.85rem; font-weight:700; margin-bottom:.2rem;">🎲 Noisy Demand</div>
+              <div style="font-size:.73rem; color:var(--muted); line-height:1.45;">
+                Demand: 4,6,3,7,5,8,4,6,5,7 then repeating.
+                Random-looking variation around a stable mean — highlights how noise gets amplified.
+              </div>
+            </div>
+            <button type="button" class="btn btn-ghost btn-sm" style="flex-shrink:0;"
+                    onclick="applyScenario(12,4,4,'custom','4,6,3,7,5,8,4,6,5,7,4,6,3,7,5,8,4,6,5,7')">
+              Apply
+            </button>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -342,6 +450,23 @@ function applyPreset(inv, orders, incoming) {
   document.getElementById('init_orders_placed').value = orders;
   document.getElementById('init_incoming').value      = incoming;
   updatePreview();
+}
+
+function applyScenario(inv, orders, incoming, demandMode, demandValues) {
+  // Apply initial state
+  applyPreset(inv, orders, incoming);
+  // Apply demand mode
+  const radios = document.querySelectorAll('input[name="demand_mode"]');
+  radios.forEach(r => { r.checked = (r.value === demandMode); });
+  // Show/hide custom input and fill values
+  const customRow = document.getElementById('demand-custom-row');
+  const customInput = document.getElementById('demand_custom_values');
+  if (demandMode === 'custom') {
+    customRow.style.display = 'block';
+    if (customInput) customInput.value = demandValues;
+  } else {
+    customRow.style.display = 'none';
+  }
 }
 
 function updatePreview() {

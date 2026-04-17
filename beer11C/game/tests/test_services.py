@@ -21,6 +21,7 @@ from game.models import (
 from game.services import (
     initialise_session, open_week, apply_receive, apply_ship, apply_order,
     close_week, process_week, _ai_order, get_bullwhip_data, get_chart_data,
+    get_advanced_analytics,
     ORDER_DELAY, SHIP_DELAY,
 )
 import secrets
@@ -526,3 +527,71 @@ class GetChartDataTest(TestCase):
         for role in ['retailer', 'wholesaler', 'distributor', 'factory']:
             self.assertIn('history', data[role])
             self.assertGreater(len(data[role]['history']), 0)
+
+
+class GetAdvancedAnalyticsTest(TestCase):
+    """Tests for get_advanced_analytics() — richer debrief metrics."""
+
+    def setUp(self):
+        self.session = _create_full_session()
+        initialise_session(self.session)
+        # Play 3 weeks of data with constant demand so we have history
+        for _ in range(3):
+            self.session.refresh_from_db()
+            self.session.pending_customer_demand = 4
+            self.session.save(update_fields=['pending_customer_demand'])
+            process_week(self.session, {})
+
+    def test_returns_dict_with_roles_key(self):
+        result = get_advanced_analytics(self.session)
+        self.assertIsInstance(result, dict)
+        self.assertIn('roles', result)
+
+    def test_roles_contains_supply_chain_roles(self):
+        result = get_advanced_analytics(self.session)
+        for role in ['retailer', 'wholesaler', 'distributor', 'factory']:
+            self.assertIn(role, result['roles'])
+
+    def test_service_level_is_percentage(self):
+        result = get_advanced_analytics(self.session)
+        for role_data in result['roles'].values():
+            sl = role_data['service_level']
+            self.assertGreaterEqual(sl, 0.0)
+            self.assertLessEqual(sl, 100.0)
+
+    def test_has_top_level_cost_keys(self):
+        result = get_advanced_analytics(self.session)
+        self.assertIn('total_holding_cost', result)
+        self.assertIn('total_backlog_cost', result)
+        self.assertIn('chain_service_level', result)
+        self.assertIn('demand_avg', result)
+        self.assertIn('demand_std', result)
+        self.assertIn('bullwhip_diagnosis', result)
+
+    def test_bullwhip_diagnosis_is_list_of_strings(self):
+        result = get_advanced_analytics(self.session)
+        diag = result['bullwhip_diagnosis']
+        self.assertIsInstance(diag, list)
+        for line in diag:
+            self.assertIsInstance(line, str)
+
+    def test_empty_session_returns_empty_roles(self):
+        """A session with no history produces empty roles dict and safe defaults."""
+        empty_session = _create_full_session()
+        initialise_session(empty_session)
+        result = get_advanced_analytics(empty_session)
+        self.assertIsInstance(result, dict)
+        self.assertEqual(result['roles'], {})
+
+    def test_cost_decomposition_non_negative(self):
+        result = get_advanced_analytics(self.session)
+        self.assertGreaterEqual(result['total_holding_cost'], 0)
+        self.assertGreaterEqual(result['total_backlog_cost'], 0)
+
+    def test_avg_order_and_demand_match_keys_present(self):
+        result = get_advanced_analytics(self.session)
+        for role_data in result['roles'].values():
+            self.assertIn('avg_order', role_data)
+            self.assertIn('demand_match', role_data)
+            self.assertIn('max_backlog', role_data)
+            self.assertIn('weeks_with_backlog', role_data)
