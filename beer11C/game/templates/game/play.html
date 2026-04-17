@@ -870,12 +870,8 @@ body.crit-alert::after {
   100% { opacity:0; }
 }
 
-/* ── Grade S legendary pulse ────────────────────────────────────────────── */
-.grade-S { animation:grade-s-legendary 2.5s ease infinite; }
-@keyframes grade-s-legendary {
-  0%,100%{ box-shadow:0 0 22px rgba(168,85,247,.55); transform:scale(1); }
-  50%    { box-shadow:0 0 40px rgba(168,85,247,.85); transform:scale(1.08); }
-}
+/* ── Grade S pulse disabled for performance ─────────────────────────────── */
+.grade-S { animation:none; }
 
 /* ── Lobby character-select entrance ────────────────────────────────────── */
 .lobby-box {
@@ -1963,6 +1959,7 @@ const WS_URL     = `${WS_SCHEME}://${location.host}{{ ws_path }}`;
 const MY_ROLE    = "{{ role }}";
 const MAX_WEEKS  = {{ session.max_weeks }};
 const SESSION_ID = {{ session.id }};
+const LITE_MODE  = true; // reduce visual/audio load to keep gameplay smooth
 
 const ROLES  = ['customer','retailer','wholesaler','distributor','factory'];
 const COLORS = {retailer:'#f5c842',wholesaler:'#3b82f6',distributor:'#a855f7',factory:'#22c55e'};
@@ -3356,7 +3353,7 @@ function toast(msg, type='') { const c=document.getElementById('toast-container'
 
 // ── 🏆 Grade / rank system ────────────────────────────────────────────────
 const GRADE_CFG = [
-  { grade:'S', label:'LEGENDARY', cls:'grade-S', maxCostPerWk:3,   maxBlg:0  },
+  { grade:'S', label:'S-RANK',    cls:'grade-S', maxCostPerWk:3,   maxBlg:0  },
   { grade:'A', label:'EXCELLENT', cls:'grade-A', maxCostPerWk:8,   maxBlg:2  },
   { grade:'B', label:'GOOD',      cls:'grade-B', maxCostPerWk:16,  maxBlg:6  },
   { grade:'C', label:'AVERAGE',   cls:'grade-C', maxCostPerWk:30,  maxBlg:14 },
@@ -3423,6 +3420,7 @@ function spawnFloatNum(delta, x, y, color) {
 
 // ── 🎆 Particle burst on week flash ──────────────────────────────────────
 function spawnParticles() {
+  if (LITE_MODE) return;
   const cx = window.innerWidth / 2, cy = window.innerHeight / 2;
   const colors = ['#f5c842','#3b82f6','#a855f7','#22c55e','#ef4444','#ffffff'];
   for (let i = 0; i < 16; i++) {
@@ -3458,6 +3456,7 @@ function achieveToast(msg) {
 
 // ── Ambient floating particles ─────────────────────────────────────────────
 (function initAmbientParticles() {
+  if (LITE_MODE) return;
   const container = document.getElementById('ambient-particles');
   if (!container) return;
   // Respect reduced motion preference
@@ -3483,6 +3482,7 @@ function achieveToast(msg) {
 
 // ── Screen shake utility ───────────────────────────────────────────────────
 function screenShake(heavy) {
+  if (LITE_MODE) return;
   const cls = heavy ? 'shaking' : 'shake-light';
   document.body.classList.remove('shaking', 'shake-light');
   void document.body.offsetWidth;
@@ -3492,6 +3492,7 @@ function screenShake(heavy) {
 
 // ── VFX flash (full-screen color burst) ────────────────────────────────────
 function vfxFlash(color) {
+  if (LITE_MODE) return;
   const el = document.createElement('div');
   el.className = 'vfx-flash';
   el.style.background = `radial-gradient(circle at center, ${color} 0%, transparent 70%)`;
@@ -3501,6 +3502,7 @@ function vfxFlash(color) {
 
 // ── Speed lines (for ship phase) ───────────────────────────────────────────
 function spawnSpeedLines() {
+  if (LITE_MODE) return;
   const container = document.getElementById('speed-lines');
   if (!container) return;
   container.classList.add('active');
@@ -3520,6 +3522,7 @@ function spawnSpeedLines() {
 
 // ── Confetti burst (game over) ─────────────────────────────────────────────
 function spawnConfetti() {
+  if (LITE_MODE) return;
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const COLORS = ['#f5c842','#3b82f6','#a855f7','#22c55e','#ef4444','#ec4899','#f97316','#ffffff'];
   const TOTAL = 20;
@@ -3562,6 +3565,7 @@ document.addEventListener('click', function(e) {
 
 // ── Enhanced sound engine (richer synth voices) ────────────────────────────
 function _chord(freqs, dur, type, vol) {
+  if (LITE_MODE) return;
   if (!soundEnabled) return;
   const ctx = _getAudioCtx(); if (!ctx) return;
   try {
@@ -3579,6 +3583,7 @@ function _chord(freqs, dur, type, vol) {
   } catch(e){}
 }
 function _noise(dur, vol) {
+  if (LITE_MODE) return;
   if (!soundEnabled) return;
   const ctx = _getAudioCtx(); if (!ctx) return;
   try {
@@ -3696,6 +3701,7 @@ flashWeek = function(w) {
 const _origUpdateHUD_mm = updateHUD;
 updateHUD = function(msg) {
   _origUpdateHUD_mm(msg);
+  if (LITE_MODE) return;
   updateEnvironment(msg.own?.backlog ?? 0, msg.own?.inventory ?? 0);
   checkMilestones(msg);
 };
@@ -3760,7 +3766,6 @@ const MILESTONES = [
   { id: 'zero_backlog',  check: m => (m.own?.backlog ?? 1) === 0 && (m.week ?? 0) >= 3, icon: '💎', title: 'ZERO BACKLOG', sub: 'Cleared all unfilled orders!' },
   { id: 'high_inv',      check: m => (m.own?.inventory ?? 0) >= 20, icon: '📦', title: 'WAREHOUSE KING', sub: 'Stocked 20+ units of inventory!' },
   { id: 'low_cost',      check: m => (m.own?.total_cost ?? Infinity) <= 10 && (m.week ?? 0) >= 3, icon: '💰', title: 'PENNY PINCHER', sub: 'Kept total cost under $10!' },
-  { id: 'grade_s',       check: () => _lastGrade === 'S', icon: '👑', title: 'LEGENDARY',        sub: 'Achieved S-rank grade!' },
   { id: 'combo_5',       check: () => _comboCount >= 5, icon: '🔥', title: 'ON FIRE',           sub: '5-week combo streak!' },
 ];
 const _unlockedMilestones = new Set();
@@ -3896,6 +3901,7 @@ function toggleMusic() {
 }
 
 function startBGM() {
+  if (LITE_MODE) return;
   const ctx = _getAudioCtx();
   if (!ctx) return;
   stopBGM();
@@ -3977,7 +3983,7 @@ showGameOver = function(msg) {
   if (_comboCount >= 5) highlights.push({ icon: '🔥', text: `${_comboCount}× combo streak` });
   if (_unlockedMilestones.size > 0) highlights.push({ icon: '🏅', text: `${_unlockedMilestones.size} achievements` });
   if (blg === 0) highlights.push({ icon: '✅', text: 'Zero backlog finish' });
-  if (finalGrade.grade === 'S') highlights.push({ icon: '👑', text: 'Legendary rank' });
+  if (finalGrade.grade === 'S') highlights.push({ icon: '👑', text: 'S rank' });
 
   screen.innerHTML = `<div class="go-card">
     <div style="font-size:3rem;margin-bottom:.3rem;">🏁</div>
@@ -4003,6 +4009,7 @@ showGameOver = function(msg) {
 
 // ── 🔋 Power-up visual notifications ──────────────────────────────────────
 function showPowerUp(icon, label) {
+  if (LITE_MODE) return;
   const el = document.createElement('div');
   el.className = 'powerup-notif';
   el.innerHTML = `<div class="powerup-icon">${icon}</div><div class="powerup-label">${label}</div>`;
@@ -4024,21 +4031,7 @@ doSubmitOrder = function() {
   if (qty >= 10) showPowerUp('📋', 'BIG ORDER: ' + qty);
 };
 
-// ── 🎯 Show tutorial on first visit ───────────────────────────────────────
-(function() {
-  const tutKey = 'beergame_tut_seen_v2';
-  try {
-    if (!localStorage.getItem(tutKey)) {
-      localStorage.setItem(tutKey, '1');
-      // Show tutorial after lobby hides
-      const _origHideLobby = hideLobby;
-      hideLobby = function(status) {
-        _origHideLobby(status);
-        if (gameStarted) setTimeout(showTutorial, 1200);
-      };
-    }
-  } catch(e) {}
-})();
+// Tutorial no longer auto-opens on first visit (performance + UX).
 
 // ── Boot ───────────────────────────────────────────────────────────────────
 {% if session.status == 'playing' %}
