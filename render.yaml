@@ -49,6 +49,7 @@ services:
     name: beergame-redis
     plan: free
     maxmemoryPolicy: noeviction
+    ipAllowList: []
 
 databases:
   - name: beergame-db
