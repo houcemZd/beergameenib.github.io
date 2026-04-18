@@ -3,17 +3,40 @@
 A full-stack implementation of the **MIT Beer Game** supply chain simulation,
 built with Django + Django Channels (WebSockets) for real-time multiplayer.
 
-## GitHub Pages version
+## Live links
 
-This repository now includes a static browser edition at:
+| | URL |
+|---|---|
+| **GitHub Pages landing** | `https://houcemzd.github.io/beergameenib.github.io/` |
+| **Full multiplayer app** | Deploy to Render (see below) — replace this line with your live URL |
+| **Browser demo** | `https://houcemzd.github.io/beergameenib.github.io/demo.html` |
 
-- `/index.html` (root of the repository)
+> **GitHub Pages** only serves the landing page and browser demo.
+> The real multiplayer game (Django + WebSockets + Redis) must be hosted on a
+> backend-capable platform. A one-click **Render** blueprint is included.
 
-That file is deployable on GitHub Pages and provides a playable single-page Beer
-Game simulation without any backend.
+---
 
-> The full multiplayer Django + WebSocket application still lives in `beer11C/`
-> and requires a server runtime (GitHub Pages cannot host that backend).
+## One-click deploy to Render
+
+`render.yaml` at the repository root is a Render Blueprint that provisions:
+
+- A **web service** (Python / Daphne ASGI) running the Django app
+- A **PostgreSQL** database
+- A **Redis** service for Django Channels
+
+**Steps:**
+
+1. Sign in to [render.com](https://render.com) and click **New → Blueprint**
+2. Connect this repository — Render detects `render.yaml` automatically
+3. Click **Apply** — Render builds, runs `collectstatic` + `migrate`, and starts Daphne
+4. Copy the generated `*.onrender.com` hostname and set it as:
+   - `ALLOWED_HOSTS` env var in the Render dashboard
+   - `CSRF_TRUSTED_ORIGINS` env var (prefix with `https://`)
+5. Update the **Play the Full Game** button URL in `index.html` and push to `main`
+
+Alternative hosts that support ASGI + WebSockets + Redis:
+**Railway.app**, **Fly.io** — use the `Procfile` inside `beer11C/`.
 
 ---
 
@@ -21,14 +44,15 @@ Game simulation without any backend.
 
 | Feature | Details |
 |---|---|
-| **Single-player mode** | Control all 4 roles, simulate any number of weeks |
 | **Multiplayer mode** | 4 players, each with an isolated role view via WebSockets |
 | **2-week pipeline delays** | Both orders AND shipments are delayed — the core mechanic |
 | **AI fallback** | Pipeline-aware base-stock policy fills in for any missing player |
 | **Real-time updates** | Week advances automatically when all players submit |
 | **Charts** | Inventory, orders, backlog, cost — powered by Chart.js |
 | **Bullwhip Effect Index** | σ(orders) / σ(demand) ratio per player on results page |
+| **Instructor view** | Live overview + CSV export for the session creator |
 | **Information hiding** | Each player sees ONLY their own inventory (multiplayer) |
+| **Browser demo** | Standalone single-page game at `demo.html` — no backend needed |
 
 ---
 
@@ -251,41 +275,49 @@ demonstrating how information asymmetry causes amplification up the chain.
 
 ---
 
-## GitHub Pages deployment
+## GitHub Pages (landing page)
 
 The workflow `.github/workflows/deploy-pages.yml` deploys the repository root to
-GitHub Pages.
+GitHub Pages automatically on every push to `main`.
 
-To use it:
+The Pages site serves:
+- `index.html` — landing page with deploy instructions and links to the live app
+- `demo.html` — standalone browser demo (no backend required)
 
+To enable Pages in a fresh fork:
 1. Push to `main`
-2. In repository settings, set **Pages → Source = GitHub Actions**
-3. Open your Pages URL (the static game is served from `index.html`)
+2. In repository settings → **Pages → Source** = **GitHub Actions**
+3. Your landing page is live at `https://<username>.github.io/<repo>/`
 
 ---
 
 ## Deployment (Production)
 
-For a demo on a server:
+### Option A — Render (recommended, blueprint included)
+
+See the **One-click deploy to Render** section at the top of this README.
+The `render.yaml` blueprint handles everything automatically.
+
+### Option B — Manual (any ASGI host)
 
 ```bash
 export SECRET_KEY="your-real-secret-key"
 export DEBUG="False"
 export ALLOWED_HOSTS="your-domain.com"
+export DATABASE_URL="postgres://..."   # optional; defaults to SQLite
+export REDIS_URL="redis://..."         # optional; falls back to in-memory
 pip install daphne
 cd beer11C
+pip install -r requirements.txt
 python manage.py migrate
-python manage.py collectstatic
+python manage.py collectstatic --no-input
 daphne -b 0.0.0.0 -p 8000 beer_game.asgi:application
 ```
 
-Make sure Redis is running and accessible. The settings file auto-detects Redis
-and switches to `RedisChannelLayer` automatically.
-
-Free hosting options:
-- **Railway.app** — supports Redis + WebSockets natively
-- **Render.com** — add a Redis service alongside the web service
-- **Fly.io** — Docker-based, full WebSocket support
+Supported hosting platforms:
+- **Render.com** — blueprint included in `render.yaml`
+- **Railway.app** — supports Redis + WebSockets natively; use `Procfile`
+- **Fly.io** — Docker-based, full WebSocket support; use `Procfile`
 
 ---
 
