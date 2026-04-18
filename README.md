@@ -8,7 +8,7 @@ built with Django + Django Channels (WebSockets) for real-time multiplayer.
 | | URL |
 |---|---|
 | **GitHub Pages landing** | `https://houcemzd.github.io/beergameenib.github.io/` |
-| **Full multiplayer app** | Deploy to Render (see below) — replace this line with your live URL |
+| **Full multiplayer app** | `https://beergame-aaqe.onrender.com` |
 | **Browser demo** | `https://houcemzd.github.io/beergameenib.github.io/demo.html` |
 
 > **GitHub Pages** only serves the landing page and browser demo.
