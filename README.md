@@ -7,12 +7,12 @@ built with Django + Django Channels (WebSockets) for real-time multiplayer.
 
 | | URL |
 |---|---|
-| **GitHub Pages landing** | `https://houcemzd.github.io/beergameenib.github.io/` |
+| **GitHub Pages URL (redirects to full game)** | `https://houcemzd.github.io/beergameenib.github.io/` |
 | **Full multiplayer app** | `https://beergame-aaqe.onrender.com` |
 | **Browser demo** | `https://houcemzd.github.io/beergameenib.github.io/demo.html` |
 
-> **GitHub Pages** only serves the landing page and browser demo.
-> The real multiplayer game (Django + WebSockets + Redis) must be hosted on a
+> **GitHub Pages** now redirects the root URL directly to the live full game.
+> The multiplayer game (Django + WebSockets + Redis) is hosted on a
 > backend-capable platform. A one-click **Render** blueprint is included.
 
 ---
@@ -275,19 +275,19 @@ demonstrating how information asymmetry causes amplification up the chain.
 
 ---
 
-## GitHub Pages (landing page)
+## GitHub Pages
 
 The workflow `.github/workflows/deploy-pages.yml` deploys the repository root to
 GitHub Pages automatically on every push to `main`.
 
 The Pages site serves:
-- `index.html` — landing page with deploy instructions and links to the live app
+- `index.html` — immediate redirect to the full hosted app
 - `demo.html` — standalone browser demo (no backend required)
 
 To enable Pages in a fresh fork:
 1. Push to `main`
 2. In repository settings → **Pages → Source** = **GitHub Actions**
-3. Your landing page is live at `https://<username>.github.io/<repo>/`
+3. `https://<username>.github.io/<repo>/` redirects to the full game
 
 ---
 
