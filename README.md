@@ -3,6 +3,18 @@
 A full-stack implementation of the **MIT Beer Game** supply chain simulation,
 built with Django + Django Channels (WebSockets) for real-time multiplayer.
 
+## GitHub Pages version
+
+This repository now includes a static browser edition at:
+
+- `/index.html` (root of the repository)
+
+That file is deployable on GitHub Pages and provides a playable single-page Beer
+Game simulation without any backend.
+
+> The full multiplayer Django + WebSocket application still lives in `beer11C/`
+> and requires a server runtime (GitHub Pages cannot host that backend).
+
 ---
 
 ## Features
@@ -236,6 +248,19 @@ BWE = σ(orders placed by role) / σ(customer demand)
 
 In a well-run game, the Factory typically has the highest BWE score —
 demonstrating how information asymmetry causes amplification up the chain.
+
+---
+
+## GitHub Pages deployment
+
+The workflow `.github/workflows/deploy-pages.yml` deploys the repository root to
+GitHub Pages.
+
+To use it:
+
+1. Push to `main`
+2. In repository settings, set **Pages → Source = GitHub Actions**
+3. Open your Pages URL (the static game is served from `index.html`)
 
 ---
 
