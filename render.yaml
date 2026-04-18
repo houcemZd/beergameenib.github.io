@@ -4,7 +4,7 @@
 # Quick start:
 #   1. Fork / connect this repo to Render.com
 #   2. In the Render dashboard click "New → Blueprint" and select this repo
-#   3. Set the DJANGO_SECRET_KEY env var (auto-generated random string)
+#   3. Render auto-generates SECRET_KEY — no manual action needed
 #   4. Click "Apply" — Render creates the web service + Redis automatically
 
 services:
