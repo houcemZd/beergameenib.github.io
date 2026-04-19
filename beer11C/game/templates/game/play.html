@@ -371,6 +371,15 @@
   opacity:.12; border:1px dashed rgba(245,200,66,.15); background:transparent;
 }
 .road-orders-row .bgb-slot:not(.amber):not(.arriving) .bgb-v { color:transparent; }
+/* Arriving order badge — mirrors the shipment arriving treatment */
+.road-orders-row .bgb-slot.arriving {
+  background:rgba(10,40,20,.85)!important;
+  animation:truck-pulse 1.1s ease infinite;
+}
+.road-orders-row .bgb-slot.arriving .bgb-v { color:#4ade80!important; }
+.road-orders-row .bgb-slot.amber.arriving::before {
+  filter:drop-shadow(0 0 4px rgba(34,197,94,.8));
+}
 
 /* Bottom label row */
 .road-seg-labels {
@@ -3691,12 +3700,16 @@ flashWeek = function(w) {
 // ║  🎮  IMMERSIVE VIDEO GAME FEATURES                                      ║
 // ╚══════════════════════════════════════════════════════════════════════════╝
 
-// Enhance updateHUD with environment + milestones
+// Enhance updateHUD with environment + milestones.
+// Milestones are skipped on the very first call (opening game state) to prevent
+// trivially-earned popups (LEGENDARY grade, first_week) before any player action.
+let _hudCallCount = 0;
 const _origUpdateHUD_mm = updateHUD;
 updateHUD = function(msg) {
   _origUpdateHUD_mm(msg);
+  _hudCallCount++;
   updateEnvironment(msg.own?.backlog ?? 0, msg.own?.inventory ?? 0);
-  checkMilestones(msg);
+  if (_hudCallCount > 1) checkMilestones(msg);
 };
 
 // ── 🌦️ Dynamic environment effects ────────────────────────────────────────

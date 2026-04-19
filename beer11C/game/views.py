@@ -101,7 +101,9 @@ def _build_pipeline_data(players, current_week):
 def home(request):
     # Limit to 100 most recent sessions to avoid unbounded memory / timeout.
     all_sessions = list(
-        GameSession.objects.select_related('created_by').order_by('-created_at')[:100]
+        GameSession.objects.select_related('created_by')
+        .prefetch_related('player_sessions')
+        .order_by('-created_at')[:100]
     )
 
     # Open multiplayer lobbies anyone can join
@@ -109,6 +111,16 @@ def home(request):
         s for s in all_sessions
         if s.status == GameSession.STATUS_LOBBY and s.player_sessions.exists()
     ]
+    for s in lobby_sessions:
+        ordered_slots = sorted(
+            s.player_sessions.all(),
+            key=lambda ps: ALL_ROLES.index(ps.role) if ps.role in ALL_ROLES else 999,
+        )
+        # Prefer an unclaimed slot; fallback to first slot for legacy sessions.
+        join_slot = next((ps for ps in ordered_slots if ps.user_id is None), None)
+        if not join_slot and ordered_slots:
+            join_slot = ordered_slots[0]
+        s.public_join_token = join_slot.token if join_slot else None
     # Active multiplayer games (spectate/observe)
     active_sessions = [
         s for s in all_sessions

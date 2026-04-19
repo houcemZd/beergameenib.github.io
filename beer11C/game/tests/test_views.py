@@ -76,6 +76,21 @@ class HomeViewTest(TestCase):
         r = self.client.get(reverse('home'))
         self.assertNotIn(session, r.context['my_sessions'])
 
+    def test_lobby_sessions_expose_join_token_link(self):
+        other = _make_user('bob', 'securepass99')
+        session = _make_session(user=other, status=GameSession.STATUS_LOBBY)
+        claimed = _make_player_session(session, 'retailer', user=other)
+        open_slot = _make_player_session(session, 'wholesaler')
+
+        r = self.client.get(reverse('home'))
+        self.assertEqual(r.status_code, 200)
+        self.assertIn(session, r.context['lobby_sessions'])
+        lobby_session = next((s for s in r.context['lobby_sessions'] if s.id == session.id), None)
+        self.assertIsNotNone(lobby_session)
+        self.assertEqual(lobby_session.public_join_token, open_slot.token)
+        self.assertContains(r, reverse('join_game', args=[open_slot.token]))
+        self.assertNotContains(r, reverse('join_game', args=[claimed.token]))
+
 
 class NewGameViewTest(TestCase):
     def setUp(self):

@@ -423,7 +423,7 @@
       {% endfor %}
     </div>
     <div style="display:flex; gap:.4rem; flex-shrink:0;">
-      <a href="{% url 'lobby' s.id %}" class="btn btn-primary btn-sm" style="font-size:.78rem; padding:.35rem .9rem;">
+      <a href="{% if s.public_join_token %}{% url 'join_game' s.public_join_token %}{% else %}{% url 'lobby' s.id %}{% endif %}" class="btn btn-primary btn-sm" style="font-size:.78rem; padding:.35rem .9rem;">
         Rejoindre →
       </a>
       {% if request.user.is_staff %}
