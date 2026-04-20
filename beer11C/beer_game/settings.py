@@ -1,8 +1,8 @@
 import os
 import socket as _socket
 from pathlib import Path
-from urllib.parse import urlparse
 import dj_database_url
+from beer_game.host_utils import normalize_host
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -20,44 +20,6 @@ SECRET_KEY = os.environ.get(
 
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-def _normalize_host(value: str) -> str:
-    """
-    Accept bare hosts or URLs and return a Django ALLOWED_HOSTS-compatible host.
-    """
-    value = value.strip()
-    if not value:
-        return ''
-
-    if value == '*' or value.startswith('.'):
-        return value
-
-    if '://' not in value:
-        host = value.split('/', 1)[0].strip()
-        if host.startswith('['):
-            closing_bracket = host.find(']')
-            if closing_bracket > 1 and (
-                closing_bracket == len(host) - 1 or host[closing_bracket + 1] == ':'
-            ):
-                return host[1:closing_bracket]
-            return ''
-        if host.count(':') > 1:
-            # Unbracketed IPv6 literal.
-            return host
-        if host.count(':') == 1:
-            return host.split(':', 1)[0].strip()
-
-    # Handles values like "example.com", "example.com:443", and full URLs.
-    parsed = urlparse(value if '://' in value else f'//{value}')
-    if parsed.hostname:
-        return parsed.hostname
-
-    # If a URL-like value was provided but cannot be parsed to a hostname, reject it.
-    if '://' in value:
-        return ''
-
-    return ''
-
-
 _raw_allowed_hosts = [h for h in os.environ.get('ALLOWED_HOSTS', '').split(',') if h.strip()]
 _render_external_hostname = os.environ.get('RENDER_EXTERNAL_HOSTNAME', '').strip()
 if _render_external_hostname:
@@ -68,7 +30,7 @@ if _render_external_url:
     _raw_allowed_hosts.append(_render_external_url)
 _extra_hosts = []
 for host_value in _raw_allowed_hosts:
-    normalized_host = _normalize_host(host_value)
+    normalized_host = normalize_host(host_value)
     if normalized_host:
         _extra_hosts.append(normalized_host)
 # De-duplicate while preserving insertion order.
