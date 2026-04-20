@@ -2,6 +2,7 @@ import os
 import socket as _socket
 from pathlib import Path
 import dj_database_url
+from beer_game.host_utils import normalize_host
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -19,8 +20,21 @@ SECRET_KEY = os.environ.get(
 
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-_extra_hosts = [h.strip() for h in os.environ.get('ALLOWED_HOSTS', '').split(',') if h.strip()]
-ALLOWED_HOSTS = ['localhost', '127.0.0.1'] + _extra_hosts
+_raw_allowed_hosts = [h.strip() for h in os.environ.get('ALLOWED_HOSTS', '').split(',') if h.strip()]
+_render_external_hostname = os.environ.get('RENDER_EXTERNAL_HOSTNAME', '').strip()
+if _render_external_hostname:
+    _raw_allowed_hosts.append(_render_external_hostname)
+
+_render_external_url = os.environ.get('RENDER_EXTERNAL_URL', '').strip()
+if _render_external_url:
+    _raw_allowed_hosts.append(_render_external_url)
+_extra_hosts = []
+for host_value in _raw_allowed_hosts:
+    normalized_host = normalize_host(host_value)
+    if normalized_host:
+        _extra_hosts.append(normalized_host)
+# De-duplicate while preserving insertion order.
+ALLOWED_HOSTS = list(dict.fromkeys(['localhost', '127.0.0.1'] + _extra_hosts))
 
 # CSRF trusted origins — set via env for cross-device access
 _extra_origins = [o.strip() for o in os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',') if o.strip()]
