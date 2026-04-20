@@ -31,6 +31,21 @@ def _normalize_host(value: str) -> str:
     if value == '*' or value.startswith('.'):
         return value
 
+    if '://' not in value:
+        host = value.split('/', 1)[0].strip()
+        if host.startswith('['):
+            closing_bracket = host.find(']')
+            if closing_bracket > 1 and (
+                closing_bracket == len(host) - 1 or host[closing_bracket + 1] == ':'
+            ):
+                return host[1:closing_bracket]
+            return ''
+        if host.count(':') > 1:
+            # Unbracketed IPv6 literal.
+            return host
+        if host.count(':') == 1:
+            return host.split(':', 1)[0].strip()
+
     # Handles values like "example.com", "example.com:443", and full URLs.
     parsed = urlparse(value if '://' in value else f'//{value}')
     if parsed.hostname:
@@ -40,14 +55,7 @@ def _normalize_host(value: str) -> str:
     if '://' in value:
         return ''
 
-    host = value.split('/', 1)[0].strip()
-    if host.startswith('['):
-        closing_bracket = host.find(']')
-        if closing_bracket > 1:
-            return host[1:closing_bracket]
-    if host.count(':') == 1:
-        return host.split(':', 1)[0].strip()
-    return host
+    return ''
 
 
 _raw_allowed_hosts = [h for h in os.environ.get('ALLOWED_HOSTS', '').split(',') if h.strip()]
