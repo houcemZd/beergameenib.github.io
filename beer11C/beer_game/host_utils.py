@@ -1,3 +1,4 @@
+import ipaddress
 from urllib.parse import urlparse
 
 
@@ -22,8 +23,11 @@ def normalize_host(value: str) -> str:
                 return host[1:closing_bracket]
             return ''
         if host.count(':') > 1:
-            # Unbracketed IPv6 literal.
-            return host
+            try:
+                ipaddress.IPv6Address(host)
+                return host
+            except ValueError:
+                return ''
         if host.count(':') == 1:
             return host.split(':', 1)[0].strip()
         return host

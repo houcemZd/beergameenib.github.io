@@ -29,3 +29,4 @@ class NormalizeHostTest(SimpleTestCase):
     def test_rejects_malformed(self):
         self.assertEqual(normalize_host('://example.com'), '')
         self.assertEqual(normalize_host('[::1'), '')
+        self.assertEqual(normalize_host('example.com:8080:extra'), '')
