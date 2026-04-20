@@ -1,6 +1,7 @@
 import os
 import socket as _socket
 from pathlib import Path
+from urllib.parse import urlparse
 import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -19,8 +20,31 @@ SECRET_KEY = os.environ.get(
 
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-_extra_hosts = [h.strip() for h in os.environ.get('ALLOWED_HOSTS', '').split(',') if h.strip()]
-ALLOWED_HOSTS = ['localhost', '127.0.0.1'] + _extra_hosts
+def _normalize_host(value: str) -> str:
+    """
+    Accept bare hosts or URLs and return a Django ALLOWED_HOSTS-compatible host.
+    """
+    value = value.strip()
+    if not value:
+        return ''
+
+    # Handles values like "example.com", "example.com:443", and full URLs.
+    parsed = urlparse(value if '://' in value else f'//{value}')
+    if parsed.hostname:
+        return parsed.hostname
+
+    return value.split('/')[0].split(':')[0].strip()
+
+
+_raw_allowed_hosts = [h for h in os.environ.get('ALLOWED_HOSTS', '').split(',') if h.strip()]
+_raw_allowed_hosts.append(os.environ.get('RENDER_EXTERNAL_HOSTNAME', '').strip())
+_raw_allowed_hosts.append(os.environ.get('RENDER_EXTERNAL_URL', '').strip())
+_extra_hosts = []
+for host_value in _raw_allowed_hosts:
+    normalized_host = _normalize_host(host_value)
+    if normalized_host:
+        _extra_hosts.append(normalized_host)
+ALLOWED_HOSTS = list(dict.fromkeys(['localhost', '127.0.0.1'] + _extra_hosts))
 
 # CSRF trusted origins — set via env for cross-device access
 _extra_origins = [o.strip() for o in os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',') if o.strip()]
