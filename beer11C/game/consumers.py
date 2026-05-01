@@ -132,7 +132,7 @@ class GameConsumer(AsyncWebsocketConsumer):
         phase = ps.turn_phase
 
         if ps.role == 'customer':
-            if phase == PlayerSession.PHASE_DONE:
+            if phase in (PlayerSession.PHASE_DONE, PlayerSession.PHASE_WEEK_READY):
                 # Customer already submitted — show submitted state + week-ready
                 await self.send(text_data=json.dumps({
                     'type':     'phase_done',
@@ -206,7 +206,7 @@ class GameConsumer(AsyncWebsocketConsumer):
                 'outgoing_orders': state.get('outgoing_orders', []),
             }))
 
-        elif phase == PlayerSession.PHASE_DONE:
+        elif phase in (PlayerSession.PHASE_DONE, PlayerSession.PHASE_WEEK_READY):
             # They already submitted — show done panel + week-ready button
             await self.send(text_data=json.dumps({
                 'type':         'phase_done',
@@ -402,7 +402,7 @@ class GameConsumer(AsyncWebsocketConsumer):
 
         # ── Customer submits demand ──────────────────────────────────────────
         if role == 'customer':
-            if ps.turn_phase == PlayerSession.PHASE_DONE:
+            if ps.turn_phase in (PlayerSession.PHASE_DONE, PlayerSession.PHASE_WEEK_READY):
                 await self._send_error("Already submitted this week.")
                 return
             await self._set_customer_demand(qty)
@@ -427,7 +427,7 @@ class GameConsumer(AsyncWebsocketConsumer):
             return
 
         # ── Non-customer: must be in PHASE_ORDER ────────────────────────────
-        if ps.turn_phase == PlayerSession.PHASE_DONE:
+        if ps.turn_phase in (PlayerSession.PHASE_DONE, PlayerSession.PHASE_WEEK_READY):
             await self._send_error("Already submitted this week.")
             return
         if ps.turn_phase != PlayerSession.PHASE_ORDER:
@@ -911,7 +911,7 @@ class GameConsumer(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def _all_phase_done(self):
-        """All PlayerSessions (including customer) at PHASE_DONE."""
+        """All PlayerSessions (including customer) at PHASE_DONE or PHASE_WEEK_READY."""
         required = set(
             GameSession.objects.get(id=self.session_id)
             .player_sessions.values_list('role', flat=True)
@@ -921,7 +921,7 @@ class GameConsumer(AsyncWebsocketConsumer):
         done = set(
             PlayerSession.objects.filter(
                 game_session_id=self.session_id,
-                turn_phase=PlayerSession.PHASE_DONE,
+                turn_phase__in=[PlayerSession.PHASE_DONE, PlayerSession.PHASE_WEEK_READY],
             ).values_list('role', flat=True)
         )
         return required <= done
@@ -947,19 +947,16 @@ class GameConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def _mark_week_ready_flag(self):
         """
-        We reuse the GameSession.submitted_roles field to track who clicked
-        'Prêt pour semaine suivante'. At phase_done we mark submitted; here
-        we just need to know everyone is in PHASE_DONE (already true by guard).
-        No extra field needed — _all_week_ready just checks all are PHASE_DONE
-        AND have clicked (we flip them to a new sentinel via pending_order==-1).
+        Advance this player's turn_phase to PHASE_WEEK_READY so that
+        _all_week_ready can check it without relying on a pending_order sentinel.
         """
         PlayerSession.objects.filter(
             token=self.token
-        ).update(pending_order=-1)   # sentinel: -1 = week_ready clicked
+        ).update(turn_phase=PlayerSession.PHASE_WEEK_READY)
 
     @database_sync_to_async
     def _all_week_ready(self):
-        """All connected PlayerSessions have clicked week_ready (pending_order==-1)."""
+        """All PlayerSessions have turn_phase == PHASE_WEEK_READY."""
         required = set(
             GameSession.objects.get(id=self.session_id)
             .player_sessions.values_list('role', flat=True)
@@ -969,7 +966,7 @@ class GameConsumer(AsyncWebsocketConsumer):
         ready = set(
             PlayerSession.objects.filter(
                 game_session_id=self.session_id,
-                pending_order=-1,
+                turn_phase=PlayerSession.PHASE_WEEK_READY,
             ).values_list('role', flat=True)
         )
         return required <= ready
@@ -979,7 +976,7 @@ class GameConsumer(AsyncWebsocketConsumer):
         ready_roles = await database_sync_to_async(
             lambda: list(PlayerSession.objects.filter(
                 game_session_id=self.session_id,
-                pending_order=-1,
+                turn_phase=PlayerSession.PHASE_WEEK_READY,
             ).values_list('role', flat=True))
         )()
         total = await database_sync_to_async(

@@ -546,8 +546,8 @@ def _close_week_inner(session, week):
 def ai_complete_role(session, role):
     """
     Complete all three weekly phases (receive → ship → order) for an AI-managed
-    role using the base-stock AI policy.  Also sets the week_ready sentinel
-    (pending_order = -1) so the week can advance without a human click.
+    role using the base-stock AI policy.  Also sets turn_phase to PHASE_WEEK_READY
+    so the week can advance without a human click.
 
     Safe to call from both the HTTP view (sync) and the consumer (via
     database_sync_to_async).
@@ -577,9 +577,9 @@ def ai_complete_role(session, role):
         ps.refresh_from_db()
         changed = True
 
-    # Mark week_ready sentinel so the week can advance without a human click.
+    # Advance to week_ready so the week can close without a human click.
     if ps.turn_phase == PlayerSession.PHASE_DONE:
-        PlayerSession.objects.filter(id=ps.id).update(pending_order=-1)
+        PlayerSession.objects.filter(id=ps.id).update(turn_phase=PlayerSession.PHASE_WEEK_READY)
 
     return changed
 

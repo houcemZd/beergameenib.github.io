@@ -186,11 +186,12 @@ class CustomerDemand(models.Model):
 
 
 class PlayerSession(models.Model):
-    PHASE_IDLE    = 'idle'
-    PHASE_RECEIVE = 'receive'
-    PHASE_SHIP    = 'ship'
-    PHASE_ORDER   = 'order'
-    PHASE_DONE    = 'done'
+    PHASE_IDLE       = 'idle'
+    PHASE_RECEIVE    = 'receive'
+    PHASE_SHIP       = 'ship'
+    PHASE_ORDER      = 'order'
+    PHASE_DONE       = 'done'
+    PHASE_WEEK_READY = 'week_ready'
 
     ROLE_CHOICES = [
         ('customer',    'Customer'),
