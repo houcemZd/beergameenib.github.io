@@ -85,6 +85,26 @@ class GameSessionModelTest(TestCase):
         self.session.mark_ready('retailer')
         self.assertTrue(self.session.all_ready())
 
+    def test_all_ready_scheduled_demand_excludes_customer(self):
+        """With a demand schedule, customer must not block all_ready."""
+        self.session.demand_schedule = [4, 4, 4, 8, 8, 8]
+        self.session.save(update_fields=['demand_schedule'])
+        _make_player_session(self.session, 'retailer')
+        _make_player_session(self.session, 'customer')  # never marks ready
+        self.assertFalse(self.session.all_ready())  # retailer not ready yet
+        self.session.mark_ready('retailer')
+        self.assertTrue(self.session.all_ready())   # customer excluded → ready
+
+    def test_all_ready_manual_demand_requires_customer(self):
+        """Without a demand schedule (manual mode), customer must mark ready."""
+        # demand_schedule is None by default
+        _make_player_session(self.session, 'retailer')
+        _make_player_session(self.session, 'customer')
+        self.session.mark_ready('retailer')
+        self.assertFalse(self.session.all_ready())  # customer still needed
+        self.session.mark_ready('customer')
+        self.assertTrue(self.session.all_ready())
+
     def test_status_constants(self):
         self.assertEqual(GameSession.STATUS_LOBBY, 'lobby')
         self.assertEqual(GameSession.STATUS_PLAYING, 'playing')

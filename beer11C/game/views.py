@@ -225,6 +225,10 @@ def game_init(request, session_id):
         session.demand_schedule = demand_schedule
         session.save(update_fields=['demand_schedule'])
 
+        # Clear any existing pipeline data so re-submissions don't duplicate entries
+        PipelineShipment.objects.filter(receiver__session=session).delete()
+        PipelineOrder.objects.filter(sender__session=session).delete()
+
         # Call initialise_session with custom pipeline values
         initialise_session(
             session,

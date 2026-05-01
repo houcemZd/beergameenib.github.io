@@ -148,6 +148,16 @@ class OpenWeekTest(TestCase):
         cust.refresh_from_db()
         self.assertEqual(cust.turn_phase, PlayerSession.PHASE_IDLE)
 
+    def test_customer_week_ready_when_demand_schedule_set(self):
+        """When a demand schedule drives demand, customer is auto-advanced to PHASE_WEEK_READY."""
+        self.session.demand_schedule = [4, 4, 4, 8, 8, 8]
+        self.session.pending_customer_demand = None  # let open_week pull from schedule
+        self.session.save(update_fields=['demand_schedule', 'pending_customer_demand'])
+        open_week(self.session)
+        cust = self.session.player_sessions.get(role='customer')
+        cust.refresh_from_db()
+        self.assertEqual(cust.turn_phase, PlayerSession.PHASE_WEEK_READY)
+
     def test_retailer_pending_order_qty_equals_customer_demand(self):
         open_week(self.session)
         ps_retailer = self.session.player_sessions.get(role='retailer')

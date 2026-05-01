@@ -196,8 +196,15 @@ def open_week(session):
     # --- Update PlayerSession staging fields ---
     for ps in session.player_sessions.all():
         if ps.role == 'customer':
-            # customer doesn't go through receive/ship
-            ps.turn_phase           = PlayerSession.PHASE_IDLE
+            # customer doesn't go through receive/ship.
+            # When using a demand schedule, demand is already populated above so
+            # the customer is effectively "done"; advance straight to PHASE_WEEK_READY
+            # so _all_phase_done() and _all_week_ready() don't stall waiting for a
+            # human customer that will never connect.
+            if session.demand_schedule is not None:
+                ps.turn_phase = PlayerSession.PHASE_WEEK_READY
+            else:
+                ps.turn_phase = PlayerSession.PHASE_IDLE
             ps.pending_received_qty = 0
             ps.pending_order_qty    = 0
             ps.pending_ship_qty     = None

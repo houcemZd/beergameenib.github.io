@@ -165,7 +165,7 @@
     </div>
 
     <!-- ── Demand Schedule ── -->
-    <div class="card" style="margin-bottom:1.25rem;">
+    <div class="card" id="demand-card" style="margin-bottom:1.25rem;">
       <div class="card-title">Customer Demand Mode</div>
       <p style="font-size:.75rem; color:var(--muted); margin-bottom:.85rem;">
         Choose how customer demand is generated each week. Pre-seeded schedules remove the need for a live customer player.
@@ -334,7 +334,7 @@
               </div>
             </div>
             <button type="button" class="btn btn-ghost btn-sm" style="flex-shrink:0;"
-                    onclick="applyScenario(12,4,4,'classic','')">
+                    onclick="applyScenario(12,4,4,'classic','',this)">
               Apply
             </button>
           </div>
@@ -350,7 +350,7 @@
               </div>
             </div>
             <button type="button" class="btn btn-ghost btn-sm" style="flex-shrink:0;"
-                    onclick="applyScenario(12,4,4,'custom','4,4,4,4,20,8,8,8,8,8')">
+                    onclick="applyScenario(12,4,4,'custom','4,4,4,4,20,8,8,8,8,8',this)">
               Apply
             </button>
           </div>
@@ -366,7 +366,7 @@
               </div>
             </div>
             <button type="button" class="btn btn-ghost btn-sm" style="flex-shrink:0;"
-                    onclick="applyScenario(12,4,4,'custom','4,4,8,8,4,4,8,8,4,4,8,8,4,4,8,8,4,4,8,8,4,4,8,8')">
+                    onclick="applyScenario(12,4,4,'custom','4,4,8,8,4,4,8,8,4,4,8,8,4,4,8,8,4,4,8,8,4,4,8,8',this)">
               Apply
             </button>
           </div>
@@ -382,7 +382,7 @@
               </div>
             </div>
             <button type="button" class="btn btn-ghost btn-sm" style="flex-shrink:0;"
-                    onclick="applyScenario(12,4,4,'custom','4,4,4,4,0,0,0,8,8,8')">
+                    onclick="applyScenario(12,4,4,'custom','4,4,4,4,0,0,0,8,8,8',this)">
               Apply
             </button>
           </div>
@@ -398,7 +398,7 @@
               </div>
             </div>
             <button type="button" class="btn btn-ghost btn-sm" style="flex-shrink:0;"
-                    onclick="applyScenario(8,2,2,'custom','2,3,4,5,6,7,8,9,10')">
+                    onclick="applyScenario(8,2,2,'custom','2,3,4,5,6,7,8,9,10',this)">
               Apply
             </button>
           </div>
@@ -414,7 +414,7 @@
               </div>
             </div>
             <button type="button" class="btn btn-ghost btn-sm" style="flex-shrink:0;"
-                    onclick="applyScenario(12,4,4,'custom','4,6,3,7,5,8,4,6,5,7,4,6,3,7,5,8,4,6,5,7')">
+                    onclick="applyScenario(12,4,4,'custom','4,6,3,7,5,8,4,6,5,7,4,6,3,7,5,8,4,6,5,7',this)">
               Apply
             </button>
           </div>
@@ -452,7 +452,7 @@ function applyPreset(inv, orders, incoming) {
   updatePreview();
 }
 
-function applyScenario(inv, orders, incoming, demandMode, demandValues) {
+function applyScenario(inv, orders, incoming, demandMode, demandValues, btn) {
   // Apply initial state
   applyPreset(inv, orders, incoming);
   // Apply demand mode
@@ -467,6 +467,16 @@ function applyScenario(inv, orders, incoming, demandMode, demandValues) {
   } else {
     customRow.style.display = 'none';
   }
+  // Visual confirmation on the button
+  if (btn) {
+    const originalText = btn.textContent;
+    btn.textContent = '✓ Applied';
+    btn.style.color = 'var(--success, #22c55e)';
+    setTimeout(() => { btn.textContent = originalText; btn.style.color = ''; }, 1600);
+  }
+  // Scroll to demand card so the user can see the mode change
+  const demandCard = document.getElementById('demand-card');
+  if (demandCard) demandCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 function updatePreview() {

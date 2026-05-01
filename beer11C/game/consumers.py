@@ -907,6 +907,9 @@ class GameConsumer(AsyncWebsocketConsumer):
         required = set(session.player_sessions.values_list('role', flat=True))
         if not required:
             return True
+        # When a demand schedule is configured, the customer is automated.
+        if session.demand_schedule is not None:
+            required.discard('customer')
         return required <= set(session.ready_role_list)
 
     @database_sync_to_async

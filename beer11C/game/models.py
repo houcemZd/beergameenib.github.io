@@ -77,6 +77,10 @@ class GameSession(models.Model):
         required = set(self.player_sessions.values_list('role', flat=True))
         if not required:
             return True
+        # When a demand schedule is configured, the customer role is automated
+        # and will never click "ready" — exclude it from the required set.
+        if self.demand_schedule is not None:
+            required.discard('customer')
         return required <= set(self.ready_role_list)
 
     @property
