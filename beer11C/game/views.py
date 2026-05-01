@@ -845,8 +845,8 @@ def ai_replace_role(request, session_id, role):
 
     all_ps        = list(session.player_sessions.all())
     required_roles = {p.role for p in all_ps}
-    done_roles     = {p.role for p in all_ps if p.turn_phase == PlayerSession.PHASE_DONE}
-    week_ready_roles = {p.role for p in all_ps if p.pending_order == -1}
+    done_roles       = {p.role for p in all_ps if p.turn_phase in (PlayerSession.PHASE_DONE, PlayerSession.PHASE_WEEK_READY)}
+    week_ready_roles = {p.role for p in all_ps if p.turn_phase == PlayerSession.PHASE_WEEK_READY}
     connected      = [p.role for p in all_ps if p.is_connected]
     phases         = {p.role: p.turn_phase for p in all_ps}
 
