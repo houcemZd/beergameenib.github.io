@@ -361,8 +361,16 @@
 <div class="card" style="margin-bottom:1.4rem; padding:.8rem 1.2rem;">
   <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:.75rem;">
     <div style="display:flex; gap:.4rem; flex-wrap:wrap; align-items:center;" id="orb-row">
-      {% for link in role_links %}
-      <div class="orb" id="orb-{{ link.role }}">{{ link.emoji }} {{ link.role|title }}</div>
+      {% for role in session.player_sessions.all %}
+      <div class="orb" id="orb-{{ role.role }}">
+        {% if role.role == 'customer' %}👤{% elif role.role == 'retailer' %}🛒{% elif role.role == 'wholesaler' %}🏪{% elif role.role == 'distributor' %}🚚{% elif role.role == 'factory' %}🏭{% endif %}
+        {{ role.role|title }}
+      </div>
+      {% empty %}
+      <div class="orb" id="orb-retailer">🛒 Retailer</div>
+      <div class="orb" id="orb-wholesaler">🏪 Wholesaler</div>
+      <div class="orb" id="orb-distributor">🚚 Distributor</div>
+      <div class="orb" id="orb-factory">🏭 Factory</div>
       {% endfor %}
     </div>
     <div style="display:flex; align-items:center; gap:1rem;">
@@ -387,6 +395,8 @@
      PRE-GAME SECTION
 ════════════════════════════════════════════════════════════════════════════ -->
 <div id="section-pregame">
+
+{% if is_member %}
 <div class="lobby-grid">
 
 <!-- ══ LEFT: Role invite cards ══════════════════════════════════════════════ -->
@@ -536,6 +546,61 @@
 </div>
 {% endif %}
 
+{% else %}
+<!-- ══ SPECTATOR pre-game view (not a member) ════════════════════════════════ -->
+<div class="card" style="text-align:center; padding:2rem 1.5rem; margin-bottom:1.5rem;">
+  <div style="font-size:2.5rem; margin-bottom:.5rem;">👀</div>
+  <div style="font-family:var(--font-mono); font-size:1rem; font-weight:700; margin-bottom:.35rem;">Spectating</div>
+  <div style="color:var(--muted); font-size:.82rem; margin-bottom:1.25rem;">
+    This game is waiting for players to join. Once the host starts the game you'll see the live board here.
+  </div>
+  <div class="settings-grid" style="max-width:380px; margin:0 auto;">
+    <div class="settings-item">
+      <div class="settings-item-label">Session</div>
+      <div class="settings-item-value" style="font-size:.82rem;">{{ session.name }}</div>
+    </div>
+    <div class="settings-item">
+      <div class="settings-item-label">Max Weeks</div>
+      <div class="settings-item-value">{{ game_settings.max_weeks }}</div>
+    </div>
+    <div class="settings-item">
+      <div class="settings-item-label">Mode</div>
+      <div class="settings-item-value">{{ session.get_visibility_mode_display }}</div>
+    </div>
+  </div>
+</div>
+
+<!-- Pre-game supply chain preview (spectator) -->
+<div class="card" id="pregame-board-card" style="margin-bottom:1.5rem; padding:1.1rem 1.25rem; display:none;">
+  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:.9rem;">
+    <div class="card-title" style="margin:0;">Supply Chain Board — Initial State</div>
+    <div style="font-size:.62rem; color:var(--muted); font-family:var(--font-mono);">
+      <span style="color:rgba(245,200,66,.8);">&#9632;</span> initial inventory
+    </div>
+  </div>
+  <div style="overflow-x:auto; padding:.2rem 0;">
+    <div id="pregame-chain"></div>
+  </div>
+</div>
+
+<!-- Spectator lobby chat -->
+<div class="card" style="padding:0; margin-bottom:1.5rem;">
+  <div style="padding:.75rem 1rem .4rem; display:flex; align-items:center; gap:.4rem;">
+    <div class="card-title" style="margin:0;">&#128172; Lobby Chat</div>
+    <div style="font-size:.6rem; color:var(--muted2); margin-left:auto;">live</div>
+  </div>
+  <div class="chat-box">
+    <div class="chat-messages" id="chat-messages">
+      <div class="chat-empty" id="chat-empty">No messages yet. Say hello! &#128075;</div>
+    </div>
+    <div class="chat-input-row">
+      <input class="chat-input" id="chat-input" type="text" placeholder="Type a message as spectator..." maxlength="300" autocomplete="off" />
+      <button class="chat-send" id="chat-send" onclick="sendChat()">Send</button>
+    </div>
+  </div>
+</div>
+{% endif %}
+
 </div>
 
 <!-- ══════════════════════════════════════════════════════════════════════════
@@ -598,12 +663,16 @@
 <script>
 const SESSION_ID = {{ session.id }};
 const IS_HOST    = {{ is_host|yesno:"true,false" }};
+const IS_MEMBER  = {{ is_member|yesno:"true,false" }};
 const CSRF_TOKEN = '{{ csrf_token }}';
 const ROLE_URLS  = {};
 document.querySelectorAll('[id^="pill-"]').forEach(function(el) {
   var role = el.id.replace('pill-', '');
   ROLE_URLS[role] = el.textContent.trim();
 });
+
+// All roles always available for progress ring
+var ALL_ROLES = ['customer','retailer','wholesaler','distributor','factory'];
 
 var EMOJIS = { customer:'\uD83D\uDC64', retailer:'\uD83D\uDED2', wholesaler:'\uD83C\uDFEA', distributor:'\uD83D\uDE9A', factory:'\uD83C\uDFED' };
 var ROLE_COLORS = { customer:'var(--muted)', retailer:'var(--retailer-color)', wholesaler:'var(--wholesaler-color)', distributor:'var(--distributor-color)', factory:'var(--factory-color)' };
@@ -645,8 +714,9 @@ function updateUI(d) {
   var wb = document.getElementById('week-badge');
   if (wb) wb.innerHTML = '<strong>' + d.current_week + '</strong> / ' + d.max_weeks + ' weeks';
 
+  // Update orbs and invite-link cards for all roles (members + spectators)
   var count = 0;
-  Object.keys(ROLE_URLS).forEach(function(role) {
+  ALL_ROLES.forEach(function(role) {
     var isIn = joined.indexOf(role) !== -1 || connected.indexOf(role) !== -1;
     if (isIn) count++;
     var card = document.getElementById('card-' + role);
@@ -665,7 +735,7 @@ function updateUI(d) {
     if (orb) orb.className = 'orb ' + (isIn ? 'joined' : '');
   });
 
-  var total = Object.keys(ROLE_URLS).length;
+  var total = ALL_ROLES.length;
   updateProgressRing(count, total);
 
   if (IS_HOST) {
@@ -736,6 +806,14 @@ function updateUI(d) {
         msg.textContent = '\u2713 All players are here!';
         msg.style.color = 'var(--success)';
       }
+    }
+
+    // Show initial board state for spectators in pre-game
+    if (!IS_MEMBER && d.players && d.players.length > 0) {
+      var boardCard = document.getElementById('pregame-board-card');
+      var chainEl   = document.getElementById('pregame-chain');
+      if (boardCard) boardCard.style.display = 'block';
+      if (chainEl) renderChainInto(chainEl, d.players, [], null);
     }
   }
 
@@ -883,6 +961,11 @@ function renderSpecCards(players) {
 
 function renderChain(players, pipeline, lastDemand) {
   var container = document.getElementById('spec-chain');
+  if (!container) return;
+  renderChainInto(container, players, pipeline, lastDemand);
+}
+
+function renderChainInto(container, players, pipeline, lastDemand) {
   if (!container) return;
   if (!players || !players.length) {
     container.innerHTML = '<div style="font-size:.75rem;color:var(--muted);padding:.4rem 0;">Waiting for players to populate the board...</div>';

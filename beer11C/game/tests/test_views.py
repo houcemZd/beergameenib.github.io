@@ -224,10 +224,11 @@ class LobbyStatusAuthorizationTest(TestCase):
         r = self.client.get(reverse('lobby_status', args=[self.session.id]))
         self.assertEqual(r.status_code, 200)
 
-    def test_non_member_gets_403(self):
+    def test_non_member_gets_200(self):
+        """Any authenticated user (spectator) can access lobby status — no longer blocked."""
         self.client.login(username='other', password='securepass99')
         r = self.client.get(reverse('lobby_status', args=[self.session.id]))
-        self.assertEqual(r.status_code, 403)
+        self.assertEqual(r.status_code, 200)
 
 
 class ChartDataAPIAuthorizationTest(TestCase):

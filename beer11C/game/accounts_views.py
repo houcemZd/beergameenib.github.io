@@ -1,6 +1,6 @@
 """
 accounts/views.py — Beer Game authentication views
-Login · Register · Logout
+Login · Register · Logout · Profile · Delete account
 """
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
 
@@ -72,4 +73,37 @@ def register_view(request):
 @require_POST
 def logout_view(request):
     logout(request)
+    return redirect('login')
+
+
+@login_required
+def profile_view(request):
+    if request.method == 'POST':
+        # Update profile fields
+        first_name = request.POST.get('first_name', '').strip()
+        email      = request.POST.get('email', '').strip()
+        user = request.user
+        user.first_name = first_name
+        user.email = email
+        user.save(update_fields=['first_name', 'email'])
+        messages.success(request, 'Profile updated.')
+        return redirect('profile')
+
+    # Gather stats for display
+    from .models import GameSession, PlayerSession
+    created_games = GameSession.objects.filter(created_by=request.user).count()
+    played_roles  = PlayerSession.objects.filter(user=request.user).select_related('game_session')
+    return render(request, 'accounts/profile.html', {
+        'created_games': created_games,
+        'played_roles':  played_roles,
+    })
+
+
+@require_POST
+@login_required
+def delete_account_view(request):
+    user = request.user
+    logout(request)
+    user.delete()
+    messages.success(request, 'Your account has been deleted.')
     return redirect('login')

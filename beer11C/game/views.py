@@ -155,16 +155,20 @@ def home(request):
 @login_required
 def new_game(request):
     if request.method == 'POST':
-        name      = request.POST.get('name', 'Beer Game').strip() or 'Beer Game'
-        max_weeks = int(request.POST.get('max_weeks', 20))
-        max_weeks = max(12, min(40, max_weeks))
-        mode      = request.POST.get('mode', 'single')
+        name             = request.POST.get('name', 'Beer Game').strip() or 'Beer Game'
+        max_weeks        = int(request.POST.get('max_weeks', 20))
+        max_weeks        = max(12, min(40, max_weeks))
+        mode             = request.POST.get('mode', 'single')
+        visibility_mode  = request.POST.get('visibility_mode', GameSession.MODE1)
+        if visibility_mode not in (GameSession.MODE1, GameSession.MODE2):
+            visibility_mode = GameSession.MODE1
 
         session = GameSession.objects.create(
             name=name,
             max_weeks=max_weeks,
             status=GameSession.STATUS_LOBBY,
-            created_by=request.user,          # ← NEW: track creator
+            created_by=request.user,
+            visibility_mode=visibility_mode,
         )
         for player_name, role in [
             ('Retailer','retailer'), ('Wholesaler','wholesaler'),
@@ -254,18 +258,19 @@ def game_init(request, session_id):
 @login_required
 def lobby(request, session_id):
     session = get_object_or_404(GameSession, id=session_id)
-    denied  = _require_member(request, session)
-    if denied:
-        return denied
+    is_member = _is_session_member(request, session)
+    is_host   = (session.created_by == request.user)
+
     role_links = []
-    for ps in sorted(session.player_sessions.all(), key=lambda p: ALL_ROLES.index(p.role)):
-        join_url = request.build_absolute_uri(f'/join/{ps.token}/')
-        role_links.append({
-            'role':     ps.role,
-            'emoji':    ROLE_EMOJIS.get(ps.role, ''),
-            'token':    ps.token,
-            'url':      join_url,
-        })
+    if is_member:
+        for ps in sorted(session.player_sessions.all(), key=lambda p: ALL_ROLES.index(p.role)):
+            join_url = request.build_absolute_uri(f'/join/{ps.token}/')
+            role_links.append({
+                'role':     ps.role,
+                'emoji':    ROLE_EMOJIS.get(ps.role, ''),
+                'token':    ps.token,
+                'url':      join_url,
+            })
 
     # Initial board state for the preview — separate orders vs shipments
     initial_players  = _sorted_players(session.players.all())
@@ -289,8 +294,6 @@ def lobby(request, session_id):
         'pipeline_delay':    2,
     }
 
-    is_host = (session.created_by == request.user)
-
     return render(request, 'game/lobby.html', {
         'session':         session,
         'role_links':      role_links,
@@ -300,6 +303,7 @@ def lobby(request, session_id):
         'initial_inv':     initial_inv,
         'game_settings':   game_settings,
         'is_host':         is_host,
+        'is_member':       is_member,
     })
 
 
@@ -307,9 +311,7 @@ def lobby(request, session_id):
 @login_required
 def lobby_status(request, session_id):
     session = get_object_or_404(GameSession, id=session_id)
-    denied  = _require_member(request, session)
-    if denied:
-        return JsonResponse({'error': 'Forbidden'}, status=403)
+    # Allow any authenticated user (spectators included)
     player_sessions = list(session.player_sessions.all())
     joined      = [ps.role for ps in player_sessions if ps.name]
     connected   = [ps.role for ps in player_sessions if ps.is_connected]
@@ -324,18 +326,18 @@ def lobby_status(request, session_id):
     is_host = (session.created_by == request.user)
 
     # Include live player board data so the lobby can act as a spectator view
+    # Also include initial state in pre-game so the board preview is visible
     players_data = []
-    if game_started or is_finished:
-        for player in _sorted_players(session.players.all()):
-            last_state = player.history.order_by('-week').first()
-            players_data.append({
-                'role':         player.role,
-                'name':         player.name,
-                'inventory':    player.inventory,
-                'backlog':      player.backlog,
-                'total_cost':   round(player.total_cost, 1),
-                'order_placed': last_state.order_placed if last_state else 0,
-            })
+    for player in _sorted_players(session.players.all()):
+        last_state = player.history.order_by('-week').first()
+        players_data.append({
+            'role':         player.role,
+            'name':         player.name,
+            'inventory':    player.inventory,
+            'backlog':      player.backlog,
+            'total_cost':   round(player.total_cost, 1),
+            'order_placed': last_state.order_placed if last_state else 0,
+        })
 
     # Last customer demand (useful for spectators)
     last_demand = None
@@ -471,18 +473,15 @@ def lobby_start_game(request, session_id):
 @login_required
 @require_POST
 def lobby_chat(request, session_id):
-    """Post a chat message in the lobby."""
+    """Post a chat message in the lobby. Any authenticated user may chat."""
     session = get_object_or_404(GameSession, id=session_id)
-    denied  = _require_member(request, session)
-    if denied:
-        return JsonResponse({'error': 'Forbidden'}, status=403)
     body = request.POST.get('body', '').strip()[:300]
     if not body:
         return JsonResponse({'error': 'Empty message.'}, status=400)
     author_name = request.user.first_name or request.user.username
-    # Find role for this user in the session
+    # Find role for this user in the session (spectators show as 'spectator')
     ps = session.player_sessions.filter(user=request.user).first()
-    author_role = ps.role if ps else 'host'
+    author_role = ps.role if ps else 'spectator'
     LobbyMessage.objects.create(
         game_session=session,
         author_name=author_name,
@@ -508,6 +507,7 @@ def play(request, session_id):
         'role': ps.role, 'emoji': ROLE_EMOJIS.get(ps.role, ''),
         'token': token, 'roles': ALL_ROLES,
         'ws_path': f"/ws/game/{session_id}/{token}/",
+        'visibility_mode': session.visibility_mode,
     })
 
 

@@ -130,6 +130,26 @@
         </select>
       </div>
 
+      <!-- Visibility Mode -->
+      <div class="form-section">
+        <label class="form-label">Visibility Mode</label>
+        <div class="mode-grid">
+          <div class="mode-card selected" id="card-vis1" onclick="selectVis('mode1')">
+            <div class="mode-check">✓</div>
+            <span class="mode-icon">🔒</span>
+            <div class="mode-name">Mode 1 — Standard</div>
+            <div class="mode-sub">Each player only sees their own information (classic Beer Game)</div>
+          </div>
+          <div class="mode-card" id="card-vis2" onclick="selectVis('mode2')">
+            <div class="mode-check">✓</div>
+            <span class="mode-icon">👁️</span>
+            <div class="mode-name">Mode 2 — Transparent</div>
+            <div class="mode-sub">Upstream players also see the downstream order in their order panel</div>
+          </div>
+        </div>
+        <input type="hidden" name="visibility_mode" id="vis-input" value="mode1" />
+      </div>
+
       <!-- Roles -->
       <div class="form-section">
         <label class="form-label">Supply Chain Roles</label>
@@ -164,6 +184,11 @@ function selectMode(mode) {
   document.getElementById('mode-input').value = mode;
   document.getElementById('card-single').classList.toggle('selected', mode === 'single');
   document.getElementById('card-multi').classList.toggle('selected',  mode === 'multi');
+}
+function selectVis(vis) {
+  document.getElementById('vis-input').value = vis;
+  document.getElementById('card-vis1').classList.toggle('selected', vis === 'mode1');
+  document.getElementById('card-vis2').classList.toggle('selected', vis === 'mode2');
 }
 </script>
 {% endblock %}

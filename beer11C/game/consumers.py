@@ -353,13 +353,20 @@ class GameConsumer(AsyncWebsocketConsumer):
         # Build updated state so client can refresh the board
         state = await self._build_state_for_role(ps.role)
 
+        # Mode 2: include the downstream order quantity so the client
+        # can display it in the order panel for better decision context.
+        downstream_order_qty = None
+        if session.visibility_mode == GameSession.MODE2:
+            downstream_order_qty = ps.pending_order_qty  # incoming demand from downstream
+
         await self.send(text_data=json.dumps({
-            'type':            'phase_order',
-            'shipped':         result.get('shipped', 0),
-            'demand_received': result.get('demand_received', 0),
-            'new_inventory':   result.get('new_inventory', 0),
-            'new_backlog':     result.get('new_backlog', 0),
-            'role':            ps.role,
+            'type':                 'phase_order',
+            'shipped':              result.get('shipped', 0),
+            'demand_received':      result.get('demand_received', 0),
+            'new_inventory':        result.get('new_inventory', 0),
+            'new_backlog':          result.get('new_backlog', 0),
+            'role':                 ps.role,
+            'downstream_order_qty': downstream_order_qty,
             # Full state for board refresh
             'map':             state.get('map', {}),
             'own':             state.get('own', {}),

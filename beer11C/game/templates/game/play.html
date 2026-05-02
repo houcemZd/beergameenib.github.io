@@ -1615,6 +1615,21 @@ body.crit-alert::after {
     </div>
     {% endif %}
 
+    <!-- ── Mode 2: Downstream order visibility ── -->
+    {% if visibility_mode == 'mode2' and role != 'retailer' and role != 'customer' %}
+    <div id="mode2-downstream-box" style="display:none; background:rgba(59,130,246,.07); border:1px solid rgba(59,130,246,.3); border-radius:8px; padding:.65rem .9rem; margin-bottom:.75rem;">
+      <div style="font-size:.62rem; text-transform:uppercase; letter-spacing:.09em; color:var(--wholesaler-color); font-family:var(--font-mono); font-weight:700; margin-bottom:4px;">
+        📋 Mode 2 — Downstream Order This Week
+      </div>
+      <div style="display:flex; align-items:center; justify-content:space-between;">
+        <span style="font-size:.76rem; color:var(--muted);" id="mode2-downstream-label">
+          {% if role == 'wholesaler' %}Retailer ordered:{% elif role == 'distributor' %}Wholesaler ordered:{% elif role == 'factory' %}Distributor ordered:{% endif %}
+        </span>
+        <span style="font-family:var(--font-mono); font-size:1.3rem; font-weight:800; color:var(--wholesaler-color);" id="mode2-downstream-qty">—</span>
+      </div>
+    </div>
+    {% endif %}
+
     <!-- ── Decision hint (collapsible) ── -->
     <details style="margin-bottom:.75rem;">
       <summary style="cursor:pointer; font-size:.72rem; color:var(--muted); padding:.3rem .1rem; user-select:none;">
@@ -1972,6 +1987,7 @@ const WS_URL     = `${WS_SCHEME}://${location.host}{{ ws_path }}`;
 const MY_ROLE    = "{{ role }}";
 const MAX_WEEKS  = {{ session.max_weeks }};
 const SESSION_ID = {{ session.id }};
+const VISIBILITY_MODE = "{{ visibility_mode }}";
 
 const ROLES  = ['customer','retailer','wholesaler','distributor','factory'];
 const COLORS = {retailer:'#f5c842',wholesaler:'#3b82f6',distributor:'#a855f7',factory:'#22c55e'};
@@ -2055,7 +2071,7 @@ function handle(msg) {
 
     // After confirm ship — show phase 3
     case 'phase_order':
-      showOrderPanel(msg.shipped, msg.new_inventory, msg.new_backlog);
+      showOrderPanel(msg.shipped, msg.new_inventory, msg.new_backlog, msg.downstream_order_qty);
       setPhaseIndicator(3);
       updateMiniHUD(msg.new_inventory, msg.new_backlog);
       // Refresh the full board with updated state from server
@@ -2188,7 +2204,6 @@ function handle(msg) {
       const sender = (msg.from_role || '').charAt(0).toUpperCase() + (msg.from_role || '').slice(1);
       const qty    = msg.quantity    ?? 0;
       const wk     = msg.arrives_week ?? '?';
-      toast(`📋 ${sender} placed an order for ${qty} units — arrives Week ${wk}`, 'info');
       log('sys', `📋 Order incoming: ${qty} units from ${sender} — arrives Week ${wk}`);
       break;
     }
@@ -2380,7 +2395,7 @@ function showShipPanel(demandQty, justReceived, currentInv, currentBlg) {
   if (btn) { btn.disabled = false; btn.textContent = '✓ Confirm — Send Shipment'; }
 }
 
-function showOrderPanel(shippedQty, newInv, newBlg) {
+function showOrderPanel(shippedQty, newInv, newBlg, downstreamOrderQty) {
   hideAllPanels();
   const panel = document.getElementById('panel-order');
   if (!panel) return;
@@ -2395,6 +2410,16 @@ function showOrderPanel(shippedQty, newInv, newBlg) {
   const blgEl = document.getElementById('order-blg-display');
   if (invEl) invEl.textContent = newInv ?? '—';
   if (blgEl) blgEl.textContent = newBlg ?? '—';
+
+  // Mode 2: show downstream order context
+  if (VISIBILITY_MODE === 'mode2') {
+    const box = document.getElementById('mode2-downstream-box');
+    const qEl = document.getElementById('mode2-downstream-qty');
+    if (box && downstreamOrderQty != null) {
+      if (qEl) qEl.textContent = downstreamOrderQty;
+      box.style.display = 'block';
+    }
+  }
 
   const qEl = document.getElementById('order-qty');
   if (qEl) qEl.value = '0';

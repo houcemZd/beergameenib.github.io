@@ -31,6 +31,22 @@ class GameSession(models.Model):
     # list of ints = custom per-week schedule (index 0 = week 1).
     demand_schedule = models.JSONField(null=True, blank=True)
 
+    # Visibility mode:
+    # 'mode1' (default) — each player only sees their own information.
+    # 'mode2' — upstream players can additionally see the downstream order
+    #            in their order panel, giving more context for their decision.
+    MODE1 = 'mode1'
+    MODE2 = 'mode2'
+    VISIBILITY_MODE_CHOICES = [
+        (MODE1, 'Mode 1 — Standard (information hidden)'),
+        (MODE2, 'Mode 2 — Upstream sees downstream order'),
+    ]
+    visibility_mode = models.CharField(
+        max_length=10,
+        choices=VISIBILITY_MODE_CHOICES,
+        default=MODE1,
+    )
+
     ALL_ROLES = ['customer', 'retailer', 'wholesaler', 'distributor', 'factory']
 
     def __str__(self):

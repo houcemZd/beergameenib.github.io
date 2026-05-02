@@ -7,6 +7,8 @@ urlpatterns = [
     path('accounts/login/',    accounts_views.login_view,    name='login'),
     path('accounts/register/', accounts_views.register_view, name='register'),
     path('accounts/logout/',   accounts_views.logout_view,   name='logout'),
+    path('accounts/profile/',  accounts_views.profile_view,  name='profile'),
+    path('accounts/delete/',   accounts_views.delete_account_view, name='delete_account'),
 
     # ── Game ──────────────────────────────────────────────────────────────────
     path('',                                        views.home,             name='home'),

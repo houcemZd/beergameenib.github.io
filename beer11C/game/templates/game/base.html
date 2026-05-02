@@ -446,7 +446,21 @@
     </a>
     <div class="nav-links">
       <a href="{% url 'home' %}">Sessions</a>
+      {% if user.is_staff %}<a href="/admin/" style="color:var(--distributor-color);">⚙️ Admin</a>{% endif %}
       <a href="{% url 'new_game' %}" class="nav-cta">+ New Game</a>
+      {% if user.is_authenticated %}
+      <a href="{% url 'profile' %}" title="Profile" style="display:inline-flex;align-items:center;gap:.3rem;">
+        <span style="width:26px;height:26px;border-radius:50%;background:var(--surface2);border:1px solid var(--accent);display:inline-flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800;color:var(--accent);font-family:var(--font-mono);">{{ user.username|slice:":1"|upper }}</span>
+        <span style="font-size:.8rem;">{{ user.username }}</span>
+      </a>
+      {% endif %}
+      <!-- Language switcher -->
+      <button id="lang-btn" onclick="toggleLang()" title="Switch language / Changer la langue"
+        style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:.28rem .6rem;font-size:.72rem;font-weight:700;color:var(--muted);cursor:pointer;font-family:var(--font-mono);transition:all .15s;"
+        onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'"
+        onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">
+        🌐 EN
+      </button>
     </div>
   </nav>
 
@@ -461,5 +475,82 @@
 
     {% block content %}{% endblock %}
   </div>
+
+  <!-- ── Language switcher ───────────────────────────────────────────────── -->
+  <script>
+  (function() {
+    var FR = {
+      'Sessions': 'Sessions',
+      '+ New Game': '+ Nouvelle Partie',
+      'Admin': 'Admin',
+      'Supply Chain Board': 'Tableau de la Chaîne',
+      'Player Summary': 'Résumé des Joueurs',
+      'Game Settings': 'Paramètres',
+      'Max Weeks': 'Semaines max',
+      'Pipeline Delay': 'Délai pipeline',
+      'Initial Inventory': 'Stock initial',
+      'Holding Cost': 'Coût de stockage',
+      'Backlog Cost': 'Coût de rupture',
+      'Players': 'Joueurs',
+      'Lobby Chat': 'Chat Lobby',
+      'Type a message...': 'Tapez un message…',
+      'Send': 'Envoyer',
+      'Game over!': 'Jeu terminé !',
+      'Sessions': 'Sessions',
+      'Multiplayer Lobby': 'Lobby Multijoueur',
+      'Spectator View': 'Vue Spectateur',
+      'Game Over': 'Partie Terminée',
+      'Watching the game live': 'Regarder la partie en direct',
+      'The game has ended': 'La partie est terminée',
+      'Auto-refreshing every 3 s': 'Rafraîchissement toutes les 3 s',
+      'Player Invite Links': 'Liens d\'invitation',
+      'Copy All Links': 'Copier tous les liens',
+      'Copy': 'Copier',
+      'Open': 'Ouvrir',
+      'Start Game': 'Démarrer',
+      'How each week works': 'Comment fonctionne chaque semaine',
+      'Inventory': 'Stock',
+      'Backlog': 'Arriéré',
+      'Total Cost': 'Coût total',
+      'Last Order': 'Dernière commande',
+      'Customer demand this week:': 'Demande client cette semaine :',
+      'View Results': 'Voir les résultats',
+      'New Session': 'Nouvelle Session',
+      'Profile': 'Profil',
+      'Disconnect / Log out': 'Déconnexion',
+      'Delete My Account': 'Supprimer mon compte',
+      'Save Changes': 'Enregistrer',
+      'Edit Profile': 'Modifier le profil',
+      'Account Actions': 'Actions du compte',
+      'Danger Zone': 'Zone de danger',
+    };
+    var currentLang = localStorage.getItem('bg_lang') || 'en';
+
+    function applyLang(lang) {
+      var btn = document.getElementById('lang-btn');
+      if (btn) btn.textContent = lang === 'fr' ? '🌐 FR' : '🌐 EN';
+      document.documentElement.lang = lang;
+      if (lang === 'fr') {
+        document.querySelectorAll('[data-en]').forEach(function(el) {
+          el.textContent = el.getAttribute('data-fr') || el.textContent;
+        });
+      } else {
+        document.querySelectorAll('[data-en]').forEach(function(el) {
+          el.textContent = el.getAttribute('data-en') || el.textContent;
+        });
+      }
+    }
+
+    function toggleLang() {
+      currentLang = currentLang === 'en' ? 'fr' : 'en';
+      localStorage.setItem('bg_lang', currentLang);
+      applyLang(currentLang);
+    }
+
+    window.toggleLang = toggleLang;
+    // Apply on load
+    document.addEventListener('DOMContentLoaded', function() { applyLang(currentLang); });
+  })();
+  </script>
 </body>
 </html>
