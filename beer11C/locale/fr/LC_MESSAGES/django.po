@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-02 18:00-0500\n"
+"POT-Creation-Date: 2026-05-02 18:04-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: French <fr@li.org>\n"
@@ -39,12 +39,9 @@ msgstr ""
 #: game/templates/accounts/login.html:203
 #: game/templates/game/customer_play.html:3 game/templates/game/play.html:1469
 #: game/templates/game/play.html:1558 game/templates/game/play.html:1573
-#: game/templates/game/play.html:1729 game/templates/game/play.html:1739
-#: game/templates/game/play.html:1751 game/templates/game/play.html:1798
-#: game/templates/game/play.html:1801 game/templates/game/play.html:2115
-#: game/templates/game/play.html:2132 game/templates/game/play.html:2162
+#: game/templates/game/play.html:1729 game/templates/game/play.html:1751
+#: game/templates/game/play.html:1798 game/templates/game/play.html:1801
 #: game/templates/game/play.html:2212 game/templates/game/play.html:2382
-#: game/templates/game/play.html:2461 game/templates/game/play.html:2587
 #: game/templates/game/play.html:3043
 msgid "Customer"
 msgstr "Client"
@@ -430,31 +427,28 @@ msgstr "Copié !"
 #: game/templates/game/play.html:1940 game/templates/game/play.html:1960
 #: game/templates/game/play.html:2037 game/templates/game/play.html:2038
 #: game/templates/game/play.html:2047 game/templates/game/play.html:2109
-#: game/templates/game/play.html:2110 game/templates/game/play.html:2117
 #: game/templates/game/play.html:2122 game/templates/game/play.html:2130
 #: game/templates/game/play.html:2137 game/templates/game/play.html:2140
 #: game/templates/game/play.html:2163 game/templates/game/play.html:2244
-#: game/templates/game/play.html:2266 game/templates/game/play.html:2274
-#: game/templates/game/play.html:2283 game/templates/game/play.html:2319
-#: game/templates/game/play.html:2437 game/templates/game/play.html:2468
-#: game/templates/game/play.html:2469 game/templates/game/play.html:2471
-#: game/templates/game/play.html:2472 game/templates/game/play.html:2705
-#: game/templates/game/play.html:2818 game/templates/game/play.html:2890
-#: game/templates/game/play.html:2965 game/templates/game/play.html:2989
-#: game/templates/game/play.html:3045 game/templates/game/play.html:3285
-#: game/templates/game/play.html:3286 game/templates/game/play.html:3290
-#: game/templates/game/play.html:3366 game/templates/game/play.html:3367
-#: game/templates/game/play.html:3370 game/templates/game/play.html:3371
-#: game/templates/game/play.html:3382 game/templates/game/play.html:3388
-#: game/templates/game/play.html:3405 game/templates/game/play.html:3406
-#: game/templates/game/play.html:3458 game/templates/game/play.html:3731
-#: game/templates/game/play.html:3795 game/templates/game/play.html:3802
-#: game/templates/game/play.html:3844 game/templates/game/play.html:4024
-#: game/templates/game/play.html:4025 game/templates/game/play.html:4029
-#: game/templates/game/play.html:4110 game/templates/game/play.html:4116
-#: game/templates/game/play.html:4117 game/templates/game/play.html:4125
-#: game/templates/game/play.html:4126 game/templates/game/play.html:4147
-#: game/templates/game/play.html:4149 game/templates/game/play.html:4178
+#: game/templates/game/play.html:2266 game/templates/game/play.html:2283
+#: game/templates/game/play.html:2319 game/templates/game/play.html:2437
+#: game/templates/game/play.html:2468 game/templates/game/play.html:2471
+#: game/templates/game/play.html:2705 game/templates/game/play.html:2818
+#: game/templates/game/play.html:2890 game/templates/game/play.html:2965
+#: game/templates/game/play.html:2989 game/templates/game/play.html:3045
+#: game/templates/game/play.html:3285 game/templates/game/play.html:3286
+#: game/templates/game/play.html:3290 game/templates/game/play.html:3366
+#: game/templates/game/play.html:3367 game/templates/game/play.html:3371
+#: game/templates/game/play.html:3382 game/templates/game/play.html:3405
+#: game/templates/game/play.html:3406 game/templates/game/play.html:3458
+#: game/templates/game/play.html:3731 game/templates/game/play.html:3795
+#: game/templates/game/play.html:3802 game/templates/game/play.html:3844
+#: game/templates/game/play.html:4024 game/templates/game/play.html:4025
+#: game/templates/game/play.html:4029 game/templates/game/play.html:4110
+#: game/templates/game/play.html:4116 game/templates/game/play.html:4117
+#: game/templates/game/play.html:4125 game/templates/game/play.html:4126
+#: game/templates/game/play.html:4147 game/templates/game/play.html:4149
+#: game/templates/game/play.html:4178
 msgid "week"
 msgstr "semaine"
 
@@ -469,10 +463,8 @@ msgstr "Commande reçue"
 msgid "Place Order"
 msgstr "Passer la commande"
 
-#: game/templates/game/play.html:1970
-#, fuzzy, python-format
-#| msgid "Inventory History"
-msgid "Inventory {%% trans "
+#: game/templates/game/play.html:1970 game/templates/game/results.html:240
+msgid "Inventory History"
 msgstr "Historique des stocks"
 
 #: game/templates/game/play.html:3853
@@ -507,10 +499,6 @@ msgstr "Score"
 msgid "Bullwhip Effect"
 msgstr "Effet coup de fouet"
 
-#: game/templates/game/results.html:240
-msgid "Inventory History"
-msgstr "Historique des stocks"
-
 #: game/templates/game/results.html:240 game/templates/game/results.html:357
 #: game/templates/game/results.html:364 game/templates/game/results.html:369
 msgid "Role"
@@ -519,6 +507,11 @@ msgstr "Rôle"
 #: game/templates/game/results.html:258
 msgid "Cumulative Cost"
 msgstr "Coût cumulatif"
+
+#, fuzzy, python-format
+#~| msgid "Inventory History"
+#~ msgid "Inventory {%% trans "
+#~ msgstr "Historique des stocks"
 
 #~ msgid "History"
 #~ msgstr "Historique"

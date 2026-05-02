@@ -1736,7 +1736,7 @@ body.crit-alert::after {
       S'authentifier et passer commande sur la plateforme. Cette commande sera reçue par le Détaillant cette semaine.
     </div>
     <input type="number" class="order-input-big" id="cust-qty" min="0" placeholder="4" value="4" />
-    <button class="btn btn-primary" onclick="do{% trans "Customer" %}Submit()" style="width:100%; justify-content:center; font-size:1rem; padding:.75rem;">
+    <button class="btn btn-primary" onclick="doCustomerSubmit()" style="width:100%; justify-content:center; font-size:1rem; padding:.75rem;">
       ✓ Soumettre la Demande
     </button>
   </div>
@@ -1967,7 +1967,7 @@ body.crit-alert::after {
 
 <!-- Chart -->
 <div class="card" style="padding:.85rem 1rem;">
-  <div class="card-title" style="margin-bottom:.4rem;">{% trans "Inventory {% trans "History" %}" %}</div>
+  <div class="card-title" style="margin-bottom:.4rem;">{% trans "Inventory History" %}</div>
   <div class="chart-wrap"><canvas id="myChart"></canvas></div>
 </div>
 
@@ -2107,14 +2107,14 @@ function handle(msg) {
       break;
 
     // New {% trans "week" %} opened — sent to customer to submit new demand
-    case '{% trans "week" %}_open':
+    case 'week_open':
       hideLobby(msg.status);
       updateHUD(msg);
       updateReadyPills(msg);
       if (MY_ROLE === 'customer') {
-        reset{% trans "Customer" %}Panel();
+        resetCustomerPanel();
         toast(`📅 Semaine ${msg.week + 1} — Soumettez votre demande`, 'success');
-        log('{% trans "week" %}', `Semaine ${msg.week + 1} ouverte — en attente de votre commande`);
+        log('week', `Semaine ${msg.week + 1} ouverte — en attente de votre commande`);
       }
       break;
 
@@ -2129,7 +2129,7 @@ function handle(msg) {
       sweepBoard();
       if (msg.week) flashWeek(msg.week);   // 🎮 dramatic {% trans "week" %} banner
       if (msg.is_finished) { showGameOver(msg); }
-      if (MY_ROLE === 'customer') reset{% trans "Customer" %}Panel();
+      if (MY_ROLE === 'customer') resetCustomerPanel();
       // Week summary hint
       if (msg.own) {
         const wblg = msg.own.backlog ?? 0;
@@ -2159,7 +2159,7 @@ function handle(msg) {
       updateReadyPills(msg);
       sweepBoard();
       if (msg.is_finished) { showGameOver(msg); }
-      if (MY_ROLE === 'customer') reset{% trans "Customer" %}Panel();
+      if (MY_ROLE === 'customer') resetCustomerPanel();
       // Reset {% trans "week" %}-ready button for next {% trans "week" %}
       {
         const btn = getWeekReadyEl();
@@ -2271,7 +2271,7 @@ function handle(msg) {
           btn.style.animation = 'none';
         }
         toast('✅ Tous les joueurs ont terminé — confirmez la semaine suivante!', 'success');
-        log('{% trans "week" %}', 'Toutes les phases complètes — en attente de confirmation');
+        log('week', 'Toutes les phases complètes — en attente de confirmation');
       }
       break;
 
@@ -2458,7 +2458,7 @@ function showGameOver(msg) {
   toast('🏁 Game over!', 'success');
 }
 
-function reset{% trans "Customer" %}Panel() {
+function resetCustomerPanel() {
   const ss = document.getElementById('cust-submit-section');
   const ds = document.getElementById('cust-submitted-section');
   if (ss) ss.style.display = 'block';
@@ -2466,10 +2466,10 @@ function reset{% trans "Customer" %}Panel() {
   const qEl = document.getElementById('cust-qty');
   if (qEl) { qEl.disabled = false; qEl.value = 4; }
   // Reset {% trans "week" %}-ready button
-  const btn = document.getElementById('cust-btn-{% trans "week" %}-ready');
+  const btn = document.getElementById('cust-btn-week-ready');
   if (btn) { btn.disabled = false; btn.textContent = '✓ Prêt pour la semaine suivante'; btn.style.boxShadow = ''; }
   // Update {% trans "week" %} number display
-  const wn = document.getElementById('cust-{% trans "week" %}-num');
+  const wn = document.getElementById('cust-week-num');
   if (wn) wn.textContent = (parseInt(document.getElementById('current-week')?.textContent || 0)) + 1;
 }
 
@@ -2584,7 +2584,7 @@ function doSubmitOrder() {
   send({type: 'submit_order', quantity: qty});
 }
 
-function do{% trans "Customer" %}Submit() {
+function doCustomerSubmit() {
   const raw = (document.getElementById('cust-qty')?.value || '').trim();
   const qty = parseInt(raw, 10);
   if (raw === '' || isNaN(qty) || qty < 0) { toast('Entrez une quantité valide', 'error'); return; }
@@ -3367,7 +3367,7 @@ function getDownstreamShipSlot(role) {
 // Supply chain roles use '#btn-{% trans "week" %}-ready'; customer uses '#cust-btn-{% trans "week" %}-ready'.
 function getWeekReadyEl() {
   return MY_ROLE === 'customer'
-    ? document.getElementById('cust-btn-{% trans "week" %}-ready')
+    ? document.getElementById('cust-btn-week-ready')
     : document.getElementById('btn-{% trans "week" %}-ready');
 }
 function getWaitingLabelEl() {
@@ -3385,7 +3385,7 @@ function doWeekReady() {
 
 // ── Misc ───────────────────────────────────────────────────────────────────
 function setConn(on) { document.getElementById('conn-dot').className=on?'online':'offline'; document.getElementById('conn-label').textContent=on?'Connected':'Reconnecting…'; }
-function log(type, msg) { const el=document.getElementById('event-log'); if(!el)return; const ic=type==='{% trans "week" %}'?'📅':type==='order'?'📤':'🔌'; el.innerHTML=`<div class="log-entry">${ic} <span style="font-size:.65rem;color:var(--muted)">${new Date().toLocaleTimeString()}</span> ${msg}</div>`+el.innerHTML; }
+function log(type, msg) { const el=document.getElementById('event-log'); if(!el)return; const ic=type==='week'?'📅':type==='order'?'📤':'🔌'; el.innerHTML=`<div class="log-entry">${ic} <span style="font-size:.65rem;color:var(--muted)">${new Date().toLocaleTimeString()}</span> ${msg}</div>`+el.innerHTML; }
 function toast(msg, type='') { const c=document.getElementById('toast-container'); if(!c)return; const d=document.createElement('div'); d.className='toast '+type; d.innerHTML=`<span>${msg}</span>`; c.appendChild(d); setTimeout(()=>d.remove(),3600); }
 
 // ── 🏆 Grade / rank system ────────────────────────────────────────────────

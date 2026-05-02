@@ -104,11 +104,11 @@ function checkStrength(pw) {
   if (/[0-9]/.test(pw)) score++;
   if (/[^A-Za-z0-9]/.test(pw)) score++;
   const levels = [
-    {w:'15%',  c:'var(--danger)',  t:gettext('Very weak')},
-    {w:'30%',  c:'var(--danger)',  t:gettext('Weak')},
-    {w:'55%',  c:'var(--accent)',  t:gettext('Medium')},
-    {w:'80%',  c:'var(--accent)',  t:gettext('Good')},
-    {w:'100%', c:'var(--success)', t:gettext('Excellent')},
+    {w:'15%',  c:'var(--danger)',  t:'Very weak'},
+    {w:'30%',  c:'var(--danger)',  t:'Weak'},
+    {w:'55%',  c:'var(--accent)',  t:'Medium'},
+    {w:'80%',  c:'var(--accent)',  t:'Good'},
+    {w:'100%', c:'var(--success)', t:'Excellent'},
   ];
   const lv = levels[Math.min(score, 4)];
   fill.style.width      = lv.w;
