@@ -126,13 +126,13 @@
 <div class="results-header fade-up">
   <div class="results-header-main">
     <h2 style="display:inline-flex;align-items:center;gap:.5rem;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M8 21h8M12 17v4" stroke="#f5c842" stroke-width="2" stroke-linecap="round"/><path d="M5 3h14l-2 9a5 5 0 01-10 0L5 3z" fill="#f5c842" opacity="0.85" stroke="#f5c842" stroke-width="1.5"/><path d="M5 3H3a2 2 0 000 4h2M19 3h2a2 2 0 010 4h-2" stroke="#f5c842" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.55"/></svg> {% trans "Results" %} — <span style="color:var(--accent)">{{ session.name }}</span></h2>
-    <p>{{ session.max_{% trans "weeks" %} }} {% trans "weeks" %} completed · Final scoreboard</p>
+    <p>{{ session.max_weeks }} {% trans "weeks" %} completed · Final scoreboard</p>
   </div>
   <div style="display:flex; gap:.6rem; flex-shrink:0; align-items:flex-start; flex-wrap:wrap;">
     <a href="{% url 'dashboard' session.id %}" class="btn btn-ghost btn-sm">← Dashboard</a>
     <a href="{% url 'home' %}" class="btn btn-ghost btn-sm">Sessions</a>
     <a href="{% url 'export_csv' session.id %}" class="btn btn-ghost btn-sm">⬇ CSV Export</a>
-    <a href="{% url 'new_game' %}" class="btn btn-primary btn-sm">{% trans "{% trans "Play Again" %}" %}</a>
+    <a href="{% url 'new_game' %}" class="btn btn-primary btn-sm">{% trans "Play Again" %}</a>
   </div>
 </div>
 
@@ -366,7 +366,7 @@
   <table class="analytics-table">
     <thead>
       <tr>
-        <th>{% trans "{% trans "Role" %}" %}</th>
+        <th>{% trans "Role" %}</th>
         <th>Avg. Order</th>
         <th>Order Variance</th>
         <th>Avg. Inventory</th>
@@ -387,7 +387,7 @@
         <td style="color:{% if rd.max_backlog > 0 %}#f87171{% else %}var(--text){% endif %};">
           {{ rd.max_backlog }}
         </td>
-        <td>{{ rd.{% trans "weeks" %}_with_backlog }}</td>
+        <td>{{ rd.weeks_with_backlog }}</td>
         <td style="color:{% if rd.demand_match > 1.2 or rd.demand_match < 0.8 %}#f59e0b{% else %}var(--success){% endif %};">
           {{ rd.demand_match }}×
         </td>
@@ -408,7 +408,7 @@
 
 <!-- Bottom actions -->
 <div style="display:flex; gap:1rem; justify-content:center; margin:2rem 0 3rem;">
-  <a href="{% url 'new_game' %}" class="btn btn-primary" style="padding:.65rem 1.5rem;">{% trans "{% trans "Play Again" %}" %}</a>
+  <a href="{% url 'new_game' %}" class="btn btn-primary" style="padding:.65rem 1.5rem;">{% trans "Play Again" %}</a>
   <a href="{% url 'home' %}" class="btn btn-ghost">← All Sessions</a>
 </div>
 

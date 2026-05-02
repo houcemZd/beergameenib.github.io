@@ -474,7 +474,7 @@
         <div class="settings-item-value">${{ game_settings.backlog_cost }}/unit</div>
       </div>
       <div class="settings-item">
-        <div class="settings-item-label">{% trans "{% trans "Players" %}" %}</div>
+        <div class="settings-item-label">{% trans "Players" %}</div>
         <div class="settings-item-value">5 roles</div>
       </div>
     </div>
@@ -522,8 +522,8 @@
         <div class="chat-empty" id="chat-empty">{% trans "No messages yet." %} Say hello! &#128075;</div>
       </div>
       <div class="chat-input-row">
-        <input class="chat-input" id="chat-input" type="text" placeholder="{% trans "{% trans "Type a message..." %}" %}" maxlength="300" autocomplete="off" />
-        <button class="chat-send" id="chat-send" onclick="send{% trans "Chat" %}()">{% trans "{% trans "Send" %}" %}</button>
+        <input class="chat-input" id="chat-input" type="text" placeholder="{% trans "Type a message..." %}" maxlength="300" autocomplete="off" />
+        <button class="chat-send" id="chat-send" onclick="sendChat()">{% trans "Send" %}</button>
       </div>
     </div>
   </div>
@@ -596,7 +596,7 @@
     </div>
     <div class="chat-input-row">
       <input class="chat-input" id="chat-input" type="text" placeholder="Type a message as spectator..." maxlength="300" autocomplete="off" />
-      <button class="chat-send" id="chat-send" onclick="send{% trans "Chat" %}()">{% trans "{% trans "Send" %}" %}</button>
+      <button class="chat-send" id="chat-send" onclick="sendChat()">{% trans "Send" %}</button>
     </div>
   </div>
 </div>
@@ -689,7 +689,7 @@ fetchStatus();
 var chatInput = document.getElementById('chat-input');
 if (chatInput) {
   chatInput.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send{% trans "Chat" %}(); }
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
   });
 }
 
@@ -860,7 +860,7 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
-function send{% trans "Chat" %}() {
+function sendChat() {
   var input = document.getElementById('chat-input');
   var body  = (input.value || '').trim();
   if (!body) return;

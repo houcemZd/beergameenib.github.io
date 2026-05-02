@@ -191,7 +191,7 @@
 #col-distributor.you { box-shadow:0 0 0 2px rgba(168,85,247,.6), 0 0 30px rgba(168,85,247,.18) !important; }
 #col-factory.you     { box-shadow:0 0 0 2px rgba(34,197,94,.6),  0 0 30px rgba(34,197,94,.18)  !important; }
 
-/* Sweep animation on new {% trans "week" %} */
+/* Sweep animation on new week */
 @keyframes col-sweep {
   0%   { background:var(--surface); }
   30%  { background:rgba(245,200,66,.06); box-shadow:inset 0 0 0 1px rgba(245,200,66,.15); }
@@ -645,7 +645,7 @@
 }
 @keyframes xp-shimmer { from{background-position:0%} to{background-position:200%} }
 
-/* ── Particle burst ({% trans "week" %} flash) ─────────────────────────────────────── */
+/* ── Particle burst (week flash) ─────────────────────────────────────── */
 .particle {
   position: fixed; pointer-events: none; z-index: 9988;
   width: 6px; height: 6px; border-radius: 50%;
@@ -706,18 +706,18 @@
 .toast.achieve { border-color: #a855f7; box-shadow: 0 0 22px rgba(168,85,247,.35); }
 
 /* ── Week flash upgrade: dramatic backdrop ───────────────────────────── */
-#{% trans "week" %}-flash {
+#week-flash {
   background: transparent;
   transition: background .2s;
 }
-#{% trans "week" %}-flash.flashing { background: rgba(0,0,0,.35); }
-#{% trans "week" %}-flash-inner {
+#week-flash.flashing { background: rgba(0,0,0,.35); }
+#week-flash-inner {
   font-family: var(--font-mono); font-size: 4.5rem; font-weight: 700;
   color: #fff; opacity: 0; letter-spacing: .18em; text-transform: uppercase;
   text-shadow: 0 0 40px var(--accent), 0 0 100px rgba(245,200,66,.4), 0 2px 0 rgba(0,0,0,.8);
   transform: scale(.6);
 }
-#{% trans "week" %}-flash-inner .wk-sub {
+#week-flash-inner .wk-sub {
   display: block; font-size: 1rem; letter-spacing: .25em;
   color: var(--muted); margin-top: .25rem; text-shadow: none;
 }
@@ -851,17 +851,17 @@ body.crit-alert::after {
 }
 #bgb-board-card { animation:board-neon-pulse 5s ease infinite; }
 
-/* ── Cinematic {% trans "week" %} flash ───────────────────────────────────────────────── */
-#{% trans "week" %}-flash { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; z-index:9990; pointer-events:none; }
-#{% trans "week" %}-flash .cine-bar { position:absolute; left:0; right:0; height:0; background:#000; transition:height .35s cubic-bezier(.4,0,.2,1); pointer-events:none; }
-#{% trans "week" %}-flash .cine-bar.top { top:0; }
-#{% trans "week" %}-flash .cine-bar.bot { bottom:0; }
-#{% trans "week" %}-flash.flashing .cine-bar { height:11vh; }
+/* ── Cinematic week flash ───────────────────────────────────────────────── */
+#week-flash { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; z-index:9990; pointer-events:none; }
+#week-flash .cine-bar { position:absolute; left:0; right:0; height:0; background:#000; transition:height .35s cubic-bezier(.4,0,.2,1); pointer-events:none; }
+#week-flash .cine-bar.top { top:0; }
+#week-flash .cine-bar.bot { bottom:0; }
+#week-flash.flashing .cine-bar { height:11vh; }
 
-#{% trans "week" %}-flash-inner.active {
-  animation:{% trans "week" %}-slam 2s cubic-bezier(.22,1,.36,1) forwards;
+#week-flash-inner.active {
+  animation:week-slam 2s cubic-bezier(.22,1,.36,1) forwards;
 }
-@keyframes {% trans "week" %}-slam {
+@keyframes week-slam {
   0%   { opacity:0; transform:scale(3) rotate(-3deg); filter:blur(16px); }
   12%  { opacity:1; transform:scale(.92) rotate(.5deg); filter:blur(0); }
   22%  { transform:scale(1.08) rotate(-.3deg); }
@@ -964,7 +964,7 @@ body.crit-alert::after {
   .grade-S,
   .lobby-box,
   .lobby-player-row.ready-state,
-  #{% trans "week" %}-flash-inner.active { animation:none !important; }
+  #week-flash-inner.active { animation:none !important; }
   body.shaking #game-screen,
   body.shake-light #game-screen { animation:none !important; }
   body.crit-alert::after { animation:none !important; }
@@ -973,7 +973,7 @@ body.crit-alert::after {
   .road-node.you:hover { transform:none !important; }
   .hud-card::after { animation:none !important; }
   #bgb-board-card { animation:none !important; }
-  #{% trans "week" %}-flash.flashing .cine-bar { height:0 !important; }
+  #week-flash.flashing .cine-bar { height:0 !important; }
   .vfx-flash { animation:none !important; display:none !important; }
 }
 
@@ -1344,8 +1344,8 @@ body.crit-alert::after {
 <div id="toast-container"></div>
 <div class="ambient-particles" id="ambient-particles"></div>
 <div class="speed-lines" id="speed-lines"></div>
-<div id="{% trans "week" %}-flash"><div class="cine-bar top"></div><div class="cine-bar bot"></div><div id="{% trans "week" %}-flash-inner"></div></div>
-<div id="combo-strip"><span style="font-size:.52rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);">STREAK</span><span id="combo-count">×0</span><span style="font-size:.52rem;color:var(--muted);" id="combo-label">good {% trans "{% trans "week" %}s" %}</span></div>
+<div id="week-flash"><div class="cine-bar top"></div><div class="cine-bar bot"></div><div id="week-flash-inner"></div></div>
+<div id="combo-strip"><span style="font-size:.52rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);">STREAK</span><span id="combo-count">×0</span><span style="font-size:.52rem;color:var(--muted);" id="combo-label">good {% trans "weeks" %}</span></div>
 <div id="env-overlay"></div>
 <div id="milestone-overlay"><div class="milestone-badge"><div class="milestone-icon" id="milestone-icon">🏆</div><div class="milestone-title" id="milestone-title">MILESTONE</div><div class="milestone-sub" id="milestone-sub">Achievement unlocked</div></div></div>
 <div id="gameover-screen"></div>
@@ -1355,11 +1355,11 @@ body.crit-alert::after {
   <div class="wsm-card">
     <div class="wsm-header" id="wsm-dialog-title">
       <span id="wsm-icon" aria-label="Week status">📅</span>
-      <span>Week <span id="wsm-{% trans "week" %}-num">—</span> Complete</span>
+      <span>Week <span id="wsm-week-num">—</span> Complete</span>
     </div>
     <div class="wsm-cost-row">
       <span>Cost this {% trans "week" %}</span>
-      <span class="wsm-cost-badge">$<span id="wsm-cost-this-{% trans "week" %}">—</span></span>
+      <span class="wsm-cost-badge">$<span id="wsm-cost-this-week">—</span></span>
       <span id="wsm-cost-breakdown" style="font-size:.68rem;color:var(--muted);margin-left:.35rem;" title="Approximate breakdown based on default holding/backlog cost rates"></span>
     </div>
     <div class="wsm-grid">
@@ -1415,7 +1415,7 @@ body.crit-alert::after {
       {% if role == 'retailer' %}<svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:4px;"><path d="M3 10l1-6h16l1 6" stroke="#f5c842" stroke-width="2" stroke-linecap="round"/><path d="M3 10v10a2 2 0 002 2h14a2 2 0 002-2V10" stroke="#f5c842" stroke-width="2" fill="none"/><rect x="9" y="14" width="6" height="8" rx="1" fill="#f5c842" opacity="0.5"/></svg> You serve customers. Demand is <strong style="color:var(--text)">visible only to you</strong>. Each turn: receive goods → confirm shipment → place order.
       {% elif role == 'wholesaler' %}<svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:4px;"><rect x="2" y="6" width="20" height="14" rx="2" stroke="#3b82f6" stroke-width="2" fill="none"/><path d="M2 6l10 6 10-6" stroke="#3b82f6" stroke-width="2" fill="none" opacity="0.5"/><rect x="6" y="2" width="12" height="4" rx="1" fill="#3b82f6" opacity="0.5"/></svg> You supply the {% trans "Retailer" %}, order from the {% trans "Distributor" %}. You see only the {% trans "Retailer" %}'s orders — not real demand.
       {% elif role == 'distributor' %}<svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:4px;"><rect x="1" y="6" width="15" height="10" rx="2" stroke="#a855f7" stroke-width="2" fill="none"/><path d="M16 9h4l3 4v3h-7V9z" stroke="#a855f7" stroke-width="2" fill="none"/><circle cx="6.5" cy="17.5" r="2" stroke="#a855f7" stroke-width="1.5" fill="none"/><circle cx="19" cy="17.5" r="2" stroke="#a855f7" stroke-width="1.5" fill="none"/></svg> You supply the {% trans "Wholesaler" %}, order from the {% trans "Factory" %}. Two steps removed from real demand.
-      {% elif role == 'factory' %}<svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:4px;"><path d="M2 20V10l5-4v4l5-4v4l5-4v10" stroke="#22c55e" stroke-width="2" fill="none"/><rect x="2" y="16" width="20" height="6" rx="1" fill="#22c55e" opacity="0.3"/><rect x="18" y="8" width="4" height="12" rx="1" fill="#22c55e" opacity="0.5"/></svg> No upstream supplier. Production is your "order." Output is ready in <strong style="color:var(--text)">3 {% trans "{% trans "week" %}s" %}</strong> (1w request + 2w production).
+      {% elif role == 'factory' %}<svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:4px;"><path d="M2 20V10l5-4v4l5-4v4l5-4v10" stroke="#22c55e" stroke-width="2" fill="none"/><rect x="2" y="16" width="20" height="6" rx="1" fill="#22c55e" opacity="0.3"/><rect x="18" y="8" width="4" height="12" rx="1" fill="#22c55e" opacity="0.5"/></svg> No upstream supplier. Production is your "order." Output is ready in <strong style="color:var(--text)">3 {% trans "weeks" %}</strong> (1w request + 2w production).
       {% elif role == 'customer' %}<svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:4px;"><circle cx="12" cy="8" r="4.5" fill="#64748b" opacity="0.9"/><path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke="#64748b" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.7"/></svg> You set customer demand each {% trans "week" %}. Your submission triggers the supply chain.{% endif %}
     </div>
     <div style="margin-bottom:1.25rem;">
@@ -1452,7 +1452,7 @@ body.crit-alert::after {
     <button id="snd-btn" onclick="toggleSound()" title="Toggle sound effects">🔇 SFX</button>
     <button id="music-btn" onclick="toggleMusic()" title="Toggle background music">🎵 BGM</button>
     <button class="btn btn-ghost btn-sm" onclick="showTutorial()" title="How to play" style="font-size:.65rem;padding:.2rem .5rem;">❓</button>
-    <div class="{% trans "week" %}-badge">Week <strong id="current-{% trans "week" %}">{{ session.current_{% trans "week" %} }}</strong> / {{ session.max_{% trans "{% trans "week" %}s" %} }}</div>
+    <div class="week-badge">Week <strong id="current-week">{{ session.current_week }}</strong> / {{ session.max_weeks }}</div>
   </div>
 </div>
 
@@ -1528,7 +1528,7 @@ body.crit-alert::after {
   <div class="confirm-row" id="recv-row">
     <div>
       <div class="confirm-label" style="font-weight:700; color:var(--distributor-color);"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;"><rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" stroke-width="2" fill="none"/><path d="M3 9h18" stroke="currentColor" stroke-width="2" opacity="0.4"/><rect x="7" y="12" width="4" height="4" rx="1" fill="currentColor" opacity="0.5"/></svg> Incoming shipment</div>
-      <div class="confirm-sub">Shipped 2 {% trans "{% trans "week" %}s" %} ago → added to inventory</div>
+      <div class="confirm-sub">Shipped 2 {% trans "weeks" %} ago → added to inventory</div>
     </div>
     <div class="confirm-qty" id="recv-qty" style="color:var(--distributor-color);">—</div>
   </div>
@@ -1612,7 +1612,7 @@ body.crit-alert::after {
 
     {% if role == 'factory' %}
     <div style="background:rgba(34,197,94,.06); border:1px solid rgba(34,197,94,.2); border-radius:8px; padding:.7rem .9rem; margin-bottom:.75rem; font-size:.78rem; color:var(--muted);">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;"><path d="M2 20V10l5-4v4l5-4v4l5-4v10" stroke="currentColor" stroke-width="2" fill="none"/><rect x="2" y="16" width="20" height="6" rx="1" fill="currentColor" opacity="0.3"/></svg> How many {% trans "units" %} do you want to start producing? Ready in <strong style="color:var(--text);">3 {% trans "{% trans "week" %}s" %}</strong> (1w request + 2w production).
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;"><path d="M2 20V10l5-4v4l5-4v4l5-4v10" stroke="currentColor" stroke-width="2" fill="none"/><rect x="2" y="16" width="20" height="6" rx="1" fill="currentColor" opacity="0.3"/></svg> How many {% trans "units" %} do you want to start producing? Ready in <strong style="color:var(--text);">3 {% trans "weeks" %}</strong> (1w request + 2w production).
     </div>
     {% endif %}
 
@@ -1639,8 +1639,8 @@ body.crit-alert::after {
       <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:.7rem .9rem; margin-top:.4rem; font-size:.76rem; color:var(--muted); line-height:1.6;">
         {% if role == 'retailer' %}
           <strong style="color:var(--text); display:block; margin-bottom:.3rem;">{% trans "Retailer" %} — Ordering from {% trans "Wholesaler" %}</strong>
-          You are closest to real demand. Your upstream order takes <strong style="color:var(--text);">2 {% trans "{% trans "week" %}s" %}</strong> to arrive,
-          so you need to think 2 {% trans "{% trans "week" %}s" %} ahead. Ask yourself:
+          You are closest to real demand. Your upstream order takes <strong style="color:var(--text);">2 {% trans "weeks" %}</strong> to arrive,
+          so you need to think 2 {% trans "weeks" %} ahead. Ask yourself:
           <ul style="margin:.4rem 0 .4rem 1rem; padding:0;">
             <li>What is my current demand trend?</li>
             <li>How much is already in transit (pipeline)?</li>
@@ -1668,7 +1668,7 @@ body.crit-alert::after {
           </ul>
         {% elif role == 'factory' %}
           <strong style="color:var(--text); display:block; margin-bottom:.3rem;">{% trans "Factory" %} — Starting Production</strong>
-          Your production pipeline is the longest in the chain (3 {% trans "{% trans "week" %}s" %} total).
+          Your production pipeline is the longest in the chain (3 {% trans "weeks" %} total).
           Overproducing is costly; underproducing causes chain-wide backlog.
           <ul style="margin:.4rem 0 .4rem 1rem; padding:0;">
             <li>Check how much is already in the 2-{% trans "week" %} production pipeline.</li>
@@ -1684,9 +1684,9 @@ body.crit-alert::after {
 
     <div style="font-size:.76rem; color:var(--muted); margin-bottom:.85rem; text-align:center;">
       {% if role == 'factory' %}
-        1w request delay → 2w production → ready in 3 {% trans "{% trans "week" %}s" %}
+        1w request delay → 2w production → ready in 3 {% trans "weeks" %}
       {% else %}
-        2w upstream → shipment arrives in 2 more {% trans "{% trans "week" %}s" %}
+        2w upstream → shipment arrives in 2 more {% trans "weeks" %}
       {% endif %}
     </div>
 
@@ -1708,7 +1708,7 @@ body.crit-alert::after {
       <div style="font-size:.76rem; color:var(--muted); margin-bottom:.65rem;">
         Remplir formulaire hebdomadaire · puis confirmer
       </div>
-      <button id="btn-{% trans "week" %}-ready" onclick="doWeekReady()"
+      <button id="btn-week-ready" onclick="doWeekReady()"
         style="width:100%; justify-content:center; font-size:.95rem; padding:.7rem;"
         class="btn btn-primary">
         ✓ Prêt pour la semaine suivante
@@ -1729,7 +1729,7 @@ body.crit-alert::after {
 <!-- {% trans "Customer" %} submit panel -->
 {% if role == 'customer' %}
 <div class="phase-panel active" id="panel-customer">
-  <div class="panel-title" style="color:var(--accent);"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;"><circle cx="12" cy="8" r="4.5" fill="currentColor" opacity="0.9"/><path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.7"/></svg> Passer Commande — Semaine <span id="cust-{% trans "week" %}-num">{{ session.current_{% trans "week" %}|add:1 }}</span></div>
+  <div class="panel-title" style="color:var(--accent);"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;"><circle cx="12" cy="8" r="4.5" fill="currentColor" opacity="0.9"/><path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.7"/></svg> Passer Commande — Semaine <span id="cust-week-num">{{ session.current_week|add:1 }}</span></div>
 
   <div id="cust-submit-section">
     <div style="font-size:.82rem; color:var(--muted); margin-bottom:.75rem;">
@@ -1753,7 +1753,7 @@ body.crit-alert::after {
       <div style="font-size:.76rem; color:var(--muted); margin-bottom:.65rem;">
         En attente des autres acteurs · confirmez quand vous êtes prêt
       </div>
-      <button id="cust-btn-{% trans "week" %}-ready" onclick="doWeekReady()"
+      <button id="cust-btn-week-ready" onclick="doWeekReady()"
         style="width:100%; justify-content:center; font-size:.95rem; padding:.7rem;"
         class="btn btn-primary">
         ✓ Prêt pour la semaine suivante
@@ -1829,11 +1829,11 @@ body.crit-alert::after {
       <!-- ── ROAD R↔W ───────────────────────────────────────────────────── -->
       <div class="road-seg">
         <div class="road-orders-row">
-          <div class="bgb-slot" id="rt-ord-1" data-tip="Order to {% trans "Wholesaler" %} — arriving now (placed 2 {% trans "{% trans "week" %}s" %} ago)"><span class="bgb-v">·</span></div>
+          <div class="bgb-slot" id="rt-ord-1" data-tip="Order to {% trans "Wholesaler" %} — arriving now (placed 2 {% trans "weeks" %} ago)"><span class="bgb-v">·</span></div>
           <div class="bgb-slot" id="rt-ord-2" data-tip="Order to {% trans "Wholesaler" %} — arriving next {% trans "week" %} (placed last {% trans "week" %})"><span class="bgb-v">·</span></div>
         </div>
         <div class="road-surface">
-          <div class="bgb-slot" id="rt-ship-1" data-tip="Shipment from {% trans "Wholesaler" %} — arriving now (shipped 2 {% trans "{% trans "week" %}s" %} ago)"><span class="bgb-v">·</span></div>
+          <div class="bgb-slot" id="rt-ship-1" data-tip="Shipment from {% trans "Wholesaler" %} — arriving now (shipped 2 {% trans "weeks" %} ago)"><span class="bgb-v">·</span></div>
           <div class="bgb-slot" id="rt-ship-2" data-tip="Shipment from {% trans "Wholesaler" %} — arriving next {% trans "week" %} (shipped last {% trans "week" %})"><span class="bgb-v">·</span></div>
           <div class="road-flow-dir">
             <span class="rfd amber">→</span>
@@ -1861,11 +1861,11 @@ body.crit-alert::after {
       <!-- ── ROAD W↔D ───────────────────────────────────────────────────── -->
       <div class="road-seg">
         <div class="road-orders-row">
-          <div class="bgb-slot" id="wh-ord-1" data-tip="Order to {% trans "Distributor" %} — arriving now (placed 2 {% trans "{% trans "week" %}s" %} ago)"><span class="bgb-v">·</span></div>
+          <div class="bgb-slot" id="wh-ord-1" data-tip="Order to {% trans "Distributor" %} — arriving now (placed 2 {% trans "weeks" %} ago)"><span class="bgb-v">·</span></div>
           <div class="bgb-slot" id="wh-ord-2" data-tip="Order to {% trans "Distributor" %} — arriving next {% trans "week" %} (placed last {% trans "week" %})"><span class="bgb-v">·</span></div>
         </div>
         <div class="road-surface">
-          <div class="bgb-slot" id="wh-ship-1" data-tip="Shipment from {% trans "Distributor" %} — arriving now (shipped 2 {% trans "{% trans "week" %}s" %} ago)"><span class="bgb-v">·</span></div>
+          <div class="bgb-slot" id="wh-ship-1" data-tip="Shipment from {% trans "Distributor" %} — arriving now (shipped 2 {% trans "weeks" %} ago)"><span class="bgb-v">·</span></div>
           <div class="bgb-slot" id="wh-ship-2" data-tip="Shipment from {% trans "Distributor" %} — arriving next {% trans "week" %} (shipped last {% trans "week" %})"><span class="bgb-v">·</span></div>
           <div class="road-flow-dir">
             <span class="rfd amber">→</span>
@@ -1893,11 +1893,11 @@ body.crit-alert::after {
       <!-- ── ROAD D↔F ───────────────────────────────────────────────────── -->
       <div class="road-seg">
         <div class="road-orders-row">
-          <div class="bgb-slot" id="di-ord-1" data-tip="Order to {% trans "Factory" %} — arriving now (placed 2 {% trans "{% trans "week" %}s" %} ago)"><span class="bgb-v">·</span></div>
+          <div class="bgb-slot" id="di-ord-1" data-tip="Order to {% trans "Factory" %} — arriving now (placed 2 {% trans "weeks" %} ago)"><span class="bgb-v">·</span></div>
           <div class="bgb-slot" id="di-ord-2" data-tip="Order to {% trans "Factory" %} — arriving next {% trans "week" %} (placed last {% trans "week" %})"><span class="bgb-v">·</span></div>
         </div>
         <div class="road-surface">
-          <div class="bgb-slot" id="di-ship-1" data-tip="Shipment from {% trans "Factory" %} — arriving now (shipped 2 {% trans "{% trans "week" %}s" %} ago)"><span class="bgb-v">·</span></div>
+          <div class="bgb-slot" id="di-ship-1" data-tip="Shipment from {% trans "Factory" %} — arriving now (shipped 2 {% trans "weeks" %} ago)"><span class="bgb-v">·</span></div>
           <div class="bgb-slot" id="di-ship-2" data-tip="Shipment from {% trans "Factory" %} — arriving next {% trans "week" %} (shipped last {% trans "week" %})"><span class="bgb-v">·</span></div>
           <div class="road-flow-dir">
             <span class="rfd amber">→</span>
@@ -1952,7 +1952,7 @@ body.crit-alert::after {
 <div class="card" style="padding:.85rem 1rem;">
   <div class="card-title" style="margin-bottom:.4rem;">Pipeline Detail</div>
   <div style="font-size:.72rem; font-family:var(--font-mono); text-transform:uppercase; letter-spacing:.1em; color:var(--wholesaler-color); margin-bottom:.35rem;">
-    {% if role == 'factory' %}<svg width="11" height="11" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;"><path d="M2 20V10l5-4v4l5-4v4l5-4v10" stroke="currentColor" stroke-width="2" fill="none"/></svg> In Production — Production Delay (2 {% trans "{% trans "week" %}s" %}){% else %}<svg width="11" height="11" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;"><rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" stroke-width="2" fill="none"/><path d="M3 9h18" stroke="currentColor" stroke-width="2" opacity="0.4"/></svg> Shipping Delay — Incoming{% endif %}
+    {% if role == 'factory' %}<svg width="11" height="11" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;"><path d="M2 20V10l5-4v4l5-4v4l5-4v10" stroke="currentColor" stroke-width="2" fill="none"/></svg> In Production — Production Delay (2 {% trans "weeks" %}){% else %}<svg width="11" height="11" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;"><rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" stroke-width="2" fill="none"/><path d="M3 9h18" stroke="currentColor" stroke-width="2" opacity="0.4"/></svg> Shipping Delay — Incoming{% endif %}
   </div>
   <div id="pipeline-in"><div style="color:var(--muted); font-size:.78rem;">None in transit.</div></div>
   <div style="border-top:1px solid var(--border); margin:.5rem 0;"></div>
@@ -1986,7 +1986,7 @@ body.crit-alert::after {
 const WS_SCHEME  = location.protocol === 'https:' ? 'wss' : 'ws';
 const WS_URL     = `${WS_SCHEME}://${location.host}{{ ws_path }}`;
 const MY_ROLE    = "{{ role }}";
-const MAX_WEEKS  = {{ session.max_{% trans "{% trans "week" %}s" %} }};
+const MAX_WEEKS  = {{ session.max_weeks }};
 const SESSION_ID = {{ session.id }};
 const VISIBILITY_MODE = "{{ visibility_mode }}";
 
@@ -2113,8 +2113,8 @@ function handle(msg) {
       updateReadyPills(msg);
       if (MY_ROLE === 'customer') {
         reset{% trans "Customer" %}Panel();
-        toast(`📅 Semaine ${msg.{% trans "week" %} + 1} — Soumettez votre demande`, 'success');
-        log('{% trans "week" %}', `Semaine ${msg.{% trans "week" %} + 1} ouverte — en attente de votre commande`);
+        toast(`📅 Semaine ${msg.week + 1} — Soumettez votre demande`, 'success');
+        log('{% trans "week" %}', `Semaine ${msg.week + 1} ouverte — en attente de votre commande`);
       }
       break;
 
@@ -2127,7 +2127,7 @@ function handle(msg) {
       updateChart(msg.history || []);
       updateReadyPills(msg);
       sweepBoard();
-      if (msg.{% trans "week" %}) flashWeek(msg.{% trans "week" %});   // 🎮 dramatic {% trans "week" %} banner
+      if (msg.week) flashWeek(msg.week);   // 🎮 dramatic {% trans "week" %} banner
       if (msg.is_finished) { showGameOver(msg); }
       if (MY_ROLE === 'customer') reset{% trans "Customer" %}Panel();
       // Week summary hint
@@ -2185,7 +2185,7 @@ function handle(msg) {
     case 'shipment_incoming': {
       const sender = (msg.from_role || '').charAt(0).toUpperCase() + (msg.from_role || '').slice(1);
       const qty    = msg.quantity    ?? 0;
-      const wk     = msg.arrives_{% trans "week" %} ?? '?';
+      const wk     = msg.arrives_week ?? '?';
       toast(`🚚 ${sender} shipped ${qty} {% trans "units" %} → arriving Week ${wk}`, 'success');
       log('sys', `📦 Shipment incoming: ${qty} {% trans "units" %} from ${sender} — arrives Week ${wk}`);
       break;
@@ -2204,7 +2204,7 @@ function handle(msg) {
     case 'order_incoming': {
       const sender = (msg.from_role || '').charAt(0).toUpperCase() + (msg.from_role || '').slice(1);
       const qty    = msg.quantity    ?? 0;
-      const wk     = msg.arrives_{% trans "week" %} ?? '?';
+      const wk     = msg.arrives_week ?? '?';
       log('sys', `📋 Order incoming: ${qty} {% trans "units" %} from ${sender} — arrives Week ${wk}`);
       break;
     }
@@ -2214,7 +2214,7 @@ function handle(msg) {
       const dEl = document.getElementById('ship-demand-qty');
       if (dEl) dEl.textContent = msg.demand_incoming ?? '—';
       const dSub = document.getElementById('ship-demand-sub');
-      if (dSub) dSub.textContent = `from customer (updated) — Week ${msg.{% trans "week" %} || ''}`;
+      if (dSub) dSub.textContent = `from customer (updated) — Week ${msg.week || ''}`;
       // Update the customer demand box on the board immediately
       {
         const custSlot = document.getElementById('cust-ord-1');
@@ -2281,7 +2281,7 @@ function handle(msg) {
     case 'game_over':      showGameOver(msg); break;
 
     case '{% trans "week" %}_summary':
-      showWeekSummary(msg.{% trans "week" %}_summary, msg.{% trans "week" %});
+      showWeekSummary(msg.week_summary, msg.week);
       break;
   }
 }
@@ -2470,7 +2470,7 @@ function reset{% trans "Customer" %}Panel() {
   if (btn) { btn.disabled = false; btn.textContent = '✓ Prêt pour la semaine suivante'; btn.style.boxShadow = ''; }
   // Update {% trans "week" %} number display
   const wn = document.getElementById('cust-{% trans "week" %}-num');
-  if (wn) wn.textContent = (parseInt(document.getElementById('current-{% trans "week" %}')?.textContent || 0)) + 1;
+  if (wn) wn.textContent = (parseInt(document.getElementById('current-week')?.textContent || 0)) + 1;
 }
 
 // ── Phase indicator ────────────────────────────────────────────────────────
@@ -2744,8 +2744,8 @@ function toggleSound() {
 
 // ── 🎮 Week flash banner (enhanced) ──────────────────────────────────────
 function flashWeek(w) {
-  const inner = document.getElementById('{% trans "week" %}-flash-inner');
-  const wrap  = document.getElementById('{% trans "week" %}-flash');
+  const inner = document.getElementById('week-flash-inner');
+  const wrap  = document.getElementById('week-flash');
   if (!inner) return;
   inner.innerHTML = `WEEK&nbsp;${w}<span class="wk-sub">★ ROUND COMPLETE ★</span>`;
   inner.classList.remove('active');
@@ -2850,8 +2850,8 @@ function updateHUDDelta(inv, blg) {
 }
 
 function updateHUD(msg) {
-  const w = msg.{% trans "week" %} || 0;
-  document.getElementById('current-{% trans "week" %}').textContent = w;
+  const w = msg.week || 0;
+  document.getElementById('current-week').textContent = w;
   const pf = document.getElementById('xp-bar-fill');
   if (pf) pf.style.width = Math.round(w / MAX_WEEKS * 100) + '%';
 
@@ -2972,7 +2972,7 @@ function setSlot(id, item, cls) {
         v.textContent = newVal;
       }
     }
-    if (item.{% trans "{% trans "week" %}s" %}_away === 0) box.classList.add('arriving');
+    if (item.weeks_away === 0) box.classList.add('arriving');
   } else {
     if (v) v.textContent = EMPTY_SLOT;
   }
@@ -2982,12 +2982,12 @@ function setSlots(id1, id2, items, cls) {
   const arr = Array.isArray(items) ? items : [];
   if (cls === 'amber') {
     // Orders go → (right): slot1 (LEFT) = nearest arrival, slot2 (RIGHT) = farther future
-    const sorted = [...arr].sort((a,b) => (a.{% trans "{% trans "week" %}s" %}_away || 0) - (b.{% trans "{% trans "week" %}s" %}_away || 0));
+    const sorted = [...arr].sort((a,b) => (a.weeks_away || 0) - (b.weeks_away || 0));
     setSlot(id1, sorted[0] || null, cls);
     setSlot(id2, sorted[1] || null, cls);
   } else {
     // Shipments go ← (left): slot1 (LEFT) = arriving this {% trans "week" %}, slot2 (RIGHT) = arriving later
-    const sorted = [...arr].sort((a,b) => (a.{% trans "{% trans "week" %}s" %}_away || 0) - (b.{% trans "{% trans "week" %}s" %}_away || 0));
+    const sorted = [...arr].sort((a,b) => (a.weeks_away || 0) - (b.weeks_away || 0));
     setSlot(id1, sorted[0] || null, cls);
     setSlot(id2, sorted[1] || null, cls);
   }
@@ -3060,11 +3060,11 @@ function renderBoard(msg) {
    * {% trans "Factory" %}:     fa-req(own,1-wk) fa-inv fa-prod(own,2-wk) | di-ord(di orders in transit) di-ship(what I sent)
    */
 
-  // Mask incoming order quantities for orders not yet arrived ({% trans "{% trans "week" %}s" %}_away > 0)
+  // Mask incoming order quantities for orders not yet arrived (weeks_away > 0)
   // so the upstream player sees that orders are in transit but can't see the amount
   function maskFutureOrders(items) {
     if (!items || !Array.isArray(items)) return items;
-    return items.map(o => (o.{% trans "{% trans "week" %}s" %}_away || 0) > 0
+    return items.map(o => (o.weeks_away || 0) > 0
       ? { ...o, quantity: '?' }
       : o
     );
@@ -3105,14 +3105,14 @@ function renderBoard(msg) {
 }
 
 // ── Pipeline detail ────────────────────────────────────────────────────────
-function plItem(qty, arrives, {% trans "{% trans "week" %}s" %}Away, cls, lbl) {
-  const pct = Math.max(5, Math.round((1 - {% trans "{% trans "week" %}s" %}Away/2)*100));
+function plItem(qty, arrives, weeksAway, cls, lbl) {
+  const pct = Math.max(5, Math.round((1 - weeksAway/2)*100));
   const clr = cls === 'ship' ? '#3b82f6' : '#f5c842';
   return `<div class="pl-item ${cls}">
     <span style="font-family:var(--font-mono);font-weight:700;color:${clr};">${qty}</span>
     <span style="color:var(--muted);font-size:.7rem;margin:0 .5rem;">${lbl}</span>
     <div class="pl-bar"><div class="pl-fill" style="width:${pct}%;background:${clr};"></div></div>
-    <span style="font-size:.7rem;color:var(--muted);">W${arrives} (${{% trans "{% trans "week" %}s" %}Away}w)</span>
+    <span style="font-size:.7rem;color:var(--muted);">W${arrives} (${weeksAway}w)</span>
   </div>`;
 }
 
@@ -3123,20 +3123,20 @@ function updatePipeline(inc, out) {
   // Incoming (pipeline-in): production delay for factory, shipping delay for others
   const inLabel = MY_ROLE === 'factory' ? '🏭 in production' : '📦 arriving';
   if (iEl) iEl.innerHTML = inc.length
-    ? inc.map(s => plItem(s.quantity, s.arrives_{% trans "week" %}, s.{% trans "{% trans "week" %}s" %}_away, 'ship', inLabel)).join('')
+    ? inc.map(s => plItem(s.quantity, s.arrives_week, s.weeks_away, 'ship', inLabel)).join('')
     : '<div style="color:var(--muted);font-size:.78rem;">None in transit.</div>';
 
   // Outgoing (pipeline-out): production requests (1w) for factory, orders placed (2w) for others
   const outLabel = MY_ROLE === 'factory' ? '📋 prod. request (1w delay)' : '📋 ordered upstream';
   if (oEl) oEl.innerHTML = (!out || !out.length)
     ? '<div style="color:var(--muted);font-size:.78rem;">None in transit.</div>'
-    : out.map(o => plItem(o.quantity, o.arrives_{% trans "week" %}, o.{% trans "{% trans "week" %}s" %}_away, 'order', outLabel)).join('');
+    : out.map(o => plItem(o.quantity, o.arrives_week, o.weeks_away, 'order', outLabel)).join('');
 }
 
 // ── Chart ──────────────────────────────────────────────────────────────────
 function updateChart(history) {
   const color = COLORS[MY_ROLE] || '#f5c842';
-  const labels = history.map(h=>'W'+h.{% trans "week" %});
+  const labels = history.map(h=>'W'+h.week);
   const inv = history.map(h=>h.inventory), blg = history.map(h=>h.backlog), ord = history.map(h=>h.order_placed);
   if (chart) { chart.data.labels=labels; chart.data.datasets[0].data=inv; chart.data.datasets[1].data=blg; chart.data.datasets[2].data=ord; chart.update(); return; }
   const ctx = document.getElementById('myChart');
@@ -3402,7 +3402,7 @@ let _lastGrade = null;
 let _comboCount = 0;
 
 function updateGrade(inv, blg, cost) {
-  const {% trans "week" %} = Math.max(1, parseInt(document.getElementById('current-{% trans "week" %}')?.textContent || '1', 10));
+  const {% trans "week" %} = Math.max(1, parseInt(document.getElementById('current-week')?.textContent || '1', 10));
   const perWk = cost / {% trans "week" %};
   let cfg = GRADE_CFG[GRADE_CFG.length - 1];
   for (const c of GRADE_CFG) {
@@ -3415,7 +3415,7 @@ function updateGrade(inv, blg, cost) {
   if (lbl)   lbl.textContent = cfg.label;
   if (hudCard) { hudCard.classList.remove('hud-s'); if (cfg.grade === 'S') hudCard.classList.add('hud-s'); }
 
-  // Combo: track consecutive A/S {% trans "{% trans "week" %}s" %}
+  // Combo: track consecutive A/S weeks
   if (cfg.grade === 'S' || cfg.grade === 'A') { _comboCount++; } else { _comboCount = Math.max(0, _comboCount - 1); }
   updateCombo(_comboCount);
 
@@ -3792,12 +3792,12 @@ function spawnRain(count) {
 
 // ── 🏅 Milestones & achievements system ────────────────────────────────────
 const MILESTONES = [
-  { id: 'first_{% trans "week" %}',    check: m => (m.{% trans "week" %} ?? 0) >= 1,  icon: '🎯', title: 'FIRST ROUND',     sub: 'Complete your first {% trans "week" %}!' },
-  { id: '{% trans "week" %}_5',        check: m => (m.{% trans "week" %} ?? 0) >= 5,  icon: '⭐', title: '5 WEEKS STRONG',  sub: 'Survived 5 {% trans "{% trans "week" %}s" %} of supply chain!' },
-  { id: '{% trans "week" %}_10',       check: m => (m.{% trans "week" %} ?? 0) >= 10, icon: '🔥', title: 'VETERAN',          sub: '10 {% trans "{% trans "week" %}s" %} completed — halfway there!' },
-  { id: 'zero_backlog',  check: m => (m.own?.backlog ?? 1) === 0 && (m.{% trans "week" %} ?? 0) >= 3, icon: '💎', title: 'ZERO BACKLOG', sub: 'Cleared all unfilled orders!' },
+  { id: 'first_{% trans "week" %}',    check: m => (m.week ?? 0) >= 1,  icon: '🎯', title: 'FIRST ROUND',     sub: 'Complete your first {% trans "week" %}!' },
+  { id: 'week_5',        check: m => (m.week ?? 0) >= 5,  icon: '⭐', title: '5 WEEKS STRONG',  sub: 'Survived 5 {% trans "weeks" %} of supply chain!' },
+  { id: 'week_10',       check: m => (m.week ?? 0) >= 10, icon: '🔥', title: 'VETERAN',          sub: '10 {% trans "weeks" %} completed — halfway there!' },
+  { id: 'zero_backlog',  check: m => (m.own?.backlog ?? 1) === 0 && (m.week ?? 0) >= 3, icon: '💎', title: 'ZERO BACKLOG', sub: 'Cleared all unfilled orders!' },
   { id: 'high_inv',      check: m => (m.own?.inventory ?? 0) >= 20, icon: '📦', title: 'WAREHOUSE KING', sub: 'Stocked 20+ {% trans "units" %} of inventory!' },
-  { id: 'low_cost',      check: m => (m.own?.total_cost ?? Infinity) <= 10 && (m.{% trans "week" %} ?? 0) >= 3, icon: '💰', title: 'PENNY PINCHER', sub: 'Kept total cost under $10!' },
+  { id: 'low_cost',      check: m => (m.own?.total_cost ?? Infinity) <= 10 && (m.week ?? 0) >= 3, icon: '💰', title: 'PENNY PINCHER', sub: 'Kept total cost under $10!' },
   { id: 'grade_s',       check: () => _lastGrade === 'S', icon: '👑', title: 'LEGENDARY',        sub: 'Achieved S-rank grade!' },
   { id: 'combo_5',       check: () => _comboCount >= 5, icon: '🔥', title: 'ON FIRE',           sub: '5-{% trans "week" %} combo streak!' },
 ];
@@ -3836,7 +3836,7 @@ const TUT_STEPS = [
   {
     icon: '🍺',
     title: 'Welcome to the Beer Game!',
-    body: 'This is a <strong>supply chain simulation</strong> where you manage inventory in a beer distribution network. Each player controls one role: <strong>{% trans "{% trans "Retailer" %}" %}</strong>, <strong>{% trans "{% trans "Wholesaler" %}" %}</strong>, <strong>{% trans "{% trans "Distributor" %}" %}</strong>, or <strong>{% trans "{% trans "Factory" %}" %}</strong>.'
+    body: 'This is a <strong>supply chain simulation</strong> where you manage inventory in a beer distribution network. Each player controls one role: <strong>{% trans "Retailer" %}</strong>, <strong>{% trans "Wholesaler" %}</strong>, <strong>{% trans "Distributor" %}</strong>, or <strong>{% trans "Factory" %}</strong>.'
   },
   {
     icon: '📦',
@@ -3851,7 +3851,7 @@ const TUT_STEPS = [
   {
     icon: '📋',
     title: 'Step 3 — Place {% trans "Your Order" %}',
-    body: 'Finally, <strong>place an order</strong> to your upstream supplier. Think carefully — orders take <strong>2 {% trans "{% trans "week" %}s" %}</strong> to arrive (3 {% trans "{% trans "week" %}s" %} for factory production).'
+    body: 'Finally, <strong>place an order</strong> to your upstream supplier. Think carefully — orders take <strong>2 {% trans "weeks" %}</strong> to arrive (3 {% trans "weeks" %} for factory production).'
   },
   {
     icon: '💡',
@@ -4021,7 +4021,7 @@ showGameOver = function(msg) {
   if (!screen) return;
 
   const own = msg.own || {};
-  const {% trans "week" %} = msg.{% trans "week" %} || MAX_WEEKS;
+  const {% trans "week" %} = msg.week || MAX_WEEKS;
   const avgCost = {% trans "week" %} > 0 ? Math.round((own.total_cost ?? 0) / {% trans "week" %}) : 0;
   const peakBlg = own.peak_backlog ?? own.backlog ?? 0;
 
