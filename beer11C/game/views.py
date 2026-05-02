@@ -326,18 +326,18 @@ def lobby_status(request, session_id):
     is_host = (session.created_by == request.user)
 
     # Include live player board data so the lobby can act as a spectator view
+    # Also include initial state in pre-game so the board preview is visible
     players_data = []
-    if game_started or is_finished:
-        for player in _sorted_players(session.players.all()):
-            last_state = player.history.order_by('-week').first()
-            players_data.append({
-                'role':         player.role,
-                'name':         player.name,
-                'inventory':    player.inventory,
-                'backlog':      player.backlog,
-                'total_cost':   round(player.total_cost, 1),
-                'order_placed': last_state.order_placed if last_state else 0,
-            })
+    for player in _sorted_players(session.players.all()):
+        last_state = player.history.order_by('-week').first()
+        players_data.append({
+            'role':         player.role,
+            'name':         player.name,
+            'inventory':    player.inventory,
+            'backlog':      player.backlog,
+            'total_cost':   round(player.total_cost, 1),
+            'order_placed': last_state.order_placed if last_state else 0,
+        })
 
     # Last customer demand (useful for spectators)
     last_demand = None
