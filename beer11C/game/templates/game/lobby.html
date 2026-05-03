@@ -681,7 +681,7 @@ var VALID_COLORS = Object.keys(ROLE_COLORS).reduce(function(acc, k) { acc[ROLE_C
 var POLL_MS = 3000;
 
 var isGameLive = false;
-var last{% trans "Chat" %}Id = 0;
+var lastChatId = 0;
 var previousJoined = [];
 var poll = setInterval(fetchStatus, POLL_MS);
 fetchStatus();
@@ -818,7 +818,7 @@ function updateUI(d) {
     }
   }
 
-  update{% trans "Chat" %}(d.chat || []);
+  updateChat(d.chat || []);
 }
 
 function updateProgressRing(count, total) {
@@ -834,13 +834,13 @@ function updateProgressRing(count, total) {
   txt.textContent = count + '/' + total;
 }
 
-function update{% trans "Chat" %}(messages) {
+function updateChat(messages) {
   var container = document.getElementById('chat-messages');
   var empty     = document.getElementById('chat-empty');
   if (!container) return;
   if (messages.length === 0) { if (empty) empty.style.display = 'block'; return; }
   if (empty) empty.style.display = 'none';
-  var newMsgs = messages.filter(function(m) { return m.id > last{% trans "Chat" %}Id; });
+  var newMsgs = messages.filter(function(m) { return m.id > lastChatId; });
   if (newMsgs.length === 0) return;
   newMsgs.forEach(function(m) {
     var div = document.createElement('div');
@@ -849,7 +849,7 @@ function update{% trans "Chat" %}(messages) {
     if (!VALID_COLORS[roleColor]) roleColor = 'var(--muted)';
     div.innerHTML = '<span class="chat-msg-author" style="color:' + roleColor + ';">' + (EMOJIS[m.role] || '\uD83C\uDFAE') + ' ' + escapeHtml(m.author) + '</span> <span class="chat-msg-body">' + escapeHtml(m.body) + '</span><span class="chat-msg-time">' + m.time + '</span>';
     container.appendChild(div);
-    last{% trans "Chat" %}Id = Math.max(last{% trans "Chat" %}Id, m.id);
+    lastChatId = Math.max(lastChatId, m.id);
   });
   container.scrollTop = container.scrollHeight;
 }

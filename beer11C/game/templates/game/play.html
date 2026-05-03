@@ -199,7 +199,7 @@
 }
 .road-node.sweeping { animation:col-sweep .55s ease forwards; }
 
-/* ── {% trans "Factory" %} internal pipeline slots ────────────────────────────────────── */
+/* ── Factory internal pipeline slots ────────────────────────────────────── */
 .factory-pipeline {
   display:flex; flex-direction:column; gap:4px; width:100%; margin-top:3px;
 }
@@ -225,7 +225,7 @@
   margin-top:10px; /* align with slot center */
 }
 
-/* {% trans "Factory" %} pipeline slot (compact, column layout) */
+/* Factory pipeline slot (compact, column layout) */
 .fac-slot {
   width:100%; min-height:36px; border-radius:5px;
   border:1px solid var(--border); background:var(--surface2);
@@ -674,7 +674,7 @@
 .bgb-slot.blue  .bgb-v { color:#8ecbff; font-size:.82rem; font-weight:800; }
 .bgb-slot.arriving { border-color:var(--success)!important; background:rgba(34,197,94,.12)!important; animation:pulse-arr 1.2s infinite; }
 .bgb-slot.arriving .bgb-v { color:var(--success)!important; }
-/* {% trans "Factory" %} pipeline: context-based overrides */
+/* Factory pipeline: context-based overrides */
 .factory-pipeline .bgb-slot { min-height:36px; border-radius:4px; }
 .factory-pipeline .bgb-slot.amber { border-color:rgba(245,200,66,.35); background:rgba(245,200,66,.07); }
 .factory-pipeline .bgb-slot.amber .bgb-v { color:#ffd36a; }
@@ -781,7 +781,7 @@ body.crit-alert::after {
   50%    { opacity:1; }
 }
 
-/* ── {% trans "Factory" %} smoke plumes ───────────────────────────────────────────────── */
+/* ── Factory smoke plumes ───────────────────────────────────────────────── */
 .factory-smoke-wrap {
   position:absolute; top:-2px; right:6px; width:30px; height:30px;
   pointer-events:none; overflow:visible;
@@ -2000,14 +2000,14 @@ let gameStarted = false;
 
 // ── Optimistic receive state ───────────────────────────────────────────────
 // Stored when phase_receive arrives; used to instantly update UI on button click
-let _pendingRcvQty = 0;   // {% trans "units" %} about to be received
+let _pendingRcvQty = 0;   // units about to be received
 let _pendingRcvInv = 0;   // inventory snapshot before receipt
 let _pendingRcvBlg = 0;   // backlog snapshot before receipt
 let _receiveOptimisticDone = false; // guard against double-animation
 
 // ── Optimistic ship state ─────────────────────────────────────────────────
 // Stored when phase_ship panel shows; used to instantly animate on button click
-let _pendingShipQty = 0;  // {% trans "units" %} about to be shipped
+let _pendingShipQty = 0;  // units about to be shipped
 let _pendingShipInv = 0;  // post-ship inventory (optimistic)
 let _pendingShipBlg = 0;  // post-ship backlog (optimistic)
 let _shipOptimisticDone = false; // guard against double-animation
@@ -2106,7 +2106,7 @@ function handle(msg) {
       if (MY_ROLE !== 'customer') animateBoardOrder(MY_ROLE, msg.order_placed ?? msg.quantity);
       break;
 
-    // New {% trans "week" %} opened — sent to customer to submit new demand
+    // New week opened — sent to customer to submit new demand
     case 'week_open':
       hideLobby(msg.status);
       updateHUD(msg);
@@ -2119,7 +2119,7 @@ function handle(msg) {
       break;
 
     // Week complete + state update from server
-    case '{% trans "week" %}_complete':
+    case 'week_complete':
       hideLobby(msg.status);
       updateHUD(msg);
       renderBoard(msg);
@@ -2137,7 +2137,7 @@ function handle(msg) {
         if (wblg === 0 && winv > 0) toast('✅ Perfect {% trans "week" %} — no backlog!', 'success');
         else if (wblg > 15) toast(`⚠️ High backlog: ${wblg} {% trans "units" %}`, 'error');
       }
-      // Reset {% trans "week" %}-ready button for next {% trans "week" %}
+      // Reset week-ready button for next week
       {
         const btn = getWeekReadyEl();
         if (btn) {
@@ -2160,7 +2160,7 @@ function handle(msg) {
       sweepBoard();
       if (msg.is_finished) { showGameOver(msg); }
       if (MY_ROLE === 'customer') resetCustomerPanel();
-      // Reset {% trans "week" %}-ready button for next {% trans "week" %}
+      // Reset week-ready button for next week
       {
         const btn = getWeekReadyEl();
         if (btn) {
@@ -2209,7 +2209,7 @@ function handle(msg) {
       break;
     }
 
-    // {% trans "Customer" %}: retailer demand updated (late customer submit)
+    // Customer: retailer demand updated (late customer submit)
     case 'demand_update':
       const dEl = document.getElementById('ship-demand-qty');
       if (dEl) dEl.textContent = msg.demand_incoming ?? '—';
@@ -2241,7 +2241,7 @@ function handle(msg) {
       }
       break;
 
-    case '{% trans "week" %}_ready_status':
+    case 'week_ready_status':
       {
         const readyCount = (msg.ready_for_next || []).length;
         const total      = msg.total || 5;
@@ -2263,7 +2263,7 @@ function handle(msg) {
       break;
 
     case 'all_phases_done':
-      // All players finished their 3 phases — show {% trans "week" %}-ready button if not yet clicked
+      // All players finished their 3 phases — show week-ready button if not yet clicked
       {
         const btn = getWeekReadyEl();
         if (btn && !btn.disabled) {
@@ -2280,7 +2280,7 @@ function handle(msg) {
     case 'error':          toast(msg.message, 'error'); break;
     case 'game_over':      showGameOver(msg); break;
 
-    case '{% trans "week" %}_summary':
+    case 'week_summary':
       showWeekSummary(msg.week_summary, msg.week);
       break;
   }
@@ -2315,8 +2315,8 @@ function showReceivePanel(receivedQty, demandIncoming, productionRequest) {
   // ────────────────────────────────────────────────────────────────────────────
 
   if (MY_ROLE === 'factory') {
-    // {% trans "Factory" %} phase 1: production completing + production request starting
-    //   recv-prod-qty       = production completing this {% trans "week" %} (blue)
+    // Factory phase 1: production completing + production request starting
+    //   recv-prod-qty       = production completing this week (blue)
     //   recv-prod-start-qty = production request entering pipeline (green)
     const prodEl      = document.getElementById('recv-prod-qty');
     const prodRow     = document.getElementById('recv-prod-row');
@@ -2465,10 +2465,10 @@ function resetCustomerPanel() {
   if (ds) ds.style.display = 'none';
   const qEl = document.getElementById('cust-qty');
   if (qEl) { qEl.disabled = false; qEl.value = 4; }
-  // Reset {% trans "week" %}-ready button
+  // Reset week-ready button
   const btn = document.getElementById('cust-btn-week-ready');
   if (btn) { btn.disabled = false; btn.textContent = '✓ Prêt pour la semaine suivante'; btn.style.boxShadow = ''; }
-  // Update {% trans "week" %} number display
+  // Update week number display
   const wn = document.getElementById('cust-week-num');
   if (wn) wn.textContent = (parseInt(document.getElementById('current-week')?.textContent || 0)) + 1;
 }
@@ -2887,7 +2887,7 @@ function updateHUD(msg) {
   animateNum(hCost, cost, '$', 500);
 
   const dem = document.getElementById('hud-demand');
-  if (dem) dem.textContent = msg.map?.demand_customer_to_retailer?.this_{% trans "week" %} ?? '—';
+  if (dem) dem.textContent = msg.map?.demand_customer_to_retailer?.this_week ?? '—';
 
   // 🎮 Game-mode: HUD glow + critical alert + grade
   updateHUDCards(inv, blg);
@@ -2962,7 +2962,7 @@ function setSlot(id, item, cls) {
     const newVal = String(item.quantity);
     if (v) {
       if (oldVal !== newVal && oldVal !== EMPTY_SLOT && newVal !== EMPTY_SLOT) {
-        // Value changed this {% trans "week" %} — pop it to draw attention
+        // Value changed this week — pop it to draw attention
         v.textContent = newVal;
         v.classList.remove('anim-val-pop');
         void v.offsetWidth;
@@ -2986,7 +2986,7 @@ function setSlots(id1, id2, items, cls) {
     setSlot(id1, sorted[0] || null, cls);
     setSlot(id2, sorted[1] || null, cls);
   } else {
-    // Shipments go ← (left): slot1 (LEFT) = arriving this {% trans "week" %}, slot2 (RIGHT) = arriving later
+    // Shipments go ← (left): slot1 (LEFT) = arriving this week, slot2 (RIGHT) = arriving later
     const sorted = [...arr].sort((a,b) => (a.weeks_away || 0) - (b.weeks_away || 0));
     setSlot(id1, sorted[0] || null, cls);
     setSlot(id2, sorted[1] || null, cls);
@@ -3040,9 +3040,9 @@ function renderBoard(msg) {
   ].forEach(blankSlot);
   ['rt','wh','di','fa'].forEach(blankInv);
 
-  // {% trans "Customer" %} demand box
+  // Customer demand box
   if (role === 'retailer' && m.demand_customer_to_retailer) {
-    const d   = m.demand_customer_to_retailer.this_{% trans "week" %};
+    const d   = m.demand_customer_to_retailer.this_week;
     const bEl = document.getElementById('cust-ord-1');
     const vEl = bEl?.querySelector('.bgb-v');
     if (vEl) vEl.textContent = d ?? '—';
@@ -3080,7 +3080,7 @@ function renderBoard(msg) {
     setSlots('wh-ord-1','wh-ord-2',   m.outgoing_orders_from_me,    'amber');
     setInv('wh', own.inventory, own.backlog);
     setSlots('wh-ship-1','wh-ship-2', m.incoming_shipments_to_me,   'blue');
-    // {% trans "Retailer" %} slots visible to wholesaler — mask future orders
+    // Retailer slots visible to wholesaler — mask future orders
     setSlots('rt-ord-1','rt-ord-2',   maskFutureOrders(m.incoming_orders_to_me), 'amber');
     setSlots('rt-ship-1','rt-ship-2', m.outgoing_shipments_from_me, 'blue');
   }
@@ -3089,7 +3089,7 @@ function renderBoard(msg) {
     setSlots('di-ord-1','di-ord-2',   m.outgoing_orders_from_me,    'amber');
     setInv('di', own.inventory, own.backlog);
     setSlots('di-ship-1','di-ship-2', m.incoming_shipments_to_me,   'blue');
-    // {% trans "Wholesaler" %} slots visible to distributor — mask future orders
+    // Wholesaler slots visible to distributor — mask future orders
     setSlots('wh-ord-1','wh-ord-2',   maskFutureOrders(m.incoming_orders_to_me), 'amber');
     setSlots('wh-ship-1','wh-ship-2', m.outgoing_shipments_from_me, 'blue');
   }
@@ -3098,7 +3098,7 @@ function renderBoard(msg) {
     setSlot('fa-req-1', (m.factory_pending_requests||[])[0], 'amber'); // own prod request (1-wk delay)
     setInv('fa', own.inventory, own.backlog);
     setSlots('fa-prod-1','fa-prod-2', m.factory_production_delay,   'blue');
-    // {% trans "Distributor" %} slots visible to factory — mask future orders
+    // Distributor slots visible to factory — mask future orders
     setSlots('di-ord-1','di-ord-2',   maskFutureOrders(m.incoming_orders_to_me), 'amber');
     setSlots('di-ship-1','di-ship-2', m.outgoing_shipments_from_me, 'blue');
   }
@@ -3287,7 +3287,7 @@ function animateBoardShip(role, shippedQty, newInv, newBlg) {
  */
 function animateBoardOrder(role, orderQty) {
   const pre    = role === 'factory' ? 'fa' : role.slice(0,2);
-  // {% trans "Factory" %}: production request has 1-{% trans "week" %} delay → slot 1 (only one req slot)
+  // Factory: production request has 1-week delay → slot 1 (only one req slot)
   // Non-factory: newly placed order → slot 2 (slot 1 holds the arriving-now order)
   const slotId = role === 'factory' ? 'fa-req-1' : pre + '-ord-2';
   const label  = '1w';
@@ -3363,12 +3363,12 @@ function getDownstreamShipSlot(role) {
   return map[role] || null;
 }
 
-// Return the currently relevant {% trans "week" %}-ready button and waiting label.
-// Supply chain roles use '#btn-{% trans "week" %}-ready'; customer uses '#cust-btn-{% trans "week" %}-ready'.
+// Return the currently relevant week-ready button and waiting label.
+// Supply chain roles use '#btn-week-ready'; customer uses '#cust-btn-week-ready'.
 function getWeekReadyEl() {
   return MY_ROLE === 'customer'
     ? document.getElementById('cust-btn-week-ready')
-    : document.getElementById('btn-{% trans "week" %}-ready');
+    : document.getElementById('btn-week-ready');
 }
 function getWaitingLabelEl() {
   return MY_ROLE === 'customer'
@@ -3379,7 +3379,7 @@ function getWaitingLabelEl() {
 function doWeekReady() {
   const btn = getWeekReadyEl();
   if (btn) { btn.disabled = true; btn.textContent = '⏳ En attente des autres…'; }
-  send({type: '{% trans "week" %}_ready'});
+  send({type: 'week_ready'});
   log('sys', '✓ Prêt pour la semaine suivante');
 }
 
@@ -3402,8 +3402,8 @@ let _lastGrade = null;
 let _comboCount = 0;
 
 function updateGrade(inv, blg, cost) {
-  const {% trans "week" %} = Math.max(1, parseInt(document.getElementById('current-week')?.textContent || '1', 10));
-  const perWk = cost / {% trans "week" %};
+  const week = Math.max(1, parseInt(document.getElementById('current-week')?.textContent || '1', 10));
+  const perWk = cost / week;
   let cfg = GRADE_CFG[GRADE_CFG.length - 1];
   for (const c of GRADE_CFG) {
     if (blg <= c.maxBlg && perWk <= c.maxCostPerWk) { cfg = c; break; }
@@ -3455,7 +3455,7 @@ function spawnFloatNum(delta, x, y, color) {
   el.addEventListener('animationend', () => el.remove(), {once:true});
 }
 
-// ── 🎆 Particle burst on {% trans "week" %} flash ──────────────────────────────────────
+// ── 🎆 Particle burst on week flash ──────────────────────────────────────
 function spawnParticles() {
   const cx = window.innerWidth / 2, cy = window.innerHeight / 2;
   const colors = ['#f5c842','#3b82f6','#a855f7','#22c55e','#ef4444','#ffffff'];
@@ -3728,7 +3728,7 @@ flashWeek = function(w) {
 
 // Enhance updateHUD with environment + milestones.
 // Milestones are skipped on the very first call (opening game state) to prevent
-// trivially-earned popups (LEGENDARY grade, first_{% trans "week" %}) before any player action.
+// trivially-earned popups (LEGENDARY grade, first_week) before any player action.
 let _hudCallCount = 0;
 const _origUpdateHUD_mm = updateHUD;
 updateHUD = function(msg) {
@@ -3792,7 +3792,7 @@ function spawnRain(count) {
 
 // ── 🏅 Milestones & achievements system ────────────────────────────────────
 const MILESTONES = [
-  { id: 'first_{% trans "week" %}',    check: m => (m.week ?? 0) >= 1,  icon: '🎯', title: 'FIRST ROUND',     sub: 'Complete your first {% trans "week" %}!' },
+  { id: 'first_week',    check: m => (m.week ?? 0) >= 1,  icon: '🎯', title: 'FIRST ROUND',     sub: 'Complete your first week!' },
   { id: 'week_5',        check: m => (m.week ?? 0) >= 5,  icon: '⭐', title: '5 WEEKS STRONG',  sub: 'Survived 5 {% trans "weeks" %} of supply chain!' },
   { id: 'week_10',       check: m => (m.week ?? 0) >= 10, icon: '🔥', title: 'VETERAN',          sub: '10 {% trans "weeks" %} completed — halfway there!' },
   { id: 'zero_backlog',  check: m => (m.own?.backlog ?? 1) === 0 && (m.week ?? 0) >= 3, icon: '💎', title: 'ZERO BACKLOG', sub: 'Cleared all unfilled orders!' },
@@ -4021,12 +4021,12 @@ showGameOver = function(msg) {
   if (!screen) return;
 
   const own = msg.own || {};
-  const {% trans "week" %} = msg.week || MAX_WEEKS;
-  const avgCost = {% trans "week" %} > 0 ? Math.round((own.total_cost ?? 0) / {% trans "week" %}) : 0;
+  const week = msg.week || MAX_WEEKS;
+  const avgCost = week > 0 ? Math.round((own.total_cost ?? 0) / {% trans "week" %}) : 0;
   const peakBlg = own.peak_backlog ?? own.backlog ?? 0;
 
   // Determine final grade
-  const perWk = (own.total_cost ?? 0) / Math.max(1, {% trans "week" %});
+  const perWk = (own.total_cost ?? 0) / Math.max(1, week);
   const blg = own.backlog ?? 0;
   let finalGrade = GRADE_CFG[GRADE_CFG.length - 1];
   for (const c of GRADE_CFG) {
@@ -4043,7 +4043,7 @@ showGameOver = function(msg) {
   screen.innerHTML = `<div class="go-card">
     <div style="font-size:3rem;margin-bottom:.3rem;">🏁</div>
     <div class="go-title">GAME OVER</div>
-    <div class="go-subtitle">Week ${{% trans "week" %}} / ${MAX_WEEKS} — ${MY_ROLE.charAt(0).toUpperCase() + MY_ROLE.slice(1)}</div>
+    <div class="go-subtitle">Week ${week} / ${MAX_WEEKS} — ${MY_ROLE.charAt(0).toUpperCase() + MY_ROLE.slice(1)}</div>
     <div class="go-final-grade ${finalGrade.cls}" style="margin:0 auto .75rem;">${finalGrade.grade}</div>
     <div class="go-rank-text">${finalGrade.label}</div>
     <div class="go-stats">
@@ -4107,7 +4107,7 @@ document.getElementById('lobby-overlay').classList.add('hidden');
 // ── Week Summary Modal ─────────────────────────────────────────────────────
 let _wsmAutoClose = null;
 
-function showWeekSummary(summary, {% trans "week" %}) {
+function showWeekSummary(summary, week) {
   if (!summary) return;
   const overlay = document.getElementById('wsm-overlay');
   if (!overlay) return;
@@ -4122,8 +4122,8 @@ function showWeekSummary(summary, {% trans "week" %}) {
   const ordEl   = document.getElementById('wsm-ordered');
   const vrdEl   = document.getElementById('wsm-verdict');
 
-  if ({% trans "week" %}Num) {% trans "week" %}Num.textContent = {% trans "week" %} ?? '—';
-  if (costEl)  costEl.textContent  = summary.cost_this_{% trans "week" %} ?? 0;
+  if (weekNum) weekNum.textContent = week ?? '—';
+  if (costEl)  costEl.textContent  = summary.cost_this_week ?? 0;
   if (brkEl) {
     const holdCost = (summary.inventory ?? 0) * 0.5;
     const blgCost  = (summary.backlog   ?? 0) * 1.0;
@@ -4144,7 +4144,7 @@ function showWeekSummary(summary, {% trans "week" %}) {
   if (vrdEl) {
     const blg = summary.backlog ?? 0;
     const inv = summary.inventory ?? 0;
-    const cost = summary.cost_this_{% trans "week" %} ?? 0;
+    const cost = summary.cost_this_week ?? 0;
     let msg = '';
     if (blg === 0 && cost <= 8)  msg = '✅ <strong>Perfect {% trans "week" %}!</strong> No backlog, low cost.';
     else if (blg === 0)          msg = '👍 <strong>No backlog</strong> — good inventory control.';
@@ -4175,7 +4175,7 @@ function closeWeekSummary() {
   if (overlay) overlay.classList.remove('active');
 }
 
-// Close {% trans "week" %} summary modal on Escape key (standard modal UX)
+// Close week summary modal on Escape key (standard modal UX)
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') closeWeekSummary();
 });

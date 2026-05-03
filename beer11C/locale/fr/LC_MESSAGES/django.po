@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-02 18:04-0500\n"
+"POT-Creation-Date: 2026-05-03 05:36-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: French <fr@li.org>\n"
@@ -41,8 +41,7 @@ msgstr ""
 #: game/templates/game/play.html:1558 game/templates/game/play.html:1573
 #: game/templates/game/play.html:1729 game/templates/game/play.html:1751
 #: game/templates/game/play.html:1798 game/templates/game/play.html:1801
-#: game/templates/game/play.html:2212 game/templates/game/play.html:2382
-#: game/templates/game/play.html:3043
+#: game/templates/game/play.html:2382
 msgid "Customer"
 msgstr "Client"
 
@@ -52,8 +51,7 @@ msgstr "Client"
 #: game/templates/game/play.html:1627 game/templates/game/play.html:1641
 #: game/templates/game/play.html:1652 game/templates/game/play.html:1655
 #: game/templates/game/play.html:1819 game/templates/game/play.html:2383
-#: game/templates/game/play.html:3056 game/templates/game/play.html:3083
-#: game/templates/game/play.html:3839
+#: game/templates/game/play.html:3056 game/templates/game/play.html:3839
 msgid "Retailer"
 msgstr "Détaillant"
 
@@ -65,7 +63,7 @@ msgstr "Détaillant"
 #: game/templates/game/play.html:1833 game/templates/game/play.html:1836
 #: game/templates/game/play.html:1837 game/templates/game/play.html:1851
 #: game/templates/game/play.html:2384 game/templates/game/play.html:3057
-#: game/templates/game/play.html:3092 game/templates/game/play.html:3839
+#: game/templates/game/play.html:3839
 msgid "Wholesaler"
 msgstr "Grossiste"
 
@@ -80,21 +78,18 @@ msgstr "Grossiste"
 #: game/templates/game/play.html:2045 game/templates/game/play.html:2067
 #: game/templates/game/play.html:2090 game/templates/game/play.html:2356
 #: game/templates/game/play.html:2385 game/templates/game/play.html:3058
-#: game/templates/game/play.html:3101 game/templates/game/play.html:3839
+#: game/templates/game/play.html:3839
 msgid "Distributor"
 msgstr "Distributeur"
 
 #: game/templates/accounts/login.html:211
-#: game/templates/game/game_init.html:100 game/templates/game/play.html:202
-#: game/templates/game/play.html:228 game/templates/game/play.html:677
-#: game/templates/game/play.html:784 game/templates/game/play.html:1417
+#: game/templates/game/game_init.html:100 game/templates/game/play.html:1417
 #: game/templates/game/play.html:1494 game/templates/game/play.html:1661
 #: game/templates/game/play.html:1667 game/templates/game/play.html:1670
 #: game/templates/game/play.html:1896 game/templates/game/play.html:1897
 #: game/templates/game/play.html:1900 game/templates/game/play.html:1901
-#: game/templates/game/play.html:1915 game/templates/game/play.html:2318
-#: game/templates/game/play.html:3060 game/templates/game/play.html:3159
-#: game/templates/game/play.html:3285 game/templates/game/play.html:3290
+#: game/templates/game/play.html:1915 game/templates/game/play.html:3060
+#: game/templates/game/play.html:3159 game/templates/game/play.html:3285
 #: game/templates/game/play.html:3839
 msgid "Factory"
 msgstr "Usine"
@@ -288,7 +283,6 @@ msgstr "+ Nouvelle partie"
 #: game/templates/game/game_init.html:193
 #: game/templates/game/game_init.html:333 game/templates/game/play.html:1564
 #: game/templates/game/play.html:1615 game/templates/game/play.html:1666
-#: game/templates/game/play.html:2003 game/templates/game/play.html:2010
 #: game/templates/game/play.html:2045 game/templates/game/play.html:2047
 #: game/templates/game/play.html:2069 game/templates/game/play.html:2138
 #: game/templates/game/play.html:2189 game/templates/game/play.html:2190
@@ -380,9 +374,7 @@ msgstr "Cette action est irréversible."
 
 #: game/templates/game/lobby.html:103 game/templates/game/lobby.html:449
 #: game/templates/game/lobby.html:514 game/templates/game/lobby.html:517
-#: game/templates/game/lobby.html:590 game/templates/game/lobby.html:684
-#: game/templates/game/lobby.html:821 game/templates/game/lobby.html:837
-#: game/templates/game/lobby.html:843 game/templates/game/lobby.html:852
+#: game/templates/game/lobby.html:590
 msgid "Chat"
 msgstr "Chat"
 
@@ -426,29 +418,13 @@ msgstr "Copié !"
 #: game/templates/game/play.html:1934 game/templates/game/play.html:1939
 #: game/templates/game/play.html:1940 game/templates/game/play.html:1960
 #: game/templates/game/play.html:2037 game/templates/game/play.html:2038
-#: game/templates/game/play.html:2047 game/templates/game/play.html:2109
-#: game/templates/game/play.html:2122 game/templates/game/play.html:2130
-#: game/templates/game/play.html:2137 game/templates/game/play.html:2140
-#: game/templates/game/play.html:2163 game/templates/game/play.html:2244
-#: game/templates/game/play.html:2266 game/templates/game/play.html:2283
-#: game/templates/game/play.html:2319 game/templates/game/play.html:2437
-#: game/templates/game/play.html:2468 game/templates/game/play.html:2471
+#: game/templates/game/play.html:2047 game/templates/game/play.html:2130
+#: game/templates/game/play.html:2137 game/templates/game/play.html:2437
 #: game/templates/game/play.html:2705 game/templates/game/play.html:2818
-#: game/templates/game/play.html:2890 game/templates/game/play.html:2965
-#: game/templates/game/play.html:2989 game/templates/game/play.html:3045
 #: game/templates/game/play.html:3285 game/templates/game/play.html:3286
-#: game/templates/game/play.html:3290 game/templates/game/play.html:3366
-#: game/templates/game/play.html:3367 game/templates/game/play.html:3371
-#: game/templates/game/play.html:3382 game/templates/game/play.html:3405
-#: game/templates/game/play.html:3406 game/templates/game/play.html:3458
-#: game/templates/game/play.html:3731 game/templates/game/play.html:3795
 #: game/templates/game/play.html:3802 game/templates/game/play.html:3844
-#: game/templates/game/play.html:4024 game/templates/game/play.html:4025
-#: game/templates/game/play.html:4029 game/templates/game/play.html:4110
-#: game/templates/game/play.html:4116 game/templates/game/play.html:4117
-#: game/templates/game/play.html:4125 game/templates/game/play.html:4126
-#: game/templates/game/play.html:4147 game/templates/game/play.html:4149
-#: game/templates/game/play.html:4178
+#: game/templates/game/play.html:4025 game/templates/game/play.html:4116
+#: game/templates/game/play.html:4117 game/templates/game/play.html:4149
 msgid "week"
 msgstr "semaine"
 
