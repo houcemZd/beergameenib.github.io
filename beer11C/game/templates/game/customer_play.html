@@ -111,6 +111,7 @@
 {% endblock %}
 
 {% block content %}
+{% trans "Customer" as customer_label %}
 <div id="toast-container"></div>
 
 <!-- Lobby overlay -->
@@ -118,7 +119,7 @@
   <div class="lobby-box">
     <div style="margin-bottom:.5rem;"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="8" r="4.5" fill="#f5c842" opacity="0.9"/><path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke="#f5c842" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.7"/></svg></div>
     <h2 style="font-family:var(--font-mono); font-size:1.2rem; margin-bottom:.25rem;">
-      {{ player_session.name|default:"{% trans "Customer" %}" }}
+      {{ player_session.name|default:customer_label }}
       <span class="role-badge role-retailer" style="background:rgba(245,200,66,.15);color:var(--accent);margin-left:.4rem;">customer</span>
     </h2>
     <p style="color:var(--muted); font-size:.83rem; margin-bottom:1.25rem;">{{ session.name }}</p>
@@ -161,7 +162,7 @@
     <span style="font-size:1.8rem;"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="color:#f5c842;"><circle cx="12" cy="8" r="4.5" fill="currentColor" opacity="0.9"/><path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.7"/></svg></span>
     <div>
       <h2 style="font-family:var(--font-mono);font-size:1.2rem;line-height:1.2;">
-        {{ player_session.name|default:"{% trans "Customer" %}" }}
+        {{ player_session.name|default:customer_label }}
         <span class="role-badge" style="background:rgba(245,200,66,.15);color:var(--accent);margin-left:.4rem;">customer</span>
       </h2>
       <div style="font-size:.8rem;color:var(--muted);">{{ session.name }}</div>
