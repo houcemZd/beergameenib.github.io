@@ -7,7 +7,8 @@
 <style>
 /* ── Grid ─────────────────────────────────────────────────────────────────── */
 .lobby-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; align-items:start; }
-@media (max-width:860px) { .lobby-grid { grid-template-columns:1fr; } }
+.lobby-grid > * { min-width: 0; }
+@media (max-width:1024px) { .lobby-grid { grid-template-columns:1fr; } }
 
 /* ── Role cards ──────────────────────────────────────────────────────────── */
 .role-card {
@@ -43,7 +44,7 @@
 }
 .rc-name-tag.show { opacity:1; transform:none; }
 
-.link-row { display:flex; align-items:center; gap:.45rem; flex-wrap:nowrap; }
+.link-row { display:flex; align-items:center; gap:.45rem; flex-wrap:wrap; }
 .link-pill {
   flex:1; min-width:0; font-family:var(--font-mono); font-size:.65rem;
   color:var(--muted); background:var(--surface); border:1px solid var(--border);

@@ -824,6 +824,32 @@ class GameConsumer(AsyncWebsocketConsumer):
         if await self._all_week_ready():
             await self._do_close_week()
 
+    async def lobby_host_started(self, event):
+        """
+        Sent by the HTTP lobby_start_game view when the host clicks Start Game.
+        Notifies this player's WS client that the game has started (hides the
+        lobby overlay) then opens week 1 so players receive their first phase.
+        open_week is idempotent for the initial IDLE→RECEIVE transition, so
+        calling it from multiple simultaneous consumers is safe.
+        """
+        session = await self._get_session()
+        if session.status != GameSession.STATUS_PLAYING:
+            return
+        # Tell this player's UI the game has started
+        await self.send(text_data=json.dumps({
+            'type':      'ready_status',
+            'submitted': [],
+            'connected': await self._get_connected_roles(),
+            'ready':     session.ready_role_list,
+            'status':    GameSession.STATUS_PLAYING,
+            'total':     5,
+            'phases':    await self._get_all_phases(),
+        }))
+        # Open week 1 — sets phases to PHASE_RECEIVE and pushes phase_receive to all players.
+        # Multiple consumers may call this simultaneously; since all players start at
+        # PHASE_IDLE the re-entrant set of the same values is harmless.
+        await self._do_open_week()
+
     @database_sync_to_async
     def _get_factory_distributor_order(self):
         """

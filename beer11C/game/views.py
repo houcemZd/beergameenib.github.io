@@ -472,6 +472,18 @@ def lobby_start_game(request, session_id):
         return JsonResponse({'error': 'At least 2 players must join before starting.'}, status=400)
     session.status = GameSession.STATUS_PLAYING
     session.save(update_fields=['status'])
+
+    # Notify all WebSocket-connected players so they exit the lobby overlay
+    # and receive their first week's phase assignments.
+    from channels.layers import get_channel_layer
+    from asgiref.sync import async_to_sync
+    channel_layer = get_channel_layer()
+    if channel_layer:
+        async_to_sync(channel_layer.group_send)(
+            f"game_{session_id}",
+            {'type': 'lobby_host_started'},
+        )
+
     return JsonResponse({'ok': True, 'redirect': reverse('lobby', args=[session.id])})
 
 
