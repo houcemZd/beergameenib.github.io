@@ -1,4 +1,5 @@
 {% extends "game/base.html" %}
+{% load i18n %}
 {% block title %}Lobby — {{ session.name }}{% endblock %}
 
 {% block extra_head %}
@@ -99,7 +100,7 @@
 .settings-item-label { font-size:.62rem; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; }
 .settings-item-value { font-family:var(--font-mono); font-size:1rem; font-weight:700; color:var(--accent); }
 
-/* ── Chat ────────────────────────────────────────────────────────────────── */
+/* ── {% trans "Chat" %} ────────────────────────────────────────────────────────────────── */
 .chat-box {
   border:1px solid var(--border); border-radius:0 0 10px 10px; background:var(--surface);
   overflow:hidden; display:flex; flex-direction:column;
@@ -353,7 +354,7 @@
   <h2 style="font-family:var(--font-mono); font-size:1.9rem; margin-bottom:.5rem;">{{ session.name }}</h2>
   <div style="display:flex; align-items:center; justify-content:center; gap:.75rem; flex-wrap:wrap;">
     <div class="week-badge" id="week-badge"><strong>{{ session.max_weeks }}</strong> weeks &middot; Week 0 / {{ session.max_weeks }}</div>
-    <div style="font-size:.75rem; color:var(--muted);" id="hdr-sub">Send each link to a different player</div>
+    <div style="font-size:.75rem; color:var(--muted);" id="hdr-sub">{% trans "Send" %} each link to a different player</div>
   </div>
 </div>
 
@@ -445,12 +446,12 @@
 {% endfor %}
 </div>
 
-<!-- ══ RIGHT: Game info + Chat ══════════════════════════════════════════════ -->
+<!-- ══ RIGHT: Game info + {% trans "Chat" %} ══════════════════════════════════════════════ -->
 <div style="display:flex; flex-direction:column; gap:1.2rem;">
 
-  <!-- Game Settings -->
+  <!-- {% trans "Game Settings" %} -->
   <div class="card">
-    <div class="card-title">&#9881; Game Settings</div>
+    <div class="card-title">&#9881; {% trans "Game Settings" %}</div>
     <div class="settings-grid">
       <div class="settings-item">
         <div class="settings-item-label">Max Weeks</div>
@@ -473,7 +474,7 @@
         <div class="settings-item-value">${{ game_settings.backlog_cost }}/unit</div>
       </div>
       <div class="settings-item">
-        <div class="settings-item-label">Players</div>
+        <div class="settings-item-label">{% trans "Players" %}</div>
         <div class="settings-item-value">5 roles</div>
       </div>
     </div>
@@ -510,19 +511,19 @@
     </div>
   </div>
 
-  <!-- Lobby Chat -->
+  <!-- Lobby {% trans "Chat" %} -->
   <div class="card" style="padding:0;">
     <div style="padding:.75rem 1rem .4rem; display:flex; align-items:center; gap:.4rem;">
-      <div class="card-title" style="margin:0;">&#128172; Lobby Chat</div>
+      <div class="card-title" style="margin:0;">&#128172; Lobby {% trans "Chat" %}</div>
       <div style="font-size:.6rem; color:var(--muted2); margin-left:auto;">live</div>
     </div>
     <div class="chat-box">
       <div class="chat-messages" id="chat-messages">
-        <div class="chat-empty" id="chat-empty">No messages yet. Say hello! &#128075;</div>
+        <div class="chat-empty" id="chat-empty">{% trans "No messages yet." %} Say hello! &#128075;</div>
       </div>
       <div class="chat-input-row">
-        <input class="chat-input" id="chat-input" type="text" placeholder="Type a message..." maxlength="300" autocomplete="off" />
-        <button class="chat-send" id="chat-send" onclick="sendChat()">Send</button>
+        <input class="chat-input" id="chat-input" type="text" placeholder="{% trans "Type a message..." %}" maxlength="300" autocomplete="off" />
+        <button class="chat-send" id="chat-send" onclick="sendChat()">{% trans "Send" %}</button>
       </div>
     </div>
   </div>
@@ -534,11 +535,11 @@
 </div>
 </div>
 
-<!-- Host Start Game Button -->
+<!-- Host {% trans "Start Game" %} Button -->
 {% if is_host %}
 <div style="text-align:center; margin-top:1.8rem;" id="host-start-wrap">
   <button class="host-start-btn" id="host-start-btn" disabled onclick="startGame()">
-    &#128640; Start Game
+    &#128640; {% trans "Start Game" %}
   </button>
   <div style="font-size:.7rem; color:var(--muted); margin-top:.5rem;" id="host-start-hint">
     At least 2 players must join before you can start
@@ -586,16 +587,16 @@
 <!-- Spectator lobby chat -->
 <div class="card" style="padding:0; margin-bottom:1.5rem;">
   <div style="padding:.75rem 1rem .4rem; display:flex; align-items:center; gap:.4rem;">
-    <div class="card-title" style="margin:0;">&#128172; Lobby Chat</div>
+    <div class="card-title" style="margin:0;">&#128172; Lobby {% trans "Chat" %}</div>
     <div style="font-size:.6rem; color:var(--muted2); margin-left:auto;">live</div>
   </div>
   <div class="chat-box">
     <div class="chat-messages" id="chat-messages">
-      <div class="chat-empty" id="chat-empty">No messages yet. Say hello! &#128075;</div>
+      <div class="chat-empty" id="chat-empty">{% trans "No messages yet." %} Say hello! &#128075;</div>
     </div>
     <div class="chat-input-row">
       <input class="chat-input" id="chat-input" type="text" placeholder="Type a message as spectator..." maxlength="300" autocomplete="off" />
-      <button class="chat-send" id="chat-send" onclick="sendChat()">Send</button>
+      <button class="chat-send" id="chat-send" onclick="sendChat()">{% trans "Send" %}</button>
     </div>
   </div>
 </div>
@@ -888,12 +889,12 @@ function startGame() {
       } else {
         toast(d.error || 'Failed to start', '');
         btn.disabled = false;
-        btn.textContent = '\uD83D\uDE80 Start Game';
+        btn.textContent = '\uD83D\uDE80 {% trans "Start Game" %}';
       }
     }).catch(function() {
       toast('Network error', '');
       btn.disabled = false;
-      btn.textContent = '\uD83D\uDE80 Start Game';
+      btn.textContent = '\uD83D\uDE80 {% trans "Start Game" %}';
     });
 }
 
@@ -1060,7 +1061,7 @@ function doCopy(btn) {
   var url = btn.dataset.url, role = btn.dataset.role;
   if (!url) return;
   function doIt() {
-    btn.textContent = '\u2713 Copied!'; btn.classList.add('copied');
+    btn.textContent = '\u2713 {% trans "Copied!" %}'; btn.classList.add('copied');
     setTimeout(function() { btn.textContent = '\uD83D\uDCCB Copy'; btn.classList.remove('copied'); }, 2200);
     toast('Link copied \u2014 ' + role, 'ok');
   }
@@ -1073,7 +1074,7 @@ function doCopyAll() {
   var allLinks = Object.keys(ROLE_URLS).map(function(role) { return role + ': ' + ROLE_URLS[role]; }).join('\n');
   var btn = document.getElementById('copy-all-btn');
   function doIt() {
-    if (btn) { btn.textContent = '\u2713 All Copied!'; btn.classList.add('copied'); }
+    if (btn) { btn.textContent = '\u2713 All {% trans "Copied!" %}'; btn.classList.add('copied'); }
     setTimeout(function() { if (btn) { btn.textContent = '\uD83D\uDCCB Copy All Links'; btn.classList.remove('copied'); } }, 2200);
     toast('All links copied to clipboard', 'ok');
   }

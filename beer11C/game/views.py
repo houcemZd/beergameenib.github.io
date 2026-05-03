@@ -33,9 +33,15 @@ ALL_ROLES    = ['customer', 'retailer', 'wholesaler', 'distributor', 'factory']
 def _is_session_creator(request, session):
     """Return True if the logged-in user created this session.
 
-    If created_by is None (legacy sessions without an owner) we allow access so
-    existing games are not inadvertently locked out.
+    Staff and superusers are always granted creator-level access so that
+    admins can manage any session.  If created_by is None (legacy sessions
+    without an owner) we allow access so existing games are not inadvertently
+    locked out.
     """
+    # Staff covers admin-panel users; superuser is checked separately in case
+    # a superuser account exists without is_staff (atypical but possible).
+    if request.user.is_staff or request.user.is_superuser:
+        return True
     if session.created_by is None:
         return True
     return session.created_by_id == request.user.pk

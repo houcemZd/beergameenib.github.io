@@ -1,0 +1,479 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-05-03 05:36-0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: game/templates/accounts/login.html:3
+msgid "Beer Game — Sign In"
+msgstr ""
+
+#: game/templates/accounts/login.html:196
+msgid "MIT Supply Chain Simulation"
+msgstr ""
+
+#: game/templates/accounts/login.html:199
+msgid ""
+"Real-time multiplayer simulation. Manage your supply chain link, place "
+"orders, and discover why small demand variations create large oscillations — "
+"the bullwhip effect."
+msgstr ""
+
+#: game/templates/accounts/login.html:203
+#: game/templates/game/customer_play.html:3 game/templates/game/play.html:1469
+#: game/templates/game/play.html:1558 game/templates/game/play.html:1573
+#: game/templates/game/play.html:1729 game/templates/game/play.html:1751
+#: game/templates/game/play.html:1798 game/templates/game/play.html:1801
+#: game/templates/game/play.html:2382
+msgid "Customer"
+msgstr ""
+
+#: game/templates/accounts/login.html:205
+#: game/templates/game/game_init.html:100 game/templates/game/play.html:1416
+#: game/templates/game/play.html:1559 game/templates/game/play.html:1574
+#: game/templates/game/play.html:1627 game/templates/game/play.html:1641
+#: game/templates/game/play.html:1652 game/templates/game/play.html:1655
+#: game/templates/game/play.html:1819 game/templates/game/play.html:2383
+#: game/templates/game/play.html:3056 game/templates/game/play.html:3839
+msgid "Retailer"
+msgstr ""
+
+#: game/templates/accounts/login.html:207
+#: game/templates/game/game_init.html:100 game/templates/game/play.html:1417
+#: game/templates/game/play.html:1560 game/templates/game/play.html:1575
+#: game/templates/game/play.html:1627 game/templates/game/play.html:1641
+#: game/templates/game/play.html:1651 game/templates/game/play.html:1832
+#: game/templates/game/play.html:1833 game/templates/game/play.html:1836
+#: game/templates/game/play.html:1837 game/templates/game/play.html:1851
+#: game/templates/game/play.html:2384 game/templates/game/play.html:3057
+#: game/templates/game/play.html:3839
+msgid "Wholesaler"
+msgstr ""
+
+#: game/templates/accounts/login.html:209
+#: game/templates/game/game_init.html:100 game/templates/game/play.html:1416
+#: game/templates/game/play.html:1521 game/templates/game/play.html:1551
+#: game/templates/game/play.html:1561 game/templates/game/play.html:1576
+#: game/templates/game/play.html:1627 game/templates/game/play.html:1651
+#: game/templates/game/play.html:1661 game/templates/game/play.html:1864
+#: game/templates/game/play.html:1865 game/templates/game/play.html:1868
+#: game/templates/game/play.html:1869 game/templates/game/play.html:1883
+#: game/templates/game/play.html:2045 game/templates/game/play.html:2067
+#: game/templates/game/play.html:2090 game/templates/game/play.html:2356
+#: game/templates/game/play.html:2385 game/templates/game/play.html:3058
+#: game/templates/game/play.html:3839
+msgid "Distributor"
+msgstr ""
+
+#: game/templates/accounts/login.html:211
+#: game/templates/game/game_init.html:100 game/templates/game/play.html:1417
+#: game/templates/game/play.html:1494 game/templates/game/play.html:1661
+#: game/templates/game/play.html:1667 game/templates/game/play.html:1670
+#: game/templates/game/play.html:1896 game/templates/game/play.html:1897
+#: game/templates/game/play.html:1900 game/templates/game/play.html:1901
+#: game/templates/game/play.html:1915 game/templates/game/play.html:3060
+#: game/templates/game/play.html:3159 game/templates/game/play.html:3285
+#: game/templates/game/play.html:3839
+msgid "Factory"
+msgstr ""
+
+#: game/templates/accounts/login.html:217
+msgid "Real-time"
+msgstr ""
+
+#: game/templates/accounts/login.html:217
+msgid "WebSockets for a smooth and simultaneous experience"
+msgstr ""
+
+#: game/templates/accounts/login.html:221
+msgid "5 players"
+msgstr ""
+
+#: game/templates/accounts/login.html:221
+msgid "Customer, Retailer, Wholesaler, Distributor, Factory"
+msgstr ""
+
+#: game/templates/accounts/login.html:225
+msgid "Bullwhip analysis"
+msgstr ""
+
+#: game/templates/accounts/login.html:225
+msgid "Charts and statistics at game end"
+msgstr ""
+
+#: game/templates/accounts/login.html:229
+msgid "Multi-device"
+msgstr ""
+
+#: game/templates/accounts/login.html:229
+msgid "Play from any screen on the network"
+msgstr ""
+
+#: game/templates/accounts/login.html:238
+msgid "Sign In"
+msgstr ""
+
+#: game/templates/accounts/login.html:239
+msgid "Sign in to play or create a game"
+msgstr ""
+
+#: game/templates/accounts/login.html:251
+#: game/templates/accounts/register.html:55
+msgid "Username"
+msgstr ""
+
+#: game/templates/accounts/login.html:253
+msgid "Your username"
+msgstr ""
+
+#: game/templates/accounts/login.html:258
+#: game/templates/accounts/register.html:69
+msgid "Password"
+msgstr ""
+
+#: game/templates/accounts/login.html:264
+msgid "Sign In →"
+msgstr ""
+
+#: game/templates/accounts/login.html:268
+msgid "No account yet?"
+msgstr ""
+
+#: game/templates/accounts/login.html:271
+msgid "Create a free account"
+msgstr ""
+
+#: game/templates/accounts/profile.html:42
+msgid "games created"
+msgstr ""
+
+#: game/templates/accounts/profile.html:43
+msgid "roles played"
+msgstr ""
+
+#: game/templates/accounts/profile.html:59
+msgid "Edit Profile"
+msgstr ""
+
+#: game/templates/accounts/profile.html:64
+msgid "Display Name"
+msgstr ""
+
+#: game/templates/accounts/profile.html:65
+msgid "Your name"
+msgstr ""
+
+#: game/templates/accounts/profile.html:71
+msgid "Save Changes"
+msgstr ""
+
+#: game/templates/accounts/profile.html:79
+msgid "Recent Roles Played"
+msgstr ""
+
+#: game/templates/accounts/profile.html:93
+msgid "Account Actions"
+msgstr ""
+
+#: game/templates/accounts/profile.html:97
+msgid "Disconnect / Log out"
+msgstr ""
+
+#: game/templates/accounts/profile.html:99
+msgid "Back to Sessions"
+msgstr ""
+
+#: game/templates/accounts/profile.html:103
+msgid "Danger Zone"
+msgstr ""
+
+#: game/templates/accounts/profile.html:105
+msgid ""
+"Permanently delete your account and all associated data. This action cannot "
+"be undone."
+msgstr ""
+
+#: game/templates/accounts/profile.html:108
+msgid ""
+"Are you sure? This will permanently delete your account and cannot be undone."
+msgstr ""
+
+#: game/templates/accounts/profile.html:110
+msgid "Delete My Account"
+msgstr ""
+
+#: game/templates/accounts/register.html:3
+msgid "Create Account — Beer Game"
+msgstr ""
+
+#: game/templates/accounts/register.html:36
+msgid "Create a player account"
+msgstr ""
+
+#: game/templates/accounts/register.html:50
+msgid "First name"
+msgstr ""
+
+#: game/templates/accounts/register.html:63
+msgid "Email (optional)"
+msgstr ""
+
+#: game/templates/accounts/register.html:71
+msgid "8 characters minimum"
+msgstr ""
+
+#: game/templates/accounts/register.html:78
+msgid "Confirm password"
+msgstr ""
+
+#: game/templates/accounts/register.html:80
+msgid "Repeat the password"
+msgstr ""
+
+#: game/templates/accounts/register.html:84
+msgid "Create my account →"
+msgstr ""
+
+#: game/templates/accounts/register.html:89
+msgid "Already registered?"
+msgstr ""
+
+#: game/templates/accounts/register.html:89
+msgid "Sign in"
+msgstr ""
+
+#: game/templates/game/base.html:449
+msgid "Sessions"
+msgstr ""
+
+#: game/templates/game/base.html:450
+msgid "Admin"
+msgstr ""
+
+#: game/templates/game/base.html:451
+msgid "+ New Game"
+msgstr ""
+
+#: game/templates/game/customer_play.html:129
+#: game/templates/game/customer_play.html:187
+#: game/templates/game/customer_play.html:306
+#: game/templates/game/customer_play.html:491
+#: game/templates/game/customer_play.html:591
+#: game/templates/game/customer_play.html:592
+#: game/templates/game/game_init.html:193
+#: game/templates/game/game_init.html:333 game/templates/game/play.html:1564
+#: game/templates/game/play.html:1615 game/templates/game/play.html:1666
+#: game/templates/game/play.html:2045 game/templates/game/play.html:2047
+#: game/templates/game/play.html:2069 game/templates/game/play.html:2138
+#: game/templates/game/play.html:2189 game/templates/game/play.html:2190
+#: game/templates/game/play.html:2198 game/templates/game/play.html:2199
+#: game/templates/game/play.html:2208 game/templates/game/play.html:2437
+#: game/templates/game/play.html:2438 game/templates/game/play.html:2439
+#: game/templates/game/play.html:2441 game/templates/game/play.html:2442
+#: game/templates/game/play.html:2521 game/templates/game/play.html:2562
+#: game/templates/game/play.html:2770 game/templates/game/play.html:2778
+#: game/templates/game/play.html:3799 game/templates/game/play.html:3844
+#: game/templates/game/results.html:403
+msgid "units"
+msgstr ""
+
+#: game/templates/game/customer_play.html:338
+msgid "Submit Demand"
+msgstr ""
+
+#: game/templates/game/customer_play.html:363
+#: game/templates/game/play.html:1724
+msgid "Game Over"
+msgstr ""
+
+#: game/templates/game/customer_play.html:364
+#: game/templates/game/play.html:1725
+msgid "View Results"
+msgstr ""
+
+#: game/templates/game/customer_play.html:370
+msgid "Demand History"
+msgstr ""
+
+#: game/templates/game/game_init.html:82
+msgid "Game Setup"
+msgstr ""
+
+#: game/templates/game/game_init.html:112
+msgid "Initial Inventory"
+msgstr ""
+
+#: game/templates/game/game_init.html:160
+msgid "Back"
+msgstr ""
+
+#: game/templates/game/game_init.html:170
+msgid "Customer Demand"
+msgstr ""
+
+#: game/templates/game/game_init.html:193
+#: game/templates/game/game_init.html:333
+#: game/templates/game/game_init.html:365 game/templates/game/play.html:1348
+#: game/templates/game/play.html:1418 game/templates/game/play.html:1531
+#: game/templates/game/play.html:1615 game/templates/game/play.html:1642
+#: game/templates/game/play.html:1643 game/templates/game/play.html:1671
+#: game/templates/game/play.html:1687 game/templates/game/play.html:1689
+#: game/templates/game/play.html:1832 game/templates/game/play.html:1836
+#: game/templates/game/play.html:1864 game/templates/game/play.html:1868
+#: game/templates/game/play.html:1896 game/templates/game/play.html:1900
+#: game/templates/game/play.html:1955 game/templates/game/play.html:3796
+#: game/templates/game/play.html:3797 game/templates/game/play.html:3854
+#: game/templates/game/results.html:129
+msgid "weeks"
+msgstr ""
+
+#: game/templates/game/game_init.html:429 game/templates/game/lobby.html:538
+#: game/templates/game/lobby.html:542 game/templates/game/lobby.html:892
+#: game/templates/game/lobby.html:897
+msgid "Start Game"
+msgstr ""
+
+#: game/templates/game/game_init.html:431 game/templates/game/home.html:278
+#: game/templates/game/new_game.html:177
+msgid "Cancel"
+msgstr ""
+
+#: game/templates/game/home.html:272
+msgid "Delete this game?"
+msgstr ""
+
+#: game/templates/game/home.html:276 game/templates/game/home.html:431
+#: game/templates/game/home.html:456 game/templates/game/home.html:490
+#: game/templates/game/home.html:589
+msgid "Delete"
+msgstr ""
+
+#: game/templates/game/home.html:589
+msgid "This action cannot be undone."
+msgstr ""
+
+#: game/templates/game/lobby.html:103 game/templates/game/lobby.html:449
+#: game/templates/game/lobby.html:514 game/templates/game/lobby.html:517
+#: game/templates/game/lobby.html:590
+msgid "Chat"
+msgstr ""
+
+#: game/templates/game/lobby.html:357 game/templates/game/lobby.html:526
+#: game/templates/game/lobby.html:599 game/templates/game/play.html:1590
+#: game/templates/game/play.html:2396 game/templates/game/play.html:2540
+msgid "Send"
+msgstr ""
+
+#: game/templates/game/lobby.html:452 game/templates/game/lobby.html:454
+msgid "Game Settings"
+msgstr ""
+
+#: game/templates/game/lobby.html:477
+msgid "Players"
+msgstr ""
+
+#: game/templates/game/lobby.html:522 game/templates/game/lobby.html:595
+msgid "No messages yet."
+msgstr ""
+
+#: game/templates/game/lobby.html:525
+msgid "Type a message..."
+msgstr ""
+
+#: game/templates/game/lobby.html:1064 game/templates/game/lobby.html:1077
+msgid "Copied!"
+msgstr ""
+
+#: game/templates/game/play.html:1361 game/templates/game/play.html:1385
+#: game/templates/game/play.html:1419 game/templates/game/play.html:1469
+#: game/templates/game/play.html:1497 game/templates/game/play.html:1501
+#: game/templates/game/play.html:1507 game/templates/game/play.html:1514
+#: game/templates/game/play.html:1537 game/templates/game/play.html:1564
+#: game/templates/game/play.html:1659 game/templates/game/play.html:1667
+#: game/templates/game/play.html:1674 game/templates/game/play.html:1706
+#: game/templates/game/play.html:1751 game/templates/game/play.html:1801
+#: game/templates/game/play.html:1833 game/templates/game/play.html:1837
+#: game/templates/game/play.html:1865 game/templates/game/play.html:1869
+#: game/templates/game/play.html:1897 game/templates/game/play.html:1901
+#: game/templates/game/play.html:1934 game/templates/game/play.html:1939
+#: game/templates/game/play.html:1940 game/templates/game/play.html:1960
+#: game/templates/game/play.html:2037 game/templates/game/play.html:2038
+#: game/templates/game/play.html:2047 game/templates/game/play.html:2130
+#: game/templates/game/play.html:2137 game/templates/game/play.html:2437
+#: game/templates/game/play.html:2705 game/templates/game/play.html:2818
+#: game/templates/game/play.html:3285 game/templates/game/play.html:3286
+#: game/templates/game/play.html:3802 game/templates/game/play.html:3844
+#: game/templates/game/play.html:4025 game/templates/game/play.html:4116
+#: game/templates/game/play.html:4117 game/templates/game/play.html:4149
+msgid "week"
+msgstr ""
+
+#: game/templates/game/play.html:1483 game/templates/game/play.html:1559
+#: game/templates/game/play.html:1560 game/templates/game/play.html:1561
+#: game/templates/game/play.html:1562
+msgid "Incoming Order"
+msgstr ""
+
+#: game/templates/game/play.html:1486 game/templates/game/play.html:1597
+#: game/templates/game/play.html:1695
+msgid "Place Order"
+msgstr ""
+
+#: game/templates/game/play.html:1970 game/templates/game/results.html:240
+msgid "Inventory History"
+msgstr ""
+
+#: game/templates/game/play.html:3853
+msgid "Your Order"
+msgstr ""
+
+#: game/templates/game/play.html:4153
+msgid "Cost:"
+msgstr ""
+
+#: game/templates/game/play.html:4153
+msgid "Inventory:"
+msgstr ""
+
+#: game/templates/game/results.html:4 game/templates/game/results.html:128
+msgid "Results"
+msgstr ""
+
+#: game/templates/game/results.html:135 game/templates/game/results.html:411
+msgid "Play Again"
+msgstr ""
+
+#: game/templates/game/results.html:145
+msgid "Winner"
+msgstr ""
+
+#: game/templates/game/results.html:164
+msgid "Score"
+msgstr ""
+
+#: game/templates/game/results.html:207 game/templates/game/results.html:210
+msgid "Bullwhip Effect"
+msgstr ""
+
+#: game/templates/game/results.html:240 game/templates/game/results.html:357
+#: game/templates/game/results.html:364 game/templates/game/results.html:369
+msgid "Role"
+msgstr ""
+
+#: game/templates/game/results.html:258
+msgid "Cumulative Cost"
+msgstr ""

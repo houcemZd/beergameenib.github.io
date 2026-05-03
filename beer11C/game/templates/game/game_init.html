@@ -1,4 +1,5 @@
 {% extends "game/base.html" %}
+{% load i18n %}
 {% block title %}Initialize — {{ session.name }}{% endblock %}
 
 {% block extra_head %}
@@ -78,7 +79,7 @@
   <div class="steps">
     <div class="step">
       <div class="step-num done">✓</div>
-      <span style="color:var(--muted);">Game Setup</span>
+      <span style="color:var(--muted);">{% trans "Game Setup" %}</span>
     </div>
     <div class="step-line done"></div>
     <div class="step">
@@ -96,7 +97,7 @@
     Initial State — <span style="color:var(--accent)">{{ session.name }}</span>
   </h2>
   <p style="color:var(--muted); font-size:.85rem; margin-bottom:1.5rem;">
-    Configure starting inventory and pipeline for all 4 roles. These values apply equally to Retailer, Wholesaler, Distributor, and Factory.
+    Configure starting inventory and pipeline for all 4 roles. These values apply equally to {% trans "Retailer" %}, {% trans "Wholesaler" %}, {% trans "Distributor" %}, and {% trans "Factory" %}.
   </p>
 
   <form method="POST">
@@ -108,7 +109,7 @@
 
       <div class="param-row">
         <div class="param-label">
-          <strong>Initial Inventory</strong>
+          <strong>{% trans "Initial Inventory" %}</strong>
           <span>Units each role starts with on hand</span>
         </div>
         <div class="param-input">
@@ -156,7 +157,7 @@
         </div>
         <div>
           <label style="font-size:.78rem; color:var(--muted); display:block; margin-bottom:.35rem;">
-            Backlog cost <span style="color:var(--danger)">$</span> / unfilled unit
+            {% trans "Back" %}log cost <span style="color:var(--danger)">$</span> / unfilled unit
           </label>
           <input type="number" name="backlog_cost" value="1.0" min="0" max="10" step="0.1"
                  style="font-family:var(--font-mono); font-size:.95rem;" />
@@ -166,7 +167,7 @@
 
     <!-- ── Demand Schedule ── -->
     <div class="card" id="demand-card" style="margin-bottom:1.25rem;">
-      <div class="card-title">Customer Demand Mode</div>
+      <div class="card-title">{% trans "Customer Demand" %} Mode</div>
       <p style="font-size:.75rem; color:var(--muted); margin-bottom:.85rem;">
         Choose how customer demand is generated each week. Pre-seeded schedules remove the need for a live customer player.
       </p>
@@ -189,7 +190,7 @@
           <span>
             <strong style="color:var(--text);">Classic MIT (4 → 8)</strong> —
             <span style="color:var(--muted); font-size:.8rem;">
-              4 units/week for weeks 1–4, then 8 units/week. The standard teaching scenario.
+              4 {% trans "units" %}/week for {% trans "weeks" %} 1–4, then 8 {% trans "units" %}/week. The standard teaching scenario.
               A customer player is not required.
             </span>
           </span>
@@ -329,7 +330,7 @@
             <div>
               <div style="font-size:.85rem; font-weight:700; margin-bottom:.2rem;">📖 Classic MIT Step</div>
               <div style="font-size:.73rem; color:var(--muted); line-height:1.45;">
-                Demand: 4 units/week for weeks 1–4, then 8 forever.
+                Demand: 4 {% trans "units" %}/week for {% trans "weeks" %} 1–4, then 8 forever.
                 The original Beer Game setup — demonstrates bullwhip from a single demand step.
               </div>
             </div>
@@ -361,7 +362,7 @@
             <div>
               <div style="font-size:.85rem; font-weight:700; margin-bottom:.2rem;">🌊 Seasonal Demand</div>
               <div style="font-size:.73rem; color:var(--muted); line-height:1.45;">
-                Demand: 4,4,8,8,4,4,8,8 repeating (every 4 weeks).
+                Demand: 4,4,8,8,4,4,8,8 repeating (every 4 {% trans "weeks" %}).
                 Shows how predictable seasonality is still amplified by the bullwhip.
               </div>
             </div>
@@ -425,9 +426,9 @@
 
     <div style="display:flex; gap:.75rem;">
       <button type="submit" class="btn btn-primary" style="flex:1; justify-content:center; font-size:1rem; padding:.75rem;">
-        🚀 Start Game
+        🚀 {% trans "Start Game" %}
       </button>
-      <a href="{% url 'home' %}" class="btn btn-ghost">Cancel</a>
+      <a href="{% url 'home' %}" class="btn btn-ghost">{% trans "Cancel" %}</a>
     </div>
   </form>
 </div>

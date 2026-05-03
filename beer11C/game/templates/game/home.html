@@ -1,4 +1,5 @@
 {% extends "game/base.html" %}
+{% load i18n %}
 {% block title %}Beer Game — Sessions{% endblock %}
 
 {% block extra_head %}
@@ -268,13 +269,13 @@
 <div class="del-overlay" id="del-dialog">
   <div class="del-box">
     <div style="margin-bottom:.5rem;"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18M8 6V4a1 1 0 011-1h6a1 1 0 011 1v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" stroke="#ef4444" stroke-width="1.8" stroke-linecap="round"/><path d="M10 11v6M14 11v6" stroke="#ef4444" stroke-width="1.8" stroke-linecap="round" opacity="0.6"/></svg></div>
-    <h3 style="font-family:var(--font-mono); font-size:1rem; margin-bottom:.4rem;">Supprimer la partie ?</h3>
+    <h3 style="font-family:var(--font-mono); font-size:1rem; margin-bottom:.4rem;">{% trans "Delete this game?" %}</h3>
     <p style="color:var(--muted); font-size:.82rem; margin-bottom:1.25rem;" id="del-name"></p>
     <div style="display:flex; gap:.75rem; justify-content:center;">
       <form method="POST" id="del-form">{% csrf_token %}
-        <button type="submit" class="btn btn-danger" style="padding:.55rem 1.4rem;">Supprimer</button>
+        <button type="submit" class="btn btn-danger" style="padding:.55rem 1.4rem;">{% trans "Delete" %}</button>
       </form>
-      <button class="btn btn-ghost" onclick="closeDel()">Annuler</button>
+      <button class="btn btn-ghost" onclick="closeDel()">{% trans "Cancel" %}</button>
     </div>
   </div>
 </div>
@@ -427,7 +428,7 @@
         Rejoindre →
       </a>
       {% if request.user.is_staff %}
-      <button class="del-btn" onclick="openDel({{ s.id }}, '{{ s.name|escapejs }}')" title="Supprimer">🗑️</button>
+      <button class="del-btn" onclick="openDel({{ s.id }}, '{{ s.name|escapejs }}')" title="{% trans "Delete" %}">🗑️</button>
       {% endif %}
     </div>
   </div>
@@ -452,7 +453,7 @@
     <div style="display:flex; gap:.4rem; flex-shrink:0;">
       <a href="{% url 'dashboard' s.id %}" class="btn btn-ghost btn-sm" style="font-size:.78rem;">Voir</a>
       {% if request.user.is_staff %}
-      <button class="del-btn" onclick="openDel({{ s.id }}, '{{ s.name|escapejs }}')" title="Supprimer">🗑️</button>
+      <button class="del-btn" onclick="openDel({{ s.id }}, '{{ s.name|escapejs }}')" title="{% trans "Delete" %}">🗑️</button>
       {% endif %}
     </div>
   </div>
@@ -486,7 +487,7 @@
       {% else %}
         <a href="{% url 'results' s.id %}" class="btn btn-ghost btn-sm" style="font-size:.78rem;">Résultats</a>
       {% endif %}
-      <button class="del-btn" onclick="openDel({{ s.id }}, '{{ s.name|escapejs }}')" title="Supprimer">🗑️</button>
+      <button class="del-btn" onclick="openDel({{ s.id }}, '{{ s.name|escapejs }}')" title="{% trans "Delete" %}">🗑️</button>
     </div>
   </div>
   {% endfor %}
@@ -585,7 +586,7 @@ document.querySelectorAll('.weeks-radio').forEach(radio => {
 
 // ── Delete ─────────────────────────────────────────────────────────────────
 function openDel(id, name) {
-  document.getElementById('del-name').textContent = `Supprimer "${name}" ? Cette action est irréversible.`;
+  document.getElementById('del-name').textContent = `{% trans "Delete" %} "${name}" ? {% trans "This action cannot be undone." %}`;
   document.getElementById('del-form').action = `/game/${id}/reset/`;
   document.getElementById('del-dialog').classList.add('open');
 }

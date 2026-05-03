@@ -1,5 +1,6 @@
 {% extends "game/base.html" %}
-{% block title %}Customer — {{ session.name }}{% endblock %}
+{% load i18n %}
+{% block title %}{% trans "Customer" %} — {{ session.name }}{% endblock %}
 
 {% block extra_head %}
 <style>
@@ -117,7 +118,7 @@
   <div class="lobby-box">
     <div style="margin-bottom:.5rem;"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="8" r="4.5" fill="#f5c842" opacity="0.9"/><path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke="#f5c842" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.7"/></svg></div>
     <h2 style="font-family:var(--font-mono); font-size:1.2rem; margin-bottom:.25rem;">
-      {{ player_session.name|default:"Customer" }}
+      {{ player_session.name|default:"{% trans "Customer" %}" }}
       <span class="role-badge role-retailer" style="background:rgba(245,200,66,.15);color:var(--accent);margin-left:.4rem;">customer</span>
     </h2>
     <p style="color:var(--muted); font-size:.83rem; margin-bottom:1.25rem;">{{ session.name }}</p>
@@ -125,7 +126,7 @@
       <div style="background:rgba(245,200,66,.07);border:1px solid rgba(245,200,66,.2);border-radius:8px;padding:.85rem;margin-bottom:1.25rem;font-size:.8rem;color:var(--muted);text-align:left;">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;"><circle cx="12" cy="8" r="4.5" fill="currentColor" opacity="0.85"/><path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.65"/></svg>
         <strong style="color:var(--text);">Your role:</strong> You are the end customer.
-        Each week you decide how many units to order. The Retailer must fulfill your demand — but they can't see what you'll order next.
+        Each week you decide how many {% trans "units" %} to order. The Retailer must fulfill your demand — but they can't see what you'll order next.
         You control the signal that drives the entire supply chain.
         <br><br>
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" stroke-width="2" fill="none" opacity="0.75"/><line x1="12" y1="9" x2="12" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="12" y1="17" x2="12.01" y2="17" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
@@ -160,7 +161,7 @@
     <span style="font-size:1.8rem;"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="color:#f5c842;"><circle cx="12" cy="8" r="4.5" fill="currentColor" opacity="0.9"/><path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.7"/></svg></span>
     <div>
       <h2 style="font-family:var(--font-mono);font-size:1.2rem;line-height:1.2;">
-        {{ player_session.name|default:"Customer" }}
+        {{ player_session.name|default:"{% trans "Customer" %}" }}
         <span class="role-badge" style="background:rgba(245,200,66,.15);color:var(--accent);margin-left:.4rem;">customer</span>
       </h2>
       <div style="font-size:.8rem;color:var(--muted);">{{ session.name }}</div>
@@ -183,7 +184,7 @@
     </div>
     <div style="font-family:var(--font-mono);font-size:1.8rem;font-weight:700;" id="retailer-backlog-display">—</div>
   </div>
-  <div style="font-size:.72rem;color:var(--muted);margin-top:.3rem;" id="backlog-label">units backlogged</div>
+  <div style="font-size:.72rem;color:var(--muted);margin-top:.3rem;" id="backlog-label">{% trans "units" %} backlogged</div>
 </div>
 
 
@@ -302,7 +303,7 @@
   <div class="card-title">Your Order — Week <span id="form-week">{{ session.current_week|add:1 }}</span></div>
 
   <div id="submit-section">
-    <div style="font-size:.82rem;color:var(--muted);margin-bottom:.5rem;">How many units do you demand this week?</div>
+    <div style="font-size:.82rem;color:var(--muted);margin-bottom:.5rem;">How many {% trans "units" %} do you demand this week?</div>
     <input type="number" id="demand-qty" class="demand-input"
            min="0" placeholder="0" value="4" />
 
@@ -334,7 +335,7 @@
     <div id="mode-hint" style="font-size:.7rem;color:var(--muted);margin-bottom:.5rem;min-height:16px;"></div>
     <button class="btn btn-primary" onclick="submitDemand()"
             style="width:100%;justify-content:center;font-size:1.1rem;padding:.85rem;">
-      ✓ Submit Demand
+      ✓ {% trans "Submit Demand" %}
     </button>
   </div>
 
@@ -359,14 +360,14 @@
 
   <div id="game-over-section" style="display:none;text-align:center;padding:1.5rem;">
     <div style="font-size:2.5rem;">🏁</div>
-    <div style="font-family:var(--font-mono);color:var(--accent);font-size:1.1rem;margin-top:.5rem;">Game Over!</div>
-    <a id="results-link" href="#" class="btn btn-primary" style="margin-top:1rem;">📊 View Results</a>
+    <div style="font-family:var(--font-mono);color:var(--accent);font-size:1.1rem;margin-top:.5rem;">{% trans "Game Over" %}!</div>
+    <a id="results-link" href="#" class="btn btn-primary" style="margin-top:1rem;">📊 {% trans "View Results" %}</a>
   </div>
 </div>
 
 <!-- Demand history -->
 <div class="card" style="margin-bottom:2rem;">
-  <div class="card-title">My Demand History</div>
+  <div class="card-title">My {% trans "Demand History" %}</div>
   <div class="bar-chart" id="bar-chart">
     {% if demand_history %}
       {% for d in demand_history %}
@@ -487,7 +488,7 @@ function updateState(msg) {
   const blgEl = document.getElementById('retailer-backlog-display');
   blgEl.textContent = blg;
   blgEl.style.color = blg===0?'var(--success)':blg<5?'var(--accent)':'var(--danger)';
-  document.getElementById('backlog-label').textContent = blg===0?'✓ Retailer fulfilled all orders':'units backlogged — retailer couldn\'t fill your order';
+  document.getElementById('backlog-label').textContent = blg===0?'✓ Retailer fulfilled all orders':'{% trans "units" %} backlogged — retailer couldn\'t fill your order';
 
   // Update bar chart with new demand history
   const hist = msg.demand_history||[];
@@ -587,8 +588,8 @@ function submitDemand(){
   document.getElementById('submit-section').style.display='none';
   document.getElementById('submitted-section').style.display='block';
   document.getElementById('demand-form').classList.add('submitted-state');
-  document.getElementById('submitted-qty').textContent=`You ordered ${qty} units from the retailer`;
-  log(`Submitted demand: ${qty} units`);
+  document.getElementById('submitted-qty').textContent=`You ordered ${qty} {% trans "units" %} from the retailer`;
+  log(`Submitted demand: ${qty} {% trans "units" %}`);
 }
 
 function showSubmit(){

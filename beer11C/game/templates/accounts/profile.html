@@ -1,4 +1,5 @@
 {% extends "game/base.html" %}
+{% load i18n %}
 {% block title %}Profile — {{ request.user.username }}{% endblock %}
 
 {% block extra_head %}
@@ -38,8 +39,8 @@
     <div class="profile-username">@{{ request.user.username }}</div>
 
     <div class="stat-pair">
-      <div class="stat-pill">🎮 <strong>{{ created_games }}</strong> games created</div>
-      <div class="stat-pill">🎭 <strong>{{ played_roles|length }}</strong> roles played</div>
+      <div class="stat-pill">🎮 <strong>{{ created_games }}</strong> {% trans "games created" %}</div>
+      <div class="stat-pill">🎭 <strong>{{ played_roles|length }}</strong> {% trans "roles played" %}</div>
       {% if request.user.is_staff %}<div class="stat-pill" style="border-color:rgba(245,200,66,.4); color:var(--accent);">⭐ Staff</div>{% endif %}
       {% if request.user.is_superuser %}<div class="stat-pill" style="border-color:rgba(168,85,247,.4); color:#a855f7;">🔑 Admin</div>{% endif %}
     </div>
@@ -55,19 +56,19 @@
 
   <!-- Edit profile -->
   <div class="card fade-up" style="padding: 1.5rem; margin-top: 1.25rem;">
-    <div class="card-title">✏️ Edit Profile</div>
+    <div class="card-title">✏️ {% trans "Edit Profile" %}</div>
     <form method="POST" action="{% url 'profile' %}">
       {% csrf_token %}
       <div style="display: flex; flex-direction: column; gap: .85rem;">
         <div>
-          <label style="font-size:.72rem; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; display:block; margin-bottom:.35rem;">Display Name</label>
-          <input type="text" name="first_name" value="{{ request.user.first_name }}" placeholder="Your name" />
+          <label style="font-size:.72rem; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; display:block; margin-bottom:.35rem;">{% trans "Display Name" %}</label>
+          <input type="text" name="first_name" value="{{ request.user.first_name }}" placeholder="{% trans 'Your name' %}" />
         </div>
         <div>
           <label style="font-size:.72rem; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; display:block; margin-bottom:.35rem;">Email</label>
           <input type="email" name="email" value="{{ request.user.email }}" placeholder="your@email.com" />
         </div>
-        <button type="submit" class="btn btn-primary" style="align-self:flex-start;">Save Changes</button>
+        <button type="submit" class="btn btn-primary" style="align-self:flex-start;">{% trans "Save Changes" %}</button>
       </div>
     </form>
   </div>
@@ -75,7 +76,7 @@
   <!-- Recent roles -->
   {% if played_roles %}
   <div class="card fade-up" style="padding: 1.5rem; margin-top: 1.25rem;">
-    <div class="card-title">🎭 Recent Roles Played</div>
+    <div class="card-title">🎭 {% trans "Recent Roles Played" %}</div>
     <div style="display:flex; flex-direction:column; gap:.55rem; margin-top:.35rem;">
       {% for ps in played_roles|slice:":8" %}
       <div style="display:flex; align-items:center; justify-content:space-between; padding:.45rem .75rem; background:var(--surface2); border:1px solid var(--border); border-radius:8px; font-size:.8rem;">
@@ -89,24 +90,24 @@
 
   <!-- Logout + Danger zone -->
   <div class="card fade-up" style="padding: 1.5rem; margin-top: 1.25rem;">
-    <div class="card-title">🔐 Account Actions</div>
+    <div class="card-title">🔐 {% trans "Account Actions" %}</div>
     <div style="display:flex; gap:.75rem; flex-wrap:wrap; margin-bottom: 1.25rem;">
       <form method="POST" action="{% url 'logout' %}">
         {% csrf_token %}
-        <button type="submit" class="btn btn-ghost">🚪 Disconnect / Log out</button>
+        <button type="submit" class="btn btn-ghost">🚪 {% trans "Disconnect / Log out" %}</button>
       </form>
-      <a href="{% url 'home' %}" class="btn btn-ghost">← Back to Sessions</a>
+      <a href="{% url 'home' %}" class="btn btn-ghost">← {% trans "Back to Sessions" %}</a>
     </div>
 
     <div class="danger-zone">
-      <div class="danger-zone-title">⚠️ Danger Zone</div>
+      <div class="danger-zone-title">⚠️ {% trans "Danger Zone" %}</div>
       <p style="font-size:.78rem; color:var(--muted); margin-bottom:.85rem;">
-        Permanently delete your account and all associated data. This action cannot be undone.
+        {% trans "Permanently delete your account and all associated data. This action cannot be undone." %}
       </p>
       <form method="POST" action="{% url 'delete_account' %}"
-            onsubmit="return confirm('Are you sure? This will permanently delete your account and cannot be undone.');">
+            onsubmit="return confirm('{% trans "Are you sure? This will permanently delete your account and cannot be undone." %}')">
         {% csrf_token %}
-        <button type="submit" class="btn btn-danger">🗑️ Delete My Account</button>
+        <button type="submit" class="btn btn-danger">🗑️ {% trans "Delete My Account" %}</button>
       </form>
     </div>
   </div>

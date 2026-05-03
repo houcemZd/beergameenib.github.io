@@ -1,5 +1,6 @@
 {% extends "game/base.html" %}
-{% block title %}Beer Game — Connexion{% endblock %}
+{% load i18n %}
+{% block title %}{% trans "Beer Game — Sign In" %}{% endblock %}
 
 {% block extra_head %}
 <style>
@@ -192,42 +193,40 @@
 
   <!-- ── Left: Hero panel ─────────────────────────────────────────────────── -->
   <div class="landing-left">
-    <div class="ll-eyebrow">MIT Supply Chain Simulation</div>
+    <div class="ll-eyebrow">{% trans "MIT Supply Chain Simulation" %}</div>
     <h1 class="ll-title">THE <span class="accent">BEER</span><br>GAME</h1>
     <p class="ll-desc">
-      Simulation multijoueur en temps réel. Gérez votre maillon de la chaîne d'approvisionnement, 
-      passez des commandes, et découvrez pourquoi les petites variations de demande 
-      créent de grandes oscillations — l'effet coup de fouet.
+      {% blocktrans %}Real-time multiplayer simulation. Manage your supply chain link, place orders, and discover why small demand variations create large oscillations — the bullwhip effect.{% endblocktrans %}
     </p>
 
     <div class="chain-demo">
-      <div class="chain-node">👤 Client</div>
+      <div class="chain-node">👤 {% trans "Customer" %}</div>
       <span class="chain-arrow">→</span>
-      <div class="chain-node" style="border-color:rgba(245,200,66,.4); color:var(--accent);">🛒 Détaillant</div>
+      <div class="chain-node" style="border-color:rgba(245,200,66,.4); color:var(--accent);">🛒 {% trans "Retailer" %}</div>
       <span class="chain-arrow">⇄</span>
-      <div class="chain-node" style="border-color:rgba(59,130,246,.4); color:#60a5fa;">🏪 Grossiste</div>
+      <div class="chain-node" style="border-color:rgba(59,130,246,.4); color:#60a5fa;">🏪 {% trans "Wholesaler" %}</div>
       <span class="chain-arrow">⇄</span>
-      <div class="chain-node" style="border-color:rgba(168,85,247,.4); color:#c084fc;">🚚 Distrib.</div>
+      <div class="chain-node" style="border-color:rgba(168,85,247,.4); color:#c084fc;">🚚 {% trans "Distributor" %}</div>
       <span class="chain-arrow">⇄</span>
-      <div class="chain-node" style="border-color:rgba(34,197,94,.4); color:var(--success);">🏭 Usine</div>
+      <div class="chain-node" style="border-color:rgba(34,197,94,.4); color:var(--success);">🏭 {% trans "Factory" %}</div>
     </div>
 
     <div class="ll-features">
       <div class="ll-feat">
         <div class="ll-feat-icon">⚡</div>
-        <div class="ll-feat-text"><strong>Temps réel</strong> — WebSockets pour une expérience fluide et simultanée</div>
+        <div class="ll-feat-text"><strong>{% trans "Real-time" %}</strong> — {% trans "WebSockets for a smooth and simultaneous experience" %}</div>
       </div>
       <div class="ll-feat">
         <div class="ll-feat-icon">👥</div>
-        <div class="ll-feat-text"><strong>5 joueurs</strong> — Client, Détaillant, Grossiste, Distributeur, Usine</div>
+        <div class="ll-feat-text"><strong>{% trans "5 players" %}</strong> — {% trans "Customer, Retailer, Wholesaler, Distributor, Factory" %}</div>
       </div>
       <div class="ll-feat">
         <div class="ll-feat-icon">📊</div>
-        <div class="ll-feat-text"><strong>Analyse bullwhip</strong> — Graphiques et statistiques en fin de partie</div>
+        <div class="ll-feat-text"><strong>{% trans "Bullwhip analysis" %}</strong> — {% trans "Charts and statistics at game end" %}</div>
       </div>
       <div class="ll-feat">
         <div class="ll-feat-icon">📱</div>
-        <div class="ll-feat-text"><strong>Multi-appareils</strong> — Jouez depuis n'importe quel écran sur le réseau</div>
+        <div class="ll-feat-text"><strong>{% trans "Multi-device" %}</strong> — {% trans "Play from any screen on the network" %}</div>
       </div>
     </div>
   </div>
@@ -236,8 +235,8 @@
   <div class="landing-right">
     <div class="auth-card">
 
-      <div class="auth-card-title">Connexion</div>
-      <div class="auth-card-sub">Connectez-vous pour jouer ou créer une partie</div>
+      <div class="auth-card-title">{% trans "Sign In" %}</div>
+      <div class="auth-card-sub">{% trans "Sign in to play or create a game" %}</div>
 
       {% if messages %}
         {% for message in messages %}
@@ -249,27 +248,27 @@
         {% csrf_token %}
 
         <div class="auth-field">
-          <label class="auth-label" for="username">Identifiant</label>
+          <label class="auth-label" for="username">{% trans "Username" %}</label>
           <input class="auth-input" type="text" id="username" name="username"
-                 placeholder="Votre identifiant" autocomplete="username" autofocus
+                 placeholder="{% trans 'Your username' %}" autocomplete="username" autofocus
                  value="{{ request.POST.username|default:'' }}" />
         </div>
 
         <div class="auth-field">
-          <label class="auth-label" for="password">Mot de passe</label>
+          <label class="auth-label" for="password">{% trans "Password" %}</label>
           <input class="auth-input" type="password" id="password" name="password"
                  placeholder="••••••••" autocomplete="current-password" />
         </div>
 
         <button type="submit" class="btn btn-primary auth-btn">
-          Connexion →
+          {% trans "Sign In →" %}
         </button>
       </form>
 
-      <div class="auth-divider"><span>pas encore de compte ?</span></div>
+      <div class="auth-divider"><span>{% trans "No account yet?" %}</span></div>
 
       <a href="{% url 'register' %}" class="btn btn-ghost" style="width:100%; justify-content:center; border-radius:9px; padding:.7rem; font-size:.9rem;">
-        Créer un compte gratuit
+        {% trans "Create a free account" %}
       </a>
 
     </div>
