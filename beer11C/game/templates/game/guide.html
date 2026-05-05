@@ -1,0 +1,981 @@
+{% extends "game/base.html" %}
+{% load i18n %}
+{% block title %}Guide d'utilisation — Beer Game{% endblock %}
+
+{% block extra_head %}
+<style>
+/* ── Guide layout ─────────────────────────────────────────────────────────── */
+.guide-wrap {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 2.5rem 1rem 4rem;
+  animation: fadeUp .35s ease both;
+}
+
+/* ── Table of contents ────────────────────────────────────────────────────── */
+.toc-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.5rem 1.75rem;
+  margin-bottom: 2.5rem;
+}
+.toc-title {
+  font-family: var(--font-mono);
+  font-size: .7rem;
+  text-transform: uppercase;
+  letter-spacing: .16em;
+  color: var(--muted);
+  margin-bottom: 1rem;
+}
+.toc-list {
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .35rem .75rem;
+}
+@media (max-width: 560px) { .toc-list { grid-template-columns: 1fr; } }
+.toc-list a {
+  font-size: .83rem;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+  transition: color .15s;
+  text-decoration: none;
+}
+.toc-list a:hover { color: var(--accent); text-decoration: none; }
+.toc-num {
+  font-family: var(--font-mono);
+  font-size: .65rem;
+  color: var(--muted2);
+  min-width: 1.4rem;
+}
+
+/* ── Section headings ─────────────────────────────────────────────────────── */
+.guide-section {
+  margin-bottom: 3rem;
+  scroll-margin-top: 80px;
+}
+.guide-section-header {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: .65rem;
+  border-bottom: 1px solid var(--border);
+}
+.guide-section-num {
+  font-family: var(--font-mono);
+  font-size: .7rem;
+  color: var(--accent);
+  background: rgba(245,200,66,.1);
+  border: 1px solid rgba(245,200,66,.25);
+  border-radius: 999px;
+  padding: .2rem .65rem;
+  flex-shrink: 0;
+}
+.guide-section h2 {
+  font-family: var(--font-mono);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+}
+.guide-section p {
+  color: var(--muted);
+  line-height: 1.75;
+  margin-bottom: .85rem;
+  font-size: .92rem;
+}
+.guide-section p:last-child { margin-bottom: 0; }
+.guide-section h3 {
+  font-family: var(--font-mono);
+  font-size: .82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--text);
+  margin: 1.5rem 0 .6rem;
+}
+.guide-section ul, .guide-section ol {
+  padding-left: 1.25rem;
+  color: var(--muted);
+  font-size: .91rem;
+  line-height: 1.75;
+  margin-bottom: .85rem;
+}
+.guide-section li { margin-bottom: .3rem; }
+.guide-section strong { color: var(--text); }
+.guide-section em { color: var(--accent); font-style: normal; font-weight: 700; font-family: var(--font-mono); font-size: .85em; }
+
+/* ── Info / tip / warning boxes ───────────────────────────────────────────── */
+.info-box, .tip-box, .warn-box {
+  border-radius: 10px;
+  padding: .85rem 1.1rem;
+  font-size: .84rem;
+  line-height: 1.65;
+  margin-bottom: 1rem;
+  display: flex;
+  gap: .75rem;
+  align-items: flex-start;
+}
+.info-box {
+  background: rgba(59,130,246,.06);
+  border: 1px solid rgba(59,130,246,.25);
+  color: #93c5fd;
+}
+.tip-box {
+  background: rgba(245,200,66,.06);
+  border: 1px solid rgba(245,200,66,.22);
+  color: var(--text);
+}
+.warn-box {
+  background: rgba(239,68,68,.06);
+  border: 1px solid rgba(239,68,68,.22);
+  color: #fca5a5;
+}
+.box-icon { font-size: 1.1rem; flex-shrink: 0; line-height: 1.5; }
+.box-content { flex: 1; }
+.box-content strong { color: var(--text); }
+
+/* ── Role cards ───────────────────────────────────────────────────────────── */
+.role-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: .85rem;
+  margin-bottom: 1rem;
+}
+.role-guide-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem 1.1rem;
+  border-top: 3px solid var(--rc, var(--border));
+  transition: border-color .2s;
+}
+.role-guide-card:hover { border-color: var(--rc); }
+.role-guide-card-title {
+  font-family: var(--font-mono);
+  font-size: .72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--rc, var(--muted));
+  margin-bottom: .5rem;
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+}
+.role-guide-card p {
+  font-size: .8rem;
+  color: var(--muted);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ── Phase steps ──────────────────────────────────────────────────────────── */
+.phase-steps-guide {
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+  margin-bottom: 1rem;
+}
+.phase-step-item {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem 1.15rem;
+}
+.phase-step-num {
+  font-family: var(--font-mono);
+  font-size: .72rem;
+  font-weight: 800;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.phase-step-item.receive .phase-step-num { background: rgba(168,85,247,.18); color: #c084fc; border: 1px solid rgba(168,85,247,.4); }
+.phase-step-item.ship    .phase-step-num { background: rgba(59,130,246,.18);  color: #93c5fd; border: 1px solid rgba(59,130,246,.4); }
+.phase-step-item.order   .phase-step-num { background: rgba(245,200,66,.18);  color: var(--accent); border: 1px solid rgba(245,200,66,.4); }
+.phase-step-body h4 {
+  font-family: var(--font-mono);
+  font-size: .8rem;
+  font-weight: 700;
+  margin-bottom: .3rem;
+  color: var(--text);
+}
+.phase-step-item.receive h4 { color: #c084fc; }
+.phase-step-item.ship    h4 { color: #93c5fd; }
+.phase-step-item.order   h4 { color: var(--accent); }
+.phase-step-body p {
+  font-size: .82rem;
+  color: var(--muted);
+  margin: 0;
+  line-height: 1.65;
+}
+
+/* ── Cost table ───────────────────────────────────────────────────────────── */
+.cost-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .84rem;
+  margin-bottom: 1rem;
+}
+.cost-table th, .cost-table td {
+  padding: .55rem .85rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+.cost-table th {
+  font-size: .65rem;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--muted);
+  font-weight: 700;
+  background: var(--surface2);
+}
+.cost-table td { color: var(--muted); }
+.cost-table td strong { color: var(--text); }
+.cost-table tr:last-child td { border-bottom: none; }
+.cost-table tr:hover td { background: var(--surface2); }
+
+/* ── Screenshots / diagram placeholder ───────────────────────────────────── */
+.diagram {
+  background: var(--surface2);
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  padding: 1.25rem;
+  text-align: center;
+  color: var(--muted2);
+  font-size: .78rem;
+  margin-bottom: 1rem;
+  font-family: var(--font-mono);
+  letter-spacing: .06em;
+}
+
+/* ── Chain diagram ────────────────────────────────────────────────────────── */
+.chain-diagram {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  flex-wrap: wrap;
+  margin: 1rem 0;
+  font-size: .8rem;
+  font-family: var(--font-mono);
+}
+.chain-node {
+  text-align: center;
+  padding: .6rem .85rem;
+  border-radius: 8px;
+  min-width: 80px;
+  font-size: .72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+}
+.chain-arrow {
+  color: var(--muted2);
+  font-size: .9rem;
+  padding: 0 .25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-size: .52rem;
+  color: var(--muted2);
+  white-space: nowrap;
+}
+.chain-arrow span { font-size: .85rem; color: var(--muted); }
+
+/* Back to top */
+.back-top {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  font-size: .75rem;
+  color: var(--muted);
+  text-decoration: none;
+  margin-top: .75rem;
+  padding: .3rem .7rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  transition: color .15s, background .15s;
+}
+.back-top:hover { color: var(--accent); background: var(--surface2); text-decoration: none; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="guide-wrap" id="top">
+
+  <!-- ── Header ── -->
+  <div style="margin-bottom:2rem;">
+    <div style="font-family:var(--font-mono);font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin-bottom:.6rem;">
+      📖 Documentation
+    </div>
+    <h1 style="font-family:var(--font-mono);font-size:clamp(1.6rem,4vw,2.4rem);font-weight:700;margin-bottom:.5rem;line-height:1.1;">
+      Guide d'utilisation <span style="color:var(--accent);">Beer Game</span>
+    </h1>
+    <p style="color:var(--muted);font-size:.93rem;max-width:560px;line-height:1.7;">
+      Bienvenue dans ce guide complet en français. Vous y trouverez toutes les informations nécessaires pour créer, rejoindre et maîtriser une partie du Beer Game, de la connexion jusqu'à l'analyse des résultats.
+    </p>
+  </div>
+
+  <!-- ── Table of contents ── -->
+  <div class="toc-box">
+    <div class="toc-title">📋 Table des matières</div>
+    <ol class="toc-list">
+      <li><a href="#intro"><span class="toc-num">01</span> Qu'est-ce que le Beer Game ?</a></li>
+      <li><a href="#connexion"><span class="toc-num">02</span> Connexion et inscription</a></li>
+      <li><a href="#accueil"><span class="toc-num">03</span> Page d'accueil — Sessions</a></li>
+      <li><a href="#creer"><span class="toc-num">04</span> Créer une session</a></li>
+      <li><a href="#rejoindre"><span class="toc-num">05</span> Rejoindre une session</a></li>
+      <li><a href="#lobby"><span class="toc-num">06</span> Le lobby (salle d'attente)</a></li>
+      <li><a href="#roles"><span class="toc-num">07</span> Les rôles de la chaîne</a></li>
+      <li><a href="#phases"><span class="toc-num">08</span> Jouer une semaine</a></li>
+      <li><a href="#ecran-jeu"><span class="toc-num">09</span> L'écran de jeu</a></li>
+      <li><a href="#instructeur"><span class="toc-num">10</span> Vue Instructeur</a></li>
+      <li><a href="#resultats"><span class="toc-num">11</span> Résultats et scores</a></li>
+      <li><a href="#conseils"><span class="toc-num">12</span> Conseils stratégiques</a></li>
+    </ol>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════════
+       01 – Introduction
+  ═══════════════════════════════════════════════════════════════════════════ -->
+  <div class="guide-section" id="intro">
+    <div class="guide-section-header">
+      <span class="guide-section-num">01</span>
+      <h2>Qu'est-ce que le Beer Game ?</h2>
+    </div>
+
+    <p>
+      Le <strong>Beer Game</strong> est une simulation de chaîne d'approvisionnement créée au MIT dans les années 1960.
+      Elle illustre de façon frappante l'<strong>effet coup de fouet</strong> (<em>Bullwhip Effect</em>) : une légère
+      variation de la demande du consommateur final entraîne des fluctuations de plus en plus importantes des stocks
+      à mesure qu'on remonte la chaîne.
+    </p>
+
+    <div class="chain-diagram">
+      <div class="chain-node" style="background:rgba(107,114,128,.14);color:#9ca3af;border:1px solid rgba(107,114,128,.3);">🛒<br>Client</div>
+      <div class="chain-arrow"><span>←📦→</span><small>commandes / livraisons</small></div>
+      <div class="chain-node" style="background:rgba(245,200,66,.1);color:#ffd36a;border:1px solid rgba(245,200,66,.3);">🏪<br>Détaillant</div>
+      <div class="chain-arrow"><span>←📦→</span></div>
+      <div class="chain-node" style="background:rgba(59,130,246,.1);color:#8ecbff;border:1px solid rgba(59,130,246,.3);">🏬<br>Grossiste</div>
+      <div class="chain-arrow"><span>←📦→</span></div>
+      <div class="chain-node" style="background:rgba(168,85,247,.1);color:#d8a4ff;border:1px solid rgba(168,85,247,.3);">🚚<br>Distributeur</div>
+      <div class="chain-arrow"><span>←📦→</span></div>
+      <div class="chain-node" style="background:rgba(34,197,94,.1);color:#4ade80;border:1px solid rgba(34,197,94,.3);">🏭<br>Usine</div>
+    </div>
+
+    <p>
+      Chaque maillon de la chaîne reçoit des commandes de l'aval, expédie des marchandises, et passe ses propres
+      commandes en amont. Les décisions semblent simples… jusqu'à ce que les délais et l'information incomplète
+      transforment une demande stable en une instabilité chaotique.
+    </p>
+
+    <div class="tip-box">
+      <span class="box-icon">🎯</span>
+      <div class="box-content">
+        <strong>Objectif pédagogique :</strong> comprendre pourquoi les ruptures de stock et les sur-stocks
+        apparaissent dans des systèmes complexes, et comment améliorer la coordination entre les acteurs d'une
+        chaîne logistique.
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════════
+       02 – Connexion
+  ═══════════════════════════════════════════════════════════════════════════ -->
+  <div class="guide-section" id="connexion">
+    <div class="guide-section-header">
+      <span class="guide-section-num">02</span>
+      <h2>Connexion et inscription</h2>
+    </div>
+
+    <p>
+      Un compte utilisateur est nécessaire pour accéder à la plateforme. La création de compte est gratuite et
+      instantanée.
+    </p>
+
+    <h3>S'inscrire</h3>
+    <ol>
+      <li>Cliquez sur <strong>Register</strong> sur la page de connexion.</li>
+      <li>Saisissez un <strong>nom d'utilisateur</strong>, une <strong>adresse e-mail</strong> (optionnelle) et un <strong>mot de passe</strong>.</li>
+      <li>Validez. Vous êtes automatiquement connecté.</li>
+    </ol>
+
+    <h3>Se connecter</h3>
+    <ol>
+      <li>Entrez votre <strong>nom d'utilisateur</strong> et votre <strong>mot de passe</strong>.</li>
+      <li>Cliquez sur <strong>Sign in</strong>.</li>
+    </ol>
+
+    <div class="info-box">
+      <span class="box-icon">ℹ️</span>
+      <div class="box-content">
+        Vous pouvez changer la langue de l'interface en haut à droite de la barre de navigation :
+        boutons <strong>EN</strong> (anglais) et <strong>FR</strong> (français).
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════════
+       03 – Accueil
+  ═══════════════════════════════════════════════════════════════════════════ -->
+  <div class="guide-section" id="accueil">
+    <div class="guide-section-header">
+      <span class="guide-section-num">03</span>
+      <h2>Page d'accueil — Sessions</h2>
+    </div>
+
+    <p>
+      Après connexion, vous arrivez sur la <strong>page d'accueil</strong>, qui liste toutes les sessions de jeu
+      disponibles. Elle est divisée en plusieurs zones :
+    </p>
+
+    <ul>
+      <li><strong>Statistiques globales</strong> — nombre de sessions actives, en attente, terminées.</li>
+      <li><strong>Bouton « + New Game »</strong> — créer une nouvelle session (instructeur).</li>
+      <li><strong>Bouton « Join »</strong> — rejoindre une session multijoueur via un code de lien.</li>
+      <li><strong>Liste des sessions</strong> — vos sessions et celles en attente de joueurs.</li>
+    </ul>
+
+    <p>
+      Chaque carte de session affiche son <strong>nom</strong>, son <strong>statut</strong> (En attente
+      <span style="color:#f5c842;">●</span>, En cours <span style="color:#22c55e;">●</span>, Terminée
+      <span style="color:#64748b;">●</span>), le nombre de semaines et le mode (solo / multijoueur).
+    </p>
+
+    <div class="tip-box">
+      <span class="box-icon">💡</span>
+      <div class="box-content">
+        Cliquez sur n'importe quelle carte de session pour accéder à son tableau de bord et voir son état en détail.
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════════
+       04 – Créer une session
+  ═══════════════════════════════════════════════════════════════════════════ -->
+  <div class="guide-section" id="creer">
+    <div class="guide-section-header">
+      <span class="guide-section-num">04</span>
+      <h2>Créer une session (Instructeur)</h2>
+    </div>
+
+    <p>
+      Cliquez sur <strong>+ New Game</strong> dans la barre de navigation. Le formulaire de création s'ouvre.
+    </p>
+
+    <h3>Nom de la session</h3>
+    <p>
+      Donnez un nom explicite à votre session (ex. : « Groupe A – Printemps 2026 »). Ce nom apparaîtra dans la
+      liste des sessions et dans tous les écrans du jeu.
+    </p>
+
+    <h3>Mode de jeu</h3>
+    <div class="role-cards-grid" style="grid-template-columns:1fr 1fr;max-width:480px;">
+      <div class="role-guide-card" style="--rc:#f5c842;">
+        <div class="role-guide-card-title">🖥️ Solo</div>
+        <p>Vous contrôlez les 4 rôles à la suite lors de chaque semaine. Idéal pour l'auto-apprentissage ou la démonstration.</p>
+      </div>
+      <div class="role-guide-card" style="--rc:#3b82f6;">
+        <div class="role-guide-card-title">👥 Multijoueur</div>
+        <p>Jusqu'à 4 joueurs en temps réel, chacun incarnant un rôle différent. Nécessite un lobby d'attente.</p>
+      </div>
+    </div>
+
+    <h3>Nombre de semaines</h3>
+    <table class="cost-table">
+      <thead><tr><th>Option</th><th>Durée</th><th>Recommandé pour</th></tr></thead>
+      <tbody>
+        <tr><td><strong>12 semaines</strong></td><td>Court</td><td>Démonstration rapide (20–30 min)</td></tr>
+        <tr><td><strong>20 semaines</strong></td><td>Standard</td><td>Session classique en cours (45–60 min)</td></tr>
+        <tr><td><strong>30 semaines</strong></td><td>Long</td><td>Analyse approfondie de l'effet bullwhip</td></tr>
+        <tr><td><strong>40 semaines</strong></td><td>Marathon</td><td>Simulation longue / recherche</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Mode de visibilité</h3>
+    <div class="role-cards-grid" style="grid-template-columns:1fr 1fr;max-width:480px;">
+      <div class="role-guide-card" style="--rc:#f5c842;">
+        <div class="role-guide-card-title">🔒 Mode 1 — Standard</div>
+        <p>Chaque joueur ne voit <strong>que ses propres informations</strong>. La demande réelle est cachée à tous sauf au Détaillant. C'est la version classique du Beer Game.</p>
+      </div>
+      <div class="role-guide-card" style="--rc:#3b82f6;">
+        <div class="role-guide-card-title">👁️ Mode 2 — Transparent</div>
+        <p>Les rôles en amont <strong>voient aussi la commande en aval</strong> dans leur panneau de commande. Réduit l'effet bullwhip et permet d'explorer la valeur du partage d'information.</p>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <span class="box-icon">ℹ️</span>
+      <div class="box-content">
+        <strong>Paramètres fixes :</strong> stock initial <strong>12 unités</strong> pour chaque rôle,
+        délais = <strong>2 semaines</strong> (commandes et livraisons),
+        coût de stockage = <strong>0,50 $ / unité / semaine</strong>,
+        coût de rupture = <strong>1,00 $ / unité / semaine</strong>.
+      </div>
+    </div>
+
+    <p>
+      Cliquez sur <strong>Launch Game</strong> pour créer la session. Vous serez redirigé vers le
+      <strong>tableau de bord</strong> de la session.
+    </p>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════════
+       05 – Rejoindre une session
+  ═══════════════════════════════════════════════════════════════════════════ -->
+  <div class="guide-section" id="rejoindre">
+    <div class="guide-section-header">
+      <span class="guide-section-num">05</span>
+      <h2>Rejoindre une session (Joueur)</h2>
+    </div>
+
+    <p>
+      En mode multijoueur, l'instructeur partage un <strong>lien d'invitation</strong> avec chaque joueur.
+      Chaque lien est unique et correspond à un rôle précis dans la chaîne.
+    </p>
+
+    <h3>Étapes pour rejoindre</h3>
+    <ol>
+      <li>Ouvrez le lien reçu dans votre navigateur.</li>
+      <li>Vous verrez la <strong>page de rôle</strong> : elle affiche votre rôle (ex. Grossiste), le nom de la session et la durée.</li>
+      <li>Lisez la description de votre rôle et le rappel sur les délais.</li>
+      <li>Saisissez votre <strong>prénom ou pseudonyme</strong>.</li>
+      <li>Cliquez sur <strong>🚀 Join Game</strong>.</li>
+    </ol>
+
+    <div class="tip-box">
+      <span class="box-icon">💡</span>
+      <div class="box-content">
+        Si vous avez déjà rejoint la session, une page de <strong>reconnexion rapide</strong> s'affiche.
+        Cliquez simplement sur <strong>🚀 Rejoin Game</strong> pour reprendre votre place.
+      </div>
+    </div>
+
+    <h3>Rejoindre depuis la page d'accueil</h3>
+    <p>
+      Vous pouvez également rejoindre depuis la page d'accueil via le bouton <strong>Join</strong>,
+      en collant le lien ou le code de la session dans le champ prévu.
+    </p>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════════
+       06 – Lobby
+  ═══════════════════════════════════════════════════════════════════════════ -->
+  <div class="guide-section" id="lobby">
+    <div class="guide-section-header">
+      <span class="guide-section-num">06</span>
+      <h2>Le lobby — Salle d'attente (Multijoueur)</h2>
+    </div>
+
+    <p>
+      Avant le début de la partie en mode multijoueur, tous les joueurs se retrouvent dans le
+      <strong>lobby</strong>. C'est ici que l'instructeur attend que les 4 rôles soient connectés avant
+      de lancer la partie.
+    </p>
+
+    <ul>
+      <li>Chaque joueur connecté apparaît dans la liste avec son rôle et son pseudonyme.</li>
+      <li>Les cases s'illuminent en vert ✅ dès qu'un joueur a rejoint son rôle.</li>
+      <li>Un <strong>chat en temps réel</strong> est disponible dans le lobby pour communiquer.</li>
+      <li>L'instructeur voit un bouton <strong>Start Game</strong> qui devient actif quand tous les rôles sont pourvus.</li>
+    </ul>
+
+    <div class="warn-box">
+      <span class="box-icon">⚠️</span>
+      <div class="box-content">
+        <strong>Rôles non pris en charge :</strong> si un joueur ne rejoint pas, l'instructeur peut attribuer
+        ce rôle à l'<strong>IA</strong> depuis le tableau de bord. L'IA joue automatiquement à chaque semaine
+        avec une stratégie simple basée sur la demande observée.
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════════
+       07 – Rôles
+  ═══════════════════════════════════════════════════════════════════════════ -->
+  <div class="guide-section" id="roles">
+    <div class="guide-section-header">
+      <span class="guide-section-num">07</span>
+      <h2>Les rôles de la chaîne d'approvisionnement</h2>
+    </div>
+
+    <p>
+      La chaîne comporte <strong>5 acteurs</strong> (dont le client, géré automatiquement ou par un joueur dédié)
+      et <strong>4 rôles jouables</strong> :
+    </p>
+
+    <div class="role-cards-grid">
+      <div class="role-guide-card" style="--rc:#f5c842;">
+        <div class="role-guide-card-title">
+          <span class="role-badge role-retailer">Retailer</span>
+          Détaillant
+        </div>
+        <p>
+          Vous êtes en contact direct avec le <strong>client final</strong>. Vous êtes le <strong>seul rôle à voir
+          la demande réelle</strong>. Vous passez des commandes au Grossiste.
+        </p>
+      </div>
+
+      <div class="role-guide-card" style="--rc:#3b82f6;">
+        <div class="role-guide-card-title">
+          <span class="role-badge role-wholesaler">Wholesaler</span>
+          Grossiste
+        </div>
+        <p>
+          Vous approvisionnez le Détaillant et commandez auprès du Distributeur.
+          Vous ne voyez <strong>pas la demande réelle</strong>, seulement ce que le Détaillant vous commande.
+        </p>
+      </div>
+
+      <div class="role-guide-card" style="--rc:#a855f7;">
+        <div class="role-guide-card-title">
+          <span class="role-badge role-distributor">Distributor</span>
+          Distributeur
+        </div>
+        <p>
+          Vous approvisionnez le Grossiste et commandez à l'Usine.
+          Deux étapes vous séparent du consommateur final.
+        </p>
+      </div>
+
+      <div class="role-guide-card" style="--rc:#22c55e;">
+        <div class="role-guide-card-title">
+          <span class="role-badge role-factory">Factory</span>
+          Usine
+        </div>
+        <p>
+          Vous produisez les marchandises. Vous n'avez <strong>pas de fournisseur en amont</strong> :
+          vous décidez combien produire. La production a un délai de <strong>2 semaines</strong>.
+        </p>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <span class="box-icon">ℹ️</span>
+      <div class="box-content">
+        <strong>Client (Customer) :</strong> le client passe des commandes au Détaillant chaque semaine.
+        En mode solo et multijoueur standard, sa demande suit un <strong>scénario prédéfini</strong>
+        (ex. : 4 unités/semaine les premières semaines, puis 8 unités). Un joueur humain peut aussi tenir ce rôle.
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════════
+       08 – Phases de jeu
+  ═══════════════════════════════════════════════════════════════════════════ -->
+  <div class="guide-section" id="phases">
+    <div class="guide-section-header">
+      <span class="guide-section-num">08</span>
+      <h2>Jouer une semaine — Les 3 phases</h2>
+    </div>
+
+    <p>
+      Chaque semaine de jeu se déroule en <strong>3 phases séquentielles</strong>. Vous devez valider chaque
+      phase avant de passer à la suivante. La semaine s'avance seulement quand <strong>tous les joueurs</strong>
+      ont terminé leurs 3 phases.
+    </p>
+
+    <div class="phase-steps-guide">
+
+      <div class="phase-step-item receive">
+        <div class="phase-step-num">1</div>
+        <div class="phase-step-body">
+          <h4>📦 Recevoir (Receive)</h4>
+          <p>
+            Vous recevez automatiquement la livraison arrivant de votre fournisseur amont cette semaine.
+            Votre <strong>stock augmente</strong> du nombre d'unités livrées. Si vous aviez un arriéré
+            (backlog), il est partiellement résorbé. Cette phase est <strong>automatique</strong> :
+            il vous suffit de la confirmer.
+          </p>
+        </div>
+      </div>
+
+      <div class="phase-step-item ship">
+        <div class="phase-step-num">2</div>
+        <div class="phase-step-body">
+          <h4>🚚 Expédier (Ship)</h4>
+          <p>
+            Le système calcule combien d'unités expédier à votre client en aval en fonction de sa commande
+            en attente et de votre stock disponible. Si votre stock est insuffisant, le reste est mis
+            en <strong>arriéré (backlog)</strong> et sera livré ultérieurement.
+            Cette phase est également <strong>automatique</strong>.
+          </p>
+        </div>
+      </div>
+
+      <div class="phase-step-item order">
+        <div class="phase-step-num">3</div>
+        <div class="phase-step-body">
+          <h4>🛒 Commander (Order)</h4>
+          <p>
+            C'est la phase <strong>active</strong> : vous choisissez combien d'unités commander à votre
+            fournisseur amont. Saisissez une quantité (nombre entier ≥ 0) et confirmez. Votre commande
+            sera livrée dans <strong>2 semaines</strong>. C'est la décision la plus importante du jeu.
+          </p>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="warn-box">
+      <span class="box-icon">⚠️</span>
+      <div class="box-content">
+        <strong>Délai de 2 semaines :</strong> toutes les commandes passées cette semaine n'arriveront
+        que dans 2 semaines. De même, les marchandises que vous expédiez mettront 2 semaines à parvenir
+        à votre client. <strong>Anticipez toujours !</strong>
+      </div>
+    </div>
+
+    <h3>Calcul des coûts</h3>
+    <p>À la fin de chaque semaine, les coûts sont calculés :</p>
+    <table class="cost-table">
+      <thead><tr><th>Type de coût</th><th>Taux</th><th>Explication</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong style="color:#60a5fa;">Stockage (Holding)</strong></td>
+          <td>0,50 $ / unité / semaine</td>
+          <td>Chaque unité en stock vous coûte de l'argent (espace, capital immobilisé).</td>
+        </tr>
+        <tr>
+          <td><strong style="color:#f87171;">Rupture (Backlog)</strong></td>
+          <td>1,00 $ / unité / semaine</td>
+          <td>Chaque unité en arriéré vous coûte le double (pénalité de service client).</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>
+      Le <strong>gagnant</strong> est le rôle avec le <strong>coût total le plus bas</strong> à la fin de la partie.
+    </p>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════════
+       09 – Écran de jeu
+  ═══════════════════════════════════════════════════════════════════════════ -->
+  <div class="guide-section" id="ecran-jeu">
+    <div class="guide-section-header">
+      <span class="guide-section-num">09</span>
+      <h2>L'écran de jeu</h2>
+    </div>
+
+    <p>
+      L'écran de jeu est divisé en deux colonnes : à <strong>gauche</strong> le panneau d'action de la
+      semaine, à <strong>droite</strong> la visualisation de la chaîne et les graphiques.
+    </p>
+
+    <h3>🗺️ La carte de la chaîne (Road Board)</h3>
+    <p>
+      Au centre de l'écran se trouve la <strong>carte de la chaîne logistique</strong>, représentée comme
+      une route. De gauche à droite : Client → Détaillant → Grossiste → Distributeur → Usine.
+    </p>
+    <ul>
+      <li><strong>Cases entrepôt</strong> : chaque rôle a une case montrant son stock (vert = bon, jaune = attention, rouge = rupture) et son arriéré.</li>
+      <li><strong>Camions bleus 🔵</strong> sur la route : livraisons en transit (arriveront dans X semaines).</li>
+      <li><strong>Bons de commande jaunes 🟡</strong> au-dessus de la route : commandes en transit vers l'amont.</li>
+      <li><strong>Votre colonne est mise en surbrillance</strong> avec un cadre lumineux de votre couleur de rôle.</li>
+    </ul>
+    <div class="tip-box">
+      <span class="box-icon">💡</span>
+      <div class="box-content">
+        Les camions et bons de commande <strong>clignotent en vert</strong> lorsqu'ils arrivent à destination cette semaine.
+      </div>
+    </div>
+
+    <h3>📊 HUD — Indicateurs clés</h3>
+    <p>En haut à gauche, un bandeau d'indicateurs affiche en temps réel :</p>
+    <ul>
+      <li><strong>Semaine actuelle</strong> (ex. : Week 7 / 20)</li>
+      <li><strong>Stock</strong> : unités disponibles dans votre entrepôt</li>
+      <li><strong>Arriéré (Backlog)</strong> : commandes non satisfaites</li>
+      <li><strong>Coût cumulé</strong> : total des coûts depuis le début</li>
+      <li><strong>Coût de la semaine</strong> : coût de la semaine écoulée</li>
+    </ul>
+
+    <h3>📈 Graphique d'historique</h3>
+    <p>
+      Un graphique en ligne montre l'évolution de votre <strong>stock</strong> et de votre
+      <strong>arriéré</strong> semaine par semaine. Utile pour détecter les oscillations et
+      comprendre l'effet de vos décisions passées.
+    </p>
+
+    <h3>📋 Journal de jeu</h3>
+    <p>
+      En bas du panneau gauche, un journal (<em>log</em>) liste les événements de chaque semaine :
+      livraisons reçues, expéditions faites, commandes passées et coûts calculés.
+    </p>
+
+    <h3>💊 Pilules d'état (Ready Pills)</h3>
+    <p>
+      Des pastilles colorées en haut de l'écran montrent l'état de chaque joueur :
+    </p>
+    <ul>
+      <li><strong style="color:#4ade80;">Vert ✅ Done</strong> — a terminé toutes ses phases pour cette semaine</li>
+      <li><strong style="color:#f5c842;">Jaune 🛒 Order</strong> — en train de commander</li>
+      <li><strong style="color:#93c5fd;">Bleu 🚚 Ship</strong> — en train d'expédier</li>
+      <li><strong style="color:#c084fc;">Violet 📦 Receive</strong> — en train de recevoir</li>
+      <li><strong style="color:#64748b;">Gris Idle</strong> — en attente / déconnecté</li>
+    </ul>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════════
+       10 – Vue Instructeur
+  ═══════════════════════════════════════════════════════════════════════════ -->
+  <div class="guide-section" id="instructeur">
+    <div class="guide-section-header">
+      <span class="guide-section-num">10</span>
+      <h2>Vue Instructeur — Tableau de bord</h2>
+    </div>
+
+    <p>
+      L'instructeur (créateur de la session) dispose d'une <strong>vue globale</strong> accessible depuis
+      le tableau de bord de la session via le bouton <strong>Instructor View</strong>.
+    </p>
+
+    <h3>Que voit l'instructeur ?</h3>
+    <ul>
+      <li><strong>Cartes de rôle</strong> : stock, arriéré, coût et phase actuelle de chaque joueur en temps réel.</li>
+      <li><strong>Graphique de la demande</strong> : courbe des commandes passées par le client à travers les semaines.</li>
+      <li><strong>Indicateur Bullwhip</strong> : rapport de la variance des commandes à chaque niveau de la chaîne. Plus ce rapport est élevé, plus l'effet coup de fouet est fort.</li>
+    </ul>
+
+    <h3>Actions disponibles</h3>
+    <ul>
+      <li><strong>Remplacer par IA</strong> : si un joueur est absent, cliquez sur « Replace with AI » sur sa carte de rôle. L'IA prendra en charge ce rôle automatiquement.</li>
+      <li><strong>Avancer d'une semaine</strong> : en mode solo, le bouton « Next Week » fait avancer la partie.</li>
+      <li><strong>Réinitialiser</strong> : recommencer la session depuis la semaine 1 (remet tout à zéro).</li>
+      <li><strong>Voir les résultats</strong> : accéder à la page de résultats finaux.</li>
+      <li><strong>Exporter CSV</strong> : télécharger toutes les données de la partie au format CSV pour une analyse externe.</li>
+    </ul>
+
+    <div class="info-box">
+      <span class="box-icon">ℹ️</span>
+      <div class="box-content">
+        La vue instructeur se <strong>met à jour en temps réel</strong> via WebSocket. Vous n'avez pas
+        besoin de recharger la page.
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════════
+       11 – Résultats
+  ═══════════════════════════════════════════════════════════════════════════ -->
+  <div class="guide-section" id="resultats">
+    <div class="guide-section-header">
+      <span class="guide-section-num">11</span>
+      <h2>Résultats et scores</h2>
+    </div>
+
+    <p>
+      À la fin de la dernière semaine, la page de <strong>résultats</strong> s'affiche automatiquement.
+      Elle présente une analyse complète de la partie.
+    </p>
+
+    <h3>🏆 Podium et scores</h3>
+    <p>
+      Un podium visuel classe les 4 rôles du <strong>moins coûteux</strong> (1er) au plus coûteux (4e).
+      Le gagnant est celui avec le <strong>coût total le plus bas</strong>. Une carte KPI par rôle affiche
+      le coût total en dollars.
+    </p>
+
+    <h3>📉 Effet Bullwhip</h3>
+    <p>
+      Un graphique en barres horizontales compare la <strong>variance des commandes</strong> à chaque
+      niveau de la chaîne. On s'attend à ce que la variance augmente de l'aval vers l'amont :
+      c'est l'effet coup de fouet. Plus les barres sont longues en remontant la chaîne, plus l'effet
+      est prononcé.
+    </p>
+
+    <h3>📊 Graphiques détaillés</h3>
+    <ul>
+      <li><strong>Historique des stocks et arriérés</strong> par rôle</li>
+      <li><strong>Historique des commandes passées</strong> par rôle</li>
+      <li><strong>Décomposition des coûts</strong> : part stockage (bleu) vs part rupture (rouge) pour chaque rôle</li>
+    </ul>
+
+    <h3>📋 Tableau d'analyse</h3>
+    <p>Un tableau récapitulatif présente pour chaque rôle :</p>
+    <ul>
+      <li>Coût total, coût de stockage, coût de rupture</li>
+      <li>Taux de service (service rate) : % de semaines sans rupture</li>
+      <li>Stock moyen, arriéré moyen, commande moyenne</li>
+    </ul>
+
+    <h3>📥 Export CSV</h3>
+    <p>
+      Le bouton <strong>⬇ CSV Export</strong> télécharge toutes les données de la partie (stocks,
+      arriérés, commandes, coûts semaine par semaine) dans un fichier tableur compatible Excel / Calc.
+    </p>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════════
+       12 – Conseils stratégiques
+  ═══════════════════════════════════════════════════════════════════════════ -->
+  <div class="guide-section" id="conseils">
+    <div class="guide-section-header">
+      <span class="guide-section-num">12</span>
+      <h2>Conseils stratégiques</h2>
+    </div>
+
+    <p>Voici les principaux pièges à éviter et les bonnes pratiques pour minimiser vos coûts :</p>
+
+    <h3>⚠️ Erreurs fréquentes des débutants</h3>
+    <ul>
+      <li><strong>Sur-commander en panique</strong> : quand votre stock baisse, résistez à l'envie de passer une commande énorme. Dans 2 semaines, vous aurez beaucoup trop de stock.</li>
+      <li><strong>Sous-estimer les délais</strong> : vos commandes de cette semaine n'arriveront que dans 2 semaines. Les marchandises déjà commandées (en transit) doivent être prises en compte.</li>
+      <li><strong>Réagir aux oscillations</strong> : en amplifiant les variations, vous créez vous-même l'effet bullwhip que vous subissez.</li>
+    </ul>
+
+    <h3>✅ Bonnes pratiques</h3>
+    <ul>
+      <li><strong>Commandez régulièrement</strong> : en mode standard, commander environ autant que la demande observée est souvent optimal.</li>
+      <li><strong>Tenez compte du pipeline</strong> : additionnez votre stock + les livraisons en transit avant de décider de commander davantage.</li>
+      <li><strong>Restez calme</strong> : les fluctuations se stabilisent si vous ne sur-réagissez pas. La patience est une vertu dans la chaîne logistique.</li>
+      <li><strong>Observez les autres</strong> (en Mode 2 Transparent) : si vous voyez que la demande en aval est stable, inutile de stocker massivement.</li>
+    </ul>
+
+    <h3>🏭 Conseil spécifique — Usine</h3>
+    <p>
+      En tant qu'Usine, vous n'avez pas de fournisseur : vous <em>produisez</em>. Votre décision de
+      production correspond à votre « commande » (combien produire). Le délai de production est
+      identique : <strong>2 semaines</strong>. Gérez votre pipeline de production avec soin.
+    </p>
+
+    <h3>🛒 Conseil spécifique — Détaillant</h3>
+    <p>
+      Vous seul voyez la demande réelle. <strong>Partagez cette information</strong> (verbalement si
+      permis par les règles de votre session) pour aider vos coéquipiers à anticiper.
+      En Mode 1 Standard, les autres rôles ne voient que vos commandes, pas la demande finale.
+    </p>
+
+    <div class="tip-box">
+      <span class="box-icon">🎓</span>
+      <div class="box-content">
+        <strong>Leçon centrale :</strong> l'effet bullwhip n'est pas causé par des acteurs irrationnels,
+        mais par la structure même du système (délais + information partielle). La coordination et la
+        transparence sont les meilleurs remèdes.
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Footer navigation ── -->
+  <div style="display:flex;justify-content:space-between;align-items:center;padding-top:1.5rem;border-top:1px solid var(--border);">
+    <a href="{% url 'home' %}" class="btn btn-ghost">← Retour aux sessions</a>
+    <a href="#top" class="back-top">↑ Haut de page</a>
+    <a href="{% url 'new_game' %}" class="btn btn-primary">+ Créer une session</a>
+  </div>
+
+</div>
+{% endblock %}
