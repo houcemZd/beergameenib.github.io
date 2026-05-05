@@ -360,7 +360,9 @@ class GameConsumer(AsyncWebsocketConsumer):
         if session.visibility_mode == GameSession.MODE2:
             incoming_orders = state.get('map', {}).get('incoming_orders_to_me') or []
             if incoming_orders:
-                # Pick the most recently placed order (highest weeks_away = furthest in future)
+                # weeks_away = weeks until arrival at this player (decreases each week).
+                # The order with the highest weeks_away was placed most recently by the downstream
+                # and will arrive furthest in the future (i.e. arriving in ~2 weeks).
                 latest = max(incoming_orders, key=lambda o: o.get('weeks_away', 0))
                 downstream_order_qty = latest.get('quantity')
             else:
