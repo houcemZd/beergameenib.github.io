@@ -12,6 +12,7 @@ urlpatterns = [
 
     # ── Game ──────────────────────────────────────────────────────────────────
     path('',                                        views.home,             name='home'),
+    path('guide/',                                  views.guide,            name='guide'),
     path('new/',                                    views.new_game,         name='new_game'),
     # Multiplayer
     path('game/<int:session_id>/lobby/',            views.lobby,            name='lobby'),
