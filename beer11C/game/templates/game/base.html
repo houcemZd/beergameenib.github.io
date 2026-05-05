@@ -447,7 +447,6 @@
     </a>
     <div class="nav-links">
       <a href="{% url 'home' %}">{% trans "Sessions" %}</a>
-      <a href="{% url 'guide' %}" style="color:var(--muted);">📖 Guide</a>
       {% if user.is_staff %}<a href="/admin/" style="color:var(--distributor-color);">⚙️ {% trans "Admin" %}</a>{% endif %}
       <a href="{% url 'new_game' %}" class="nav-cta">{% trans "+ New Game" %}</a>
       {% if user.is_authenticated %}

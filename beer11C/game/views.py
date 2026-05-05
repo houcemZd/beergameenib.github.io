@@ -157,11 +157,6 @@ def home(request):
     })
 
 
-# ── Guide ─────────────────────────────────────────────────────────────────────
-@login_required
-def guide(request):
-    return render(request, 'game/guide.html')
-
 
 # ── New game ──────────────────────────────────────────────────────────────────
 @login_required
