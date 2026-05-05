@@ -614,7 +614,8 @@ def next_turn(request, session_id):
     # otherwise use the value the user submitted in the form.
     next_week = session.current_week + 1
     if session.demand_schedule is not None:
-        customer_qty = get_scheduled_demand(session, next_week) or 0
+        scheduled = get_scheduled_demand(session, next_week)
+        customer_qty = scheduled if scheduled is not None else 4
     else:
         try:
             customer_qty = max(0, int(request.POST.get('customer_demand', '').strip()))
