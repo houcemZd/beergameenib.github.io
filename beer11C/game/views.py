@@ -573,19 +573,29 @@ def dashboard(request, session_id):
         session=session, week=session.current_week
     ).first()
 
+    # When a demand schedule is configured, compute the upcoming demand so the
+    # template can display it and the form can submit it without manual input.
+    next_week = session.current_week + 1
+    scheduled_demand = (
+        get_scheduled_demand(session, next_week)
+        if session.demand_schedule is not None
+        else None
+    )
+
     # AI-suggested orders for each player (shown as form defaults when no manual value)
     ai_orders = {player.id: _ai_order(player) for player in players} if not session.is_finished else {}
 
     return render(request, 'game/dashboard.html', {
-        'session':          session,
-        'players':          players,
-        'chart_data':       chart_data,
-        'pipeline_data':    pipeline_data,
-        'last_week_states': last_week_states,
-        'weeks_range':      range(1, session.current_week + 1),
-        'roles':            SUPPLY_ROLES,
-        'last_demand':      last_demand,
-        'ai_orders':        ai_orders,
+        'session':           session,
+        'players':           players,
+        'chart_data':        chart_data,
+        'pipeline_data':     pipeline_data,
+        'last_week_states':  last_week_states,
+        'weeks_range':       range(1, session.current_week + 1),
+        'roles':             SUPPLY_ROLES,
+        'last_demand':       last_demand,
+        'scheduled_demand':  scheduled_demand,
+        'ai_orders':         ai_orders,
     })
 
 
@@ -600,11 +610,16 @@ def next_turn(request, session_id):
     if not session.is_active or session.is_finished:
         return redirect('dashboard', session_id=session_id)
 
-    # Customer demand (required)
-    try:
-        customer_qty = max(0, int(request.POST.get('customer_demand', '').strip()))
-    except (ValueError, TypeError):
-        customer_qty = 4
+    # Customer demand — honour the demand schedule when one is configured,
+    # otherwise use the value the user submitted in the form.
+    next_week = session.current_week + 1
+    if session.demand_schedule is not None:
+        customer_qty = get_scheduled_demand(session, next_week) or 0
+    else:
+        try:
+            customer_qty = max(0, int(request.POST.get('customer_demand', '').strip()))
+        except (ValueError, TypeError):
+            customer_qty = 4
 
     # Store pending demand on the session so process_week can read it inside
     # the atomic transaction (select_for_update re-fetches, so we pre-save here).
