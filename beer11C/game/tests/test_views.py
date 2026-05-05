@@ -265,3 +265,91 @@ class JoinGameViewTest(TestCase):
         self.client.post(reverse('join_game', args=[self.ps.token]), {'name': 'Bob'})
         self.ps.refresh_from_db()
         self.assertEqual(self.ps.name, 'Bob')
+
+
+class ScheduledDemandSinglePlayerTest(TestCase):
+    """Single-player mode must honour the demand schedule set at game init."""
+
+    def setUp(self):
+        self.user = _make_user('alice', 'securepass99')
+        self.client.login(username='alice', password='securepass99')
+
+    def _make_scheduled_session(self, schedule):
+        session = GameSession.objects.create(
+            name='Sched', max_weeks=20, status=GameSession.STATUS_PLAYING,
+            created_by=self.user, demand_schedule=schedule,
+        )
+        for role in ['retailer', 'wholesaler', 'distributor', 'factory']:
+            Player.objects.create(session=session, name=role.title(), role=role)
+        initialise_session(session)
+        return session
+
+    # ── dashboard context ────────────────────────────────────────────────────
+
+    def test_dashboard_passes_scheduled_demand_classic(self):
+        """Classic schedule: weeks 1-4 → 4 units."""
+        session = self._make_scheduled_session('classic')
+        r = self.client.get(reverse('dashboard', args=[session.id]))
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.context['scheduled_demand'], 4)
+
+    def test_dashboard_passes_scheduled_demand_classic_week5(self):
+        """Classic schedule: week 5 → 8 units."""
+        session = self._make_scheduled_session('classic')
+        # Advance to week 4 manually so next week = 5
+        session.current_week = 4
+        session.save(update_fields=['current_week'])
+        r = self.client.get(reverse('dashboard', args=[session.id]))
+        self.assertEqual(r.context['scheduled_demand'], 8)
+
+    def test_dashboard_passes_scheduled_demand_custom_list(self):
+        """Custom list: [10, 20, 30] — week 2 should be 20."""
+        session = self._make_scheduled_session([10, 20, 30])
+        session.current_week = 1
+        session.save(update_fields=['current_week'])
+        r = self.client.get(reverse('dashboard', args=[session.id]))
+        self.assertEqual(r.context['scheduled_demand'], 20)
+
+    def test_dashboard_scheduled_demand_none_for_manual(self):
+        """Manual mode: scheduled_demand must be None so the form input is shown."""
+        session = self._make_scheduled_session(None)
+        r = self.client.get(reverse('dashboard', args=[session.id]))
+        self.assertIsNone(r.context['scheduled_demand'])
+
+    # ── next_turn uses schedule ──────────────────────────────────────────────
+
+    def test_next_turn_classic_schedule_ignores_form_demand(self):
+        """Week 1 classic demand is 4; submitting 99 via the form must not override it."""
+        from game.models import CustomerDemand
+        session = self._make_scheduled_session('classic')
+        self.client.post(reverse('next_turn', args=[session.id]), {
+            'customer_demand': '99',
+        })
+        demand = CustomerDemand.objects.filter(session=session, week=1).first()
+        self.assertIsNotNone(demand)
+        self.assertEqual(demand.quantity, 4)
+
+    def test_next_turn_classic_schedule_week5_applies_step(self):
+        """Classic step happens at week 5 (demand = 8), not 4."""
+        from game.models import CustomerDemand
+        session = self._make_scheduled_session('classic')
+        # Simulate 4 weeks already played
+        session.current_week = 4
+        session.save(update_fields=['current_week'])
+        self.client.post(reverse('next_turn', args=[session.id]), {
+            'customer_demand': '1',
+        })
+        demand = CustomerDemand.objects.filter(session=session, week=5).first()
+        self.assertIsNotNone(demand)
+        self.assertEqual(demand.quantity, 8)
+
+    def test_next_turn_manual_mode_uses_form_demand(self):
+        """Manual mode: form value must be used as-is."""
+        from game.models import CustomerDemand
+        session = self._make_scheduled_session(None)
+        self.client.post(reverse('next_turn', args=[session.id]), {
+            'customer_demand': '7',
+        })
+        demand = CustomerDemand.objects.filter(session=session, week=1).first()
+        self.assertIsNotNone(demand)
+        self.assertEqual(demand.quantity, 7)

@@ -126,9 +126,20 @@
     </div>
     <div style="display:flex; align-items:center; gap:.75rem;">
       {% if last_demand %}<span style="font-size:.73rem; color:var(--muted);">Last: <strong style="color:var(--text)">{{ last_demand.quantity }}</strong></span>{% endif %}
-      <input type="number" name="customer_demand" min="0" required
-             placeholder="qty" value="{{ last_demand.quantity|default:4 }}"
-             style="width:110px; font-family:var(--font-mono); font-size:1.15rem; text-align:center;" />
+      {% if scheduled_demand is not None %}
+        {# Demand is driven by the configured schedule — no manual input needed. #}
+        <input type="hidden" name="customer_demand" value="{{ scheduled_demand }}" />
+        <span style="font-family:var(--font-mono); font-size:1.15rem; font-weight:700; color:var(--accent);
+                     background:var(--accent-dim); border:1.5px solid rgba(245,200,66,.35);
+                     border-radius:var(--radius); padding:.25rem .75rem; min-width:110px; text-align:center; display:inline-block;">
+          {{ scheduled_demand }}
+        </span>
+        <span style="font-size:.65rem; color:var(--muted); font-family:var(--font-mono);">auto</span>
+      {% else %}
+        <input type="number" name="customer_demand" min="0" required
+               placeholder="qty" value="{{ last_demand.quantity|default:4 }}"
+               style="width:110px; font-family:var(--font-mono); font-size:1.15rem; text-align:center;" />
+      {% endif %}
     </div>
   </div>
 </div>
