@@ -353,11 +353,20 @@ class GameConsumer(AsyncWebsocketConsumer):
         # Build updated state so client can refresh the board
         state = await self._build_state_for_role(ps.role)
 
-        # Mode 2: include the downstream order quantity so the client
-        # can display it in the order panel for better decision context.
+        # Mode 2: include the most recently placed downstream order quantity so
+        # the client can display it in the order panel — this is the order
+        # the downstream placed this week, arriving at the upstream in ~2 weeks.
         downstream_order_qty = None
         if session.visibility_mode == GameSession.MODE2:
-            downstream_order_qty = ps.pending_order_qty  # incoming demand from downstream
+            incoming_orders = state.get('map', {}).get('incoming_orders_to_me') or []
+            if incoming_orders:
+                # weeks_away = weeks until arrival at this player (decreases each week).
+                # The order with the highest weeks_away was placed most recently by the downstream
+                # and will arrive furthest in the future (i.e. arriving in ~2 weeks).
+                latest = max(incoming_orders, key=lambda o: o.get('weeks_away', 0))
+                downstream_order_qty = latest.get('quantity')
+            else:
+                downstream_order_qty = ps.pending_order_qty  # fallback: just-arrived order
 
         await self.send(text_data=json.dumps({
             'type':                 'phase_order',

@@ -1620,11 +1620,11 @@ body.crit-alert::after {
     {% if visibility_mode == 'mode2' and role != 'retailer' and role != 'customer' %}
     <div id="mode2-downstream-box" style="display:none; background:rgba(59,130,246,.07); border:1px solid rgba(59,130,246,.3); border-radius:8px; padding:.65rem .9rem; margin-bottom:.75rem;">
       <div style="font-size:.62rem; text-transform:uppercase; letter-spacing:.09em; color:var(--wholesaler-color); font-family:var(--font-mono); font-weight:700; margin-bottom:4px;">
-        📋 Mode 2 — Downstream Order This Week
+        📋 Mode 2 — Downstream Order (arriving in 2 weeks)
       </div>
       <div style="display:flex; align-items:center; justify-content:space-between;">
         <span style="font-size:.76rem; color:var(--muted);" id="mode2-downstream-label">
-          {% if role == 'wholesaler' %}{% trans "Retailer" %} ordered:{% elif role == 'distributor' %}{% trans "Wholesaler" %} ordered:{% elif role == 'factory' %}{% trans "Distributor" %} ordered:{% endif %}
+          {% if role == 'wholesaler' %}{% trans "Retailer" %}'s arriving order:{% elif role == 'distributor' %}{% trans "Wholesaler" %}'s arriving order:{% elif role == 'factory' %}{% trans "Distributor" %}'s arriving order:{% endif %}
         </span>
         <span style="font-family:var(--font-mono); font-size:1.3rem; font-weight:800; color:var(--wholesaler-color);" id="mode2-downstream-qty">—</span>
       </div>
@@ -1829,8 +1829,8 @@ body.crit-alert::after {
       <!-- ── ROAD R↔W ───────────────────────────────────────────────────── -->
       <div class="road-seg">
         <div class="road-orders-row">
-          <div class="bgb-slot" id="rt-ord-1" data-tip="Order to {% trans "Wholesaler" %} — arriving now (placed 2 {% trans "weeks" %} ago)"><span class="bgb-v">·</span></div>
-          <div class="bgb-slot" id="rt-ord-2" data-tip="Order to {% trans "Wholesaler" %} — arriving next {% trans "week" %} (placed last {% trans "week" %})"><span class="bgb-v">·</span></div>
+          <div class="bgb-slot" id="rt-ord-1" data-tip="Order to {% trans "Wholesaler" %} — placed last week (arriving next {% trans "week" %})"><span class="bgb-v">·</span></div>
+          <div class="bgb-slot" id="rt-ord-2" data-tip="Order to {% trans "Wholesaler" %} — placed 2 {% trans "weeks" %} ago (arriving now)"><span class="bgb-v">·</span></div>
         </div>
         <div class="road-surface">
           <div class="bgb-slot" id="rt-ship-1" data-tip="Shipment from {% trans "Wholesaler" %} — arriving now (shipped 2 {% trans "weeks" %} ago)"><span class="bgb-v">·</span></div>
@@ -1861,8 +1861,8 @@ body.crit-alert::after {
       <!-- ── ROAD W↔D ───────────────────────────────────────────────────── -->
       <div class="road-seg">
         <div class="road-orders-row">
-          <div class="bgb-slot" id="wh-ord-1" data-tip="Order to {% trans "Distributor" %} — arriving now (placed 2 {% trans "weeks" %} ago)"><span class="bgb-v">·</span></div>
-          <div class="bgb-slot" id="wh-ord-2" data-tip="Order to {% trans "Distributor" %} — arriving next {% trans "week" %} (placed last {% trans "week" %})"><span class="bgb-v">·</span></div>
+          <div class="bgb-slot" id="wh-ord-1" data-tip="Order to {% trans "Distributor" %} — placed last week (arriving next {% trans "week" %})"><span class="bgb-v">·</span></div>
+          <div class="bgb-slot" id="wh-ord-2" data-tip="Order to {% trans "Distributor" %} — placed 2 {% trans "weeks" %} ago (arriving now)"><span class="bgb-v">·</span></div>
         </div>
         <div class="road-surface">
           <div class="bgb-slot" id="wh-ship-1" data-tip="Shipment from {% trans "Distributor" %} — arriving now (shipped 2 {% trans "weeks" %} ago)"><span class="bgb-v">·</span></div>
@@ -1893,8 +1893,8 @@ body.crit-alert::after {
       <!-- ── ROAD D↔F ───────────────────────────────────────────────────── -->
       <div class="road-seg">
         <div class="road-orders-row">
-          <div class="bgb-slot" id="di-ord-1" data-tip="Order to {% trans "Factory" %} — arriving now (placed 2 {% trans "weeks" %} ago)"><span class="bgb-v">·</span></div>
-          <div class="bgb-slot" id="di-ord-2" data-tip="Order to {% trans "Factory" %} — arriving next {% trans "week" %} (placed last {% trans "week" %})"><span class="bgb-v">·</span></div>
+          <div class="bgb-slot" id="di-ord-1" data-tip="Order to {% trans "Factory" %} — placed last week (arriving next {% trans "week" %})"><span class="bgb-v">·</span></div>
+          <div class="bgb-slot" id="di-ord-2" data-tip="Order to {% trans "Factory" %} — placed 2 {% trans "weeks" %} ago (arriving now)"><span class="bgb-v">·</span></div>
         </div>
         <div class="road-surface">
           <div class="bgb-slot" id="di-ship-1" data-tip="Shipment from {% trans "Factory" %} — arriving now (shipped 2 {% trans "weeks" %} ago)"><span class="bgb-v">·</span></div>
@@ -2981,8 +2981,8 @@ function setSlot(id, item, cls) {
 function setSlots(id1, id2, items, cls) {
   const arr = Array.isArray(items) ? items : [];
   if (cls === 'amber') {
-    // Orders go → (right): slot1 (LEFT) = nearest arrival, slot2 (RIGHT) = farther future
-    const sorted = [...arr].sort((a,b) => (a.weeks_away || 0) - (b.weeks_away || 0));
+    // Orders go → (right): slot1 (LEFT) = farther future (just placed), slot2 (RIGHT) = nearest arrival
+    const sorted = [...arr].sort((a,b) => (b.weeks_away || 0) - (a.weeks_away || 0));
     setSlot(id1, sorted[0] || null, cls);
     setSlot(id2, sorted[1] || null, cls);
   } else {
